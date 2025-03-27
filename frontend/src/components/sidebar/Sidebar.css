@@ -1,0 +1,202 @@
+/* Sidebar */
+.sidebar {
+    height: 100vh;
+    width: 70px; /* Set a smaller width when collapsed */
+    transition: width 0.3s ease; /* Smooth transition for width change */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    z-index: 50;
+}
+
+.sidebar.expanded {
+    width: 280px; /* Full width when expanded */
+}
+
+.nav {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Logo Section */
+.logo-section {
+    padding: 1rem;
+    padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo */
+.logo {
+    transition: width 0.3s ease;
+    overflow: hidden;
+}
+
+.logo.expanded {
+    width: 128px; /* Adjust the width of the logo when expanded */
+}
+
+.logo.collapsed {
+    width: 0; /* Hide logo when collapsed */
+}
+
+/* Expand Button */
+.expand-button {
+    padding: 8px;
+    border-radius: 0.5rem;
+    background-color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.5s all;
+}
+
+.expand-button:hover {
+    background-color: #f3f4f6;
+}
+
+.sidebar-header {
+    font-weight: bold;
+    font-size: 24px;
+    display: -webkit-box;
+    /* Mengaktifkan model flexbox untuk teks multiline */
+    -webkit-box-orient: vertical;
+    /* Menentukan orientasi flexbox secara vertikal */
+    -webkit-line-clamp: 1;
+    /* Membatasi hanya 2 baris teks */
+    line-clamp: 1;
+    /* Membatasi hanya 2 baris teks */
+    overflow: hidden;
+}
+
+/* Sidebar Items */
+.sidebar-items {
+    flex: 1;
+    padding: 0 0.75rem;
+    gap: 10px;
+}
+
+.sidebar-spaces {
+    padding: 0 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* User Profile */
+.user-profile {
+    border-top: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.user-profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+}
+
+.user-details {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-details.expanded {
+    width: 208px;
+    margin-left: 0.75rem;
+}
+
+.user-details.collapsed {
+    width: 0;
+}
+
+.user-name, .user-email {
+    margin: 0;
+}
+
+.user-email {
+    font-size: 14px;
+    font-weight: 500;
+    color: grey;
+}
+
+/* Sidebar Item */
+.sidebar-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem 0;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    color: rgb(52, 52, 52);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-item.active {
+    background: linear-gradient(to top right, #0d82ff, #50a5fa);
+    color: white;
+}
+
+.sidebar-item:not(.active):hover {
+    background-color: #d9ebfc;
+}
+
+.item-text {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.item-text.expanded {
+    width: 208px;
+    margin-left: 0.75rem;
+}
+
+.item-text.collapsed {
+    width: 0;
+}
+
+/* Alert (if any) */
+.alert {
+    position: absolute;
+    right: 0.3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: #818cf8;
+}
+
+.alert.collapsed {
+    top: 0.5rem;
+    transform: none;
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    left: calc(100% + 0.5rem);
+    background: linear-gradient(to top right, #0d82ff, #50a5fa);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.sidebar-item:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+}

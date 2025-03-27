@@ -1,0 +1,41 @@
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-text {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 12px 12px 12px 40px; /* Padding kiri lebih besar untuk ikon */
+    font-size: 14px;
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.input-text:disabled {
+    cursor: not-allowed;
+    color: grey;
+}
+
+.input-text:focus {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    color: #949494;
+    pointer-events: none;
+}
+
+.input-wrapper svg {
+    width: 20px;
+    height: 20px;
+}

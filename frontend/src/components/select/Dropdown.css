@@ -1,0 +1,20 @@
+.react-select-container {
+    width: 100%;
+}
+
+.react-select__control {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.react-select__menu {
+    z-index: 100;
+}
+
+.custom-single-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

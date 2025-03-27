@@ -1,0 +1,102 @@
+.settings-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.5s all;
+}
+
+.settings-section:hover {
+    background-color: #ededed;
+}
+
+.settings-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Label dan value tetap sejajar */
+    width: 100%;
+}
+
+.settings-label {
+    text-align: left;
+    color: rgb(87, 87, 87);
+}
+
+.settings-icon {
+    padding-left: 16px; /* Memberikan jarak antara konten dan ikon */
+    color: #213547;
+}
+
+.settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* Background transparan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.settings-modal-container {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.settings-modal-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.settings-input-text {
+    border: 1px solid #dedede;
+    border-radius: 10px;
+    padding: 12px 15px;
+    width: 100px;
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    flex-shrink: 0; 
+}
+
+.settings-input-text:disabled {
+    cursor: not-allowed;
+    color: grey;
+}
+
+.settings-input-text:focus {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.settings-modal-button {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: red;
+    transition: 0.5s all;
+}
+
+.close-button:hover {
+    color: rgb(179, 0, 0);
+}

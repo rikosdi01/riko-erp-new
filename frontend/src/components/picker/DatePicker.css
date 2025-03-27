@@ -1,0 +1,31 @@
+
+
+.date-filter {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.custom-date-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 8px 16px; /* Bisa diatur bebas */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgb(68, 68, 68);
+    font-weight: 500;
+}
+
+.custom-date-input:hover {
+    border-color: #007bff;
+}
+
+.date-filter label {
+    font-weight: 500;
+}

@@ -1,0 +1,10 @@
+.app-container {
+  display: flex;
+  overflow-y: none;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  margin-top: 60px;
+}

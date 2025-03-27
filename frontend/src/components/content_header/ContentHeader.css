@@ -1,0 +1,46 @@
+.content-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    justify-content: center;
+    position: relative;
+}
+
+.back-page {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    font-size: 16px;
+    background-color: #fff;
+    font-weight: normal;
+    cursor: pointer;
+    border: 1px solid transparent; /* Menghindari border berubah */
+    outline: none; /* Mencegah border kuning */
+}
+
+.back-page span {
+    display: flex;
+    align-items: center;
+}
+
+.back-page:hover {
+    border: 1px solid #ddd
+}
+
+.back-page:active {
+    border: 1px solid #ddd
+}
+
+.back-page:focus {
+    outline: none; /* Mencegah efek fokus browser */
+    border: 1px solid #ddd; /* Opsional: jika ingin ada border saat fokus */
+}
+
+.content-title {
+    font-size: 24px;
+    font-weight: 600;
+}

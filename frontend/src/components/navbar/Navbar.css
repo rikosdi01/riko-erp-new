@@ -1,0 +1,50 @@
+.navbar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px 10px 90px;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.navbar-title {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.navbar-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-text {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 8px 0 8px 40px; /* Padding kiri lebih besar untuk ikon */
+    font-size: 14px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.search-text:focus {
+    border-color: #007bff;
+    box-shadow: 0 1px 4px rgba(0, 123, 255, 0.3);
+}
+
+.icon-search {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9b9b9b;
+    pointer-events: none;
+}

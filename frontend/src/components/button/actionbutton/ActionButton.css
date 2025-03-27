@@ -1,0 +1,22 @@
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(to top right, #0d82ff, #50a5fa);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.action-button span {
+    display: flex;
+    align-items: center;
+}
+
+.action-button:hover {
+    background: linear-gradient(to top right, #057efe, #3c9cfc);
+    /* transform: translateY(0.5px); */
+}

@@ -1,0 +1,32 @@
+.settings-container {
+    margin: auto;
+    max-width: 800px;
+}
+
+.settings-bar {
+    height: 80vh;
+    width: 250px;
+    border-right: 1px solid #e0e0e0;
+}
+
+.settings-logout {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.button-logout {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: none;
+    padding: 10px 30px;
+    color: #5d5d5d;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.5s all;
+}
+
+.button-logout:hover {
+    background: #f5f5f5;
+}
