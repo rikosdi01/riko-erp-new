@@ -1,4 +1,4 @@
-import InputField from '../InputField/InputField';
+import InputField from '../input_field/InputField';
 import './InputLabel.css'
 import React from "react";
 

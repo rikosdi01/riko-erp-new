@@ -1,117 +1,121 @@
 /* Tambahkan container untuk stacking */
 .toast-provider-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 15px;
-    z-index: 9999;
-  }
-  
-  /* Hapus position fixed dari toastContainer */
-  .toastContainer {
-    background: white;
-    width: 300px;
-    display: flex;
-    padding: 20px;
-    height: auto;
-    border-radius: 15px;
-    align-items: center;
-    gap: 15px;   
-    transition: all 2s cubic-bezier(0.68, -0.55, 0.265, 1.35);
-    border: 0.5px solid var(--mainColor);
-    overflow: hidden; 
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  
-  .toastContainer.active {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  
-  .toastContainer::before {
-    content: '';
-    height: 100%;
-    width: 6px;
-    background: var(--mainColor);
-    position: absolute;
-    left: 0px;
-  }
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 15px;
+  z-index: 9999;
+}
 
-.toastContainer .message{
-    display: flex;
-    flex-direction: column;
+/* Hapus position fixed dari toastContainer */
+.toastContainer {
+  background: white;
+  width: 300px;
+  display: flex;
+  padding: 20px;
+  height: auto;
+  border-radius: 15px;
+  align-items: center;
+  gap: 15px;
+  transition: all 2s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+  border: 0.5px solid var(--mainColor);
+  overflow: hidden;
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.toastContainer.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toastContainer::before {
+  content: '';
+  height: 100%;
+  width: 6px;
+  background: var(--mainColor);
+  position: absolute;
+  left: 0px;
+}
+
+.toastContainer .message {
+  display: flex;
+  flex-direction: column;
 
 }
 
-.toastContainer .message .head{
-    font-weight: 700;
-    font-size: 16px;
+.toastContainer .message .head {
+  font-weight: 700;
+  font-size: 14px;
 }
 
-.toastContainer .message .saved{
-    color: gray;
-    font-size: 12px;
-    font-weight: 400;
+.toastContainer .message .saved {
+  color: gray;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 
 .toastContainer .icon {
-    font-size: 25px;
-    background: var(--mainColor);
-    padding: 10px;
-    border-radius: 14px;
-    width: 30px;
-    height: 30px;
-    
-    color: white;
-    font-size: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
+  font-size: 25px;
+  background: var(--mainColor);
+  padding: 10px;
+  border-radius: 14px;
+  width: 30px;
+  height: 30px;
+
+  color: white;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
 }
 
 
 .toastContainer .closeBtn {
-    color: gray;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;  /* Perbesar area klik */
-    height: 30px;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0; /* Hapus padding agar tidak memperbesar button */
-    border-radius: 50%;
-    transition: 0.3s all ease-in-out;
-    background: transparent; /* Hindari warna latar */
-    border: none; /* Hapus border */
-    outline: none;
+  color: gray;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  /* Perbesar area klik */
+  height: 30px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  /* Hapus padding agar tidak memperbesar button */
+  border-radius: 50%;
+  transition: 0.3s all ease-in-out;
+  background: transparent;
+  /* Hindari warna latar */
+  border: none;
+  /* Hapus border */
+  outline: none;
 }
 
 .toastContainer .closeBtn:hover {
-    background-color: rgba(237, 237, 237, 0.8);
+  background-color: rgba(237, 237, 237, 0.8);
 }
 
-.showToast{
-    width: 300px;
-    height: 55px;
-    border-radius: 7px;
-    background: rgb(71, 71, 71);
-    color: white;
-    font-size: 15px;
-    box-shadow: 0 5px 5px rgb(0, 0, 0,0.1);
-    border: none;
-    cursor: pointer;
-    opacity: 0.9;
-    position: absolute;
-    top: 50%;
-    left: 34%;
-    
+.showToast {
+  width: 300px;
+  height: 55px;
+  border-radius: 7px;
+  background: rgb(71, 71, 71);
+  color: white;
+  font-size: 15px;
+  box-shadow: 0 5px 5px rgb(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  opacity: 0.9;
+  position: absolute;
+  top: 50%;
+  left: 34%;
+
 }

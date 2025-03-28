@@ -16,7 +16,7 @@ const ConfirmationModal = ({ isOpen, onClose, onclick, title }) => {
                         type="button"
                         title="Batal"
                         onclick={onClose}
-                        background="rgb(227, 208, 84)"
+                        background="linear-gradient(to top right,rgb(226, 229, 87),rgb(238, 241, 51))"
                         color="#9C5700"
                         padding='10px 30px'
                     />
@@ -27,7 +27,8 @@ const ConfirmationModal = ({ isOpen, onClose, onclick, title }) => {
                             onclick();
                             onClose();
                         }}
-                        background="#F44336"
+                        background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
+                        color="white"
                         padding='10px 30px'
                     />
                 </div>

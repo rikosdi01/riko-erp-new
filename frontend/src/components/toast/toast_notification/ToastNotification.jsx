@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import './toastnotification.css';
+import './ToastNotification.css';
 import { Check, TriangleAlert, X } from 'lucide-react';
 
 function ToastNotification({ variant = 'berhasil', message, duration = 5000, onClose }) {

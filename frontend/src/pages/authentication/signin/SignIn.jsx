@@ -40,13 +40,31 @@ const SignIn = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        
+        e.preventDefault(); 
+        let valid = true;
+
+        // Validasi email
+        if (!email.trim()) {
+            setEmailError("Email tidak boleh kosong.");
+            valid = false;
+        } else if (!validateEmail(email)) {
+            setEmailError("Format email tidak valid.");
+            valid = false;
+        }
+
+        // Validasi password
+        if (!password.trim()) {
+            setPasswordError("Password tidak boleh kosong.");
+            valid = false;
+        }
+
+        if (!valid) return;
+
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             const accessToken = await user.getIdToken();
-    
+
             // Kirim token ke backend untuk mendapatkan refresh token
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
                 method: "POST",
@@ -54,10 +72,10 @@ const SignIn = () => {
                 body: JSON.stringify({ idToken: accessToken }),
                 credentials: "include", // ⬅️ Simpan refreshToken di cookie
             });
-    
+
             const data = await response.json();
             if (!response.ok) throw new Error(data.message);
-    
+
             dispatch({
                 type: "LOGIN",
                 payload: {
@@ -66,9 +84,19 @@ const SignIn = () => {
                     accessToken: data.accessToken,
                 },
             });
-    
-            navigate("/");
+
+            // Jika Remember Me dicentang, simpan email ke cookies
+            if (rememberMe) {
+                Cookies.set("email", email, { expires: 30 }); // Menyimpan email di cookies selama 30 hari
+            } else {
+                Cookies.remove("email"); // Hapus cookie jika Remember Me tidak dicentang
+            }
+
+            showToast("success", "Login Berhasil!");
+            navigate("/dashboard");
         } catch (error) {
+            setPasswordError("Login gagal. Periksa kembali email dan password Anda.");
+            showToast("gagal", "Login Gagal!");
             console.error("Login gagal:", error);
         }
     };
