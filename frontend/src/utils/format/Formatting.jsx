@@ -4,6 +4,11 @@ import { Timestamp } from "firebase/firestore";
 import React from "react";
 
 export default class Formatting {
+    static getCurrentDateTime = () => {
+        const now = new Date();
+        return now.toISOString().slice(0, 16); // Format sesuai datetime-local (YYYY-MM-DDTHH:MM)
+    };
+
     static formatDate = (timestamp) => {
         const date = new Date(timestamp.seconds * 1000);
         return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
@@ -338,4 +343,25 @@ export default class Formatting {
         const firestoreTimestamp = Timestamp.fromDate(new Date(isoDateString)); // Convert to Firestore Timestamp
         setEntryDate(firestoreTimestamp); // Simpan sebagai Firestore Timestamp
     };
+
+    static isSearchMatch = (text, query) => {
+        if (!text || !query) return false;
+
+        const words = text.toLowerCase().split(/\s+/); // Pisahkan berdasarkan spasi
+        const queryWords = query.toLowerCase().split(/\s+/); // Pisahkan input search berdasarkan spasi
+
+        let wordIndex = 0;
+
+        return queryWords.every(qw => {
+            const found = words.slice(wordIndex).some((word, i) => {
+                if (word.startsWith(qw)) {
+                    wordIndex += i + 1; // Lompat ke indeks setelah yang cocok
+                    return true;
+                }
+                return false;
+            });
+            return found;
+        });
+    };
+
 }

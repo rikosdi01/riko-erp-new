@@ -1,4 +1,4 @@
-import { BadgeCheckIcon, ClipboardEdit, Computer, HandCoins, LayoutDashboard, LayoutGrid, NotebookPen, PackageMinus, PiggyBank, Receipt, Settings, Store, Truck, Users, UsersRound, Warehouse } from "lucide-react";
+import { Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import React from "react";
 
@@ -17,22 +17,12 @@ const SidebarPages = () => {
                 subItems={[
                     {
                         text: "Pesanan Penjualan",
-                        to: "/sales/so",
+                        to: "/sales/sales-order",
                         icon: <NotebookPen size={20}/>
                     },
                     {
-                        text: "Pengiriman Pesanan",
-                        to: "/sales/do",
-                        icon: <Truck size={20}/>
-                    },
-                    {
-                        text: "Faktur Penjualan",
-                        to: "/sales/invoice",
-                        icon: <Receipt size={20}/>
-                    },
-                    {
                         text: "Retur Penjualan",
-                        to: "/sales/returns",
+                        to: "/sales/return-order",
                         icon: <PackageMinus size={20}/>
                     },
                     { type: "divider" }, // Tambahkan divider di sini
@@ -55,35 +45,79 @@ const SidebarPages = () => {
             />
             <SidebarItem
                 icon={<Warehouse size={20} />}
-                text="Gudang"
-                to="/warehouse"
+                text="Inventaris"
+                to="/inventory"
                 subItems={[
                     {
+                        text: "Penyimpanan Stok",
+                        to: "/inventory/storage",
+                        icon: <Backpack size={20}/>
+                    },
+                    {
+                        text: "Penyesuaian Stok",
+                        to: "/inventory/adjustment",
+                        icon: <FilePlus2 size={20}/>
+                    },
+                    {
+                        text: "Pemindahan Stok",
+                        to: "/inventory/transfer",
+                        icon: <SendToBack size={20}/>
+                    },
+                    { type: "divider" }, // Tambahkan divider di sini
+                    {
                         text: "Merek",
-                        to: "/warehouse/merks",
+                        to: "/inventory/merks",
                         icon: <BadgeCheckIcon size={20}/>
                     },
                     {
                         text: "Kategori",
-                        to: "/warehouse/categories",
+                        to: "/inventory/categories",
                         icon: <LayoutGrid size={20}/>
                     },
                     {
                         text: "Item",
-                        to: "/warehouse/items",
+                        to: "/inventory/items",
                         icon: <Computer size={20}/>
                     },
                 ]}
             />
             <SidebarItem
-                icon={<PiggyBank size={20} />}
-                text="Simpanan"
-                to="/saving"  // Mengarah ke halaman Kategori
-            />
-            <SidebarItem
-                icon={<HandCoins size={20} />}
-                text="Pinjaman"
-                to="/loan"  // Mengarah ke halaman Kategori
+                icon={<Package size={20} />}
+                text="Logistik"
+                to="/logistic"
+                subItems={[
+                    {
+                        text: "Pengiriman Pesanan",
+                        to: "/logistic/delivery-order",
+                        icon: <Truck size={20}/>
+                    },
+                    {
+                        text: "Faktur Pesanan",
+                        to: "/logistic/invoice-order",
+                        icon: <Receipt size={20}/>
+                    },
+                    {
+                        text: "Pelacakan Pesanan",
+                        to: "/logistic/tracking-orders",
+                        icon: <Locate size={20}/>
+                    },
+                    { type: "divider" }, // Tambahkan divider di sini
+                    {
+                        text: "Kurir",
+                        to: "/logistic/couriers",
+                        icon: <UserCog size={20}/>
+                    },
+                    {
+                        text: "Pengangkutan",
+                        to: "/logistic/express",
+                        icon: <Ship size={20}/>
+                    },
+                    {
+                        text: "Routes",
+                        to: "/logistic/routes",
+                        icon: <Map size={20}/>
+                    },
+                ]}
             />
             <hr />
             <SidebarItem

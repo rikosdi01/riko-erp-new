@@ -8,6 +8,7 @@ import IconButton from '../../../../components/button/icon_button/IconButton';
 import Table from '../../../../components/table/Table';
 import { useState } from 'react';
 import { useSalesOrder } from '../../../../context/sales/SalesOrderContext';
+import Formatting from '../../../../utils/format/Formatting';
 
 const SalesOrder = () => {
     const navigate = useNavigate();
@@ -31,26 +32,36 @@ const SalesOrder = () => {
     };
 
     const navigateToCreateMerk = () => {
-        navigate('/warehouse/salesOrder/new');
+        navigate('/sales/sales-order/new');
     }
 
     const navigateToDetailMerk = (id) => {
-        navigate(`/warehouse/salesOrder/${id}`);
+        navigate(`/sales/sales-order/${id}`);
     }
 
     const columns = [
         { header: "No. Pesanan", accessor: "code" },
-        { header: "Tanggal", accessor: "date" },
-        { header: "Nama Pelanggan", accessor: "customer" },
-        { header: "Status", accessor: "status"}
+        {
+            header: "Tanggal",
+            accessor: "createdAt",
+            renderCell: (value) => Formatting.formatDate(value),
+        },
+        { header: "Nama Pelanggan", accessor: "customerName" },
+        { header: "Keterangan", accessor: "description" },
+        {
+            header: "Harga",
+            accessor: "price",
+            renderCell: (value) => Formatting.formatCurrencyIDR(value),
+        },
+        { header: "Status", accessor: "status" }
     ]
 
     return (
         <div className="main-container">
             <div className="main-container-header">
-                <SearchValue label="merek" />
+                <SearchValue label="pesanan" />
 
-                <FilterValue placeholder={"Semua Kategori"} />
+                <FilterValue placeholder={"Semua Status"} />
 
                 {/* Import */}
                 <IconButton

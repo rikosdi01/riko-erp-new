@@ -193,6 +193,7 @@
     transform: translateX(-10px);
     transition: all 0.2s ease;
     z-index: 100;
+    white-space: nowrap;
 }
 
 /* Tampilkan tooltip saat hover */
@@ -249,6 +250,9 @@
 
 .sub-menu {
     transition: 0.5s all;
+    background-color: #e9ebee;
+    padding: 5px 10px;
+    border-radius: 10px;
 }
 
 .sub-menu.collapsed {

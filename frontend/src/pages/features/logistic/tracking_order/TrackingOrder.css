@@ -1,0 +1,187 @@
+.tracking-container {
+    display: flex;
+    height: 100%;
+    margin: -20px;
+}
+
+.tracking-panel {
+    width: 300px;
+    padding: 20px;
+    border-right: 2px solid #efefef;
+    margin-bottom: -40px;
+}
+
+.tracking-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 15px 8px 36px;
+    border: 1px solid #e6e6e6;
+    border-radius: 15px;
+    font-size: 14px;
+    background-color: #f1f1f1;
+    outline: none;
+    color: #8f8f8f;
+}
+
+.tracking-search::placeholder {
+    color: #8f8f8f;
+}
+
+.order-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.order-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin: 10px 0;
+    transition: background 0.3s;
+    overflow: hidden;
+}
+
+.order-item.active {
+    border: 2px solid #0d82ff; /* Warna biru untuk order yang dipilih */
+    background-color: #e6f0ff; /* Warna latar belakang lebih terang */
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+.order-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.order-info-icon {
+    color:#a79e9e;
+}
+
+.order-info div {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-info-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.order-info-status {
+    font-size: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 5px 8px;
+}
+
+.status-completed {
+    background-color: #4CAF50; /* Hijau */
+    color: white;
+}
+
+.status-shipped {
+    background-color: #FFC107; /* Kuning */
+    color: rgb(149, 135, 48);
+}
+
+.status-pending {
+    background-color: #B0BEC5; /* Abu-abu */
+    color: white;
+}
+
+.order-info-title {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+}
+
+.order-info-value {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.order-item:hover:not(.active) {
+    background: #f4f4f4;
+}
+
+.tracking-details {
+    padding: 10px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    transition: max-height 0.3s ease-in-out;
+}
+
+/* Tampilan tracking step */
+.tracking-step {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+    font-size: 14px;
+}
+
+/* Radio button di kiri */
+.tracking-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.tracking-radio {
+    color: #bbb;
+}
+
+.tracking-radio.completed {
+    color: #0d82ff; /* Hijau jika selesai */
+}
+
+/* Garis penghubung antar status */
+.tracking-line {
+    width: 2px;
+    height: 40px;
+    background: #bbb;
+    margin-top: -2px;
+}
+
+/* Jika step completed, warna garisnya hijau */
+.tracking-radio.completed + .tracking-line {
+    background: #0d82ff;
+}
+
+/* Info tanggal dan status */
+.tracking-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.tracking-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.tracking-status {
+    font-weight: 500;
+}
+
+/* Icon dropdown animasi */
+.dropdown-icon {
+    transition: transform 0.3s;
+}
+
+.dropdown-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.tracking-map {
+    flex: 1;
+    margin-bottom: -40px;
+}

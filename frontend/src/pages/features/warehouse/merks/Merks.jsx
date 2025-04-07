@@ -4,7 +4,6 @@ import { Tooltip } from "react-tooltip";
 import { useNavigate } from "react-router-dom";
 import { useMerks } from '../../../../context/warehouse/MerkContext';
 import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
 import IconButton from '../../../../components/button/icon_button/IconButton';
 import Table from '../../../../components/table/Table';
 import { useState } from 'react';
@@ -13,6 +12,7 @@ const Merks = () => {
     const navigate = useNavigate();
     const { merks, isLoading } = useMerks();
     const [selectedItems, setSelectedItems] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>
@@ -31,12 +31,18 @@ const Merks = () => {
     };
 
     const navigateToCreateMerk = () => {
-        navigate('/warehouse/merks/new');
+        navigate('/inventory/merks/new');
     }
 
     const navigateToDetailMerk = (id) => {
-        navigate(`/warehouse/merks/${id}`);
+        navigate(`/inventory/merks/${id}`);
     }
+
+    // **Filter data berdasarkan nilai pencarian**
+    const filteredMerks = merks.filter(merk =>
+        merk.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        merk.code.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const columns = [
         { header: "Kode Merek", accessor: "code" },
@@ -46,9 +52,10 @@ const Merks = () => {
     return (
         <div className="main-container">
             <div className="main-container-header">
-                <SearchValue label="merek" />
-
-                <FilterValue placeholder={"Semua Kategori"} />
+                <SearchValue
+                    label="merek"
+                    onSearchChange={setSearchTerm}
+                />
 
                 {/* Import */}
                 <IconButton
@@ -74,7 +81,7 @@ const Merks = () => {
 
             <Table
                 columns={columns}
-                data={merks}
+                data={filteredMerks}
                 isLoading={isLoading}
                 selectedItems={selectedItems}
                 onCheckboxChange={handleCheckboxChange}

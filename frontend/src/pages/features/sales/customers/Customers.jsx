@@ -31,11 +31,11 @@ const Customers = () => {
     };
 
     const navigateToCreateMerk = () => {
-        navigate('/warehouse/customers/new');
+        navigate('/sales/customers/new');
     }
 
     const navigateToDetailMerk = (id) => {
-        navigate(`/warehouse/customers/${id}`);
+        navigate(`/sales/customers/${id}`);
     }
 
     const columns = [
@@ -48,9 +48,7 @@ const Customers = () => {
     return (
         <div className="main-container">
             <div className="main-container-header">
-                <SearchValue label="merek" />
-
-                <FilterValue placeholder={"Semua Kategori"} />
+                <SearchValue label="pelanggan" />
 
                 {/* Import */}
                 <IconButton

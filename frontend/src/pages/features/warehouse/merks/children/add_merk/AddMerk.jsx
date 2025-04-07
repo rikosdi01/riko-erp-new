@@ -79,7 +79,7 @@ const AddMerk = () => {
             <div className='add-merk-input'>
                 <InputLabel
                     label="Kode Merek"
-                    icon={<KeyRound className='input-icon' />}
+                    icon={<KeyRound className='input-icon' size={20}/>}
                     value={code}
                     onChange={handleCodeChange}
                 />
@@ -89,7 +89,7 @@ const AddMerk = () => {
             <div className='add-merk-input'>
                 <InputLabel
                     label="Nama Merek"
-                    icon={<PackagePlus className='input-icon' />}
+                    icon={<PackagePlus className='input-icon' size={20}/>}
                     value={name}
                     onChange={handleNameChange}
                 />

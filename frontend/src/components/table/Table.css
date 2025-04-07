@@ -2,6 +2,8 @@
     margin-top: 15px;
     border: 1px solid #ededed;
     border-radius: 5px;
+    height: 520px;
+    position: relative;
 }
 
 table {
@@ -20,6 +22,7 @@ thead {
 
 th {
     font-weight: 600;
+    position: relative;
 }
 
 th,
@@ -57,6 +60,77 @@ tbody tr:last-child td {
     align-items: center; /* Pusatkan teks dan ikon secara vertikal */
     justify-content: center; /* Pusatkan konten */
     gap: 5px; /* Beri jarak antara teks dan ikon */
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+    gap: 10px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%); /* Ini akan benar-benar memusatkan elemen */
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #0d82ff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.pagination button:disabled {
+    background-color: #b0c4de;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: 600;
+}
+
+.pagination select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.items-per-page {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.items-per-page span {
+    font-weight: 500;
+}
+
+.filter-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* Ini akan benar-benar memusatkan elemen */
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.filter-btn:hover {
+    color: #007bff;
+}
+
+th:nth-child(3) {
+    width: 250px;
 }
 
 /* Responsif untuk tampilan mobile */

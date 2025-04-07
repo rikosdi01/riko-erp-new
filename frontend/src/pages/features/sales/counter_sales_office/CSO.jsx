@@ -31,11 +31,11 @@ const CSO = () => {
     };
 
     const navigateToCreateMerk = () => {
-        navigate('/warehouse/cso/new');
+        navigate('/sales/cso/new');
     }
 
     const navigateToDetailMerk = (id) => {
-        navigate(`/warehouse/cso/${id}`);
+        navigate(`/sales/cso/${id}`);
     }
 
     const columns = [
@@ -47,9 +47,7 @@ const CSO = () => {
     return (
         <div className="main-container">
             <div className="main-container-header">
-                <SearchValue label="merek" />
-
-                <FilterValue placeholder={"Semua Kategori"} />
+                <SearchValue label="CSO" />
 
                 {/* Import */}
                 <IconButton

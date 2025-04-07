@@ -16,6 +16,7 @@ const IconButton = ({
             style={{
                 background: background,
                 color: color,
+                padding: "10px 10px",
             }}
         >
             {icon}

@@ -7,7 +7,7 @@ export default class SalesOrderRepository {
             // Query Firestore untuk mengurutkan berdasarkan 'name'
             const salesOrderQuery = query(
                 collection(db, "SalesOrder"),
-                orderBy("name")
+                orderBy("createdAt")
             );
 
             return onSnapshot(salesOrderQuery, (querySnapshot) => {

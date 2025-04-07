@@ -8,11 +8,13 @@ import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
 import IconButton from '../../../../components/button/icon_button/IconButton';
 import Table from '../../../../components/table/Table';
 import { useState } from 'react';
+import Formatting from '../../../../utils/format/Formatting';
 
 const Categories = () => {
     const navigate = useNavigate();
     const { categories, isLoading } = useCategories();
     const [selectedItems, setSelectedItems] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>
@@ -31,12 +33,19 @@ const Categories = () => {
     };
 
     const navigateToCreateCategory = () => {
-        navigate('/warehouse/categories/new');
+        navigate('/inventory/categories/new');
     }
 
     const navigateToDetailsCategory = (id) => {
-        navigate(`/warehouse/categories/${id}`);
+        navigate(`/inventory/categories/${id}`);
     }
+
+    // **Filter data berdasarkan nilai pencarian**
+    // const filteredCategories = categories.filter(category =>
+    //     Formatting.isSearchMatch(category.name, searchTerm) ||
+    //     Formatting.isSearchMatch(category.code, searchTerm) ||
+    //     Formatting.isSearchMatch(category.merkName, searchTerm)
+    // );
 
     const columns = [
         { header: "Kode Kategori", accessor: "code" },
@@ -47,9 +56,10 @@ const Categories = () => {
     return (
         <div className="main-container">
             <div className="main-container-header">
-                <SearchValue label="kategori" />
-
-                <FilterValue placeholder={"Semua Merek"} />
+                <SearchValue
+                    label="kategori"
+                    onSearchChange={setSearchTerm}
+                />
 
                 {/* Import */}
                 <IconButton

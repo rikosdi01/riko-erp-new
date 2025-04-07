@@ -14,6 +14,7 @@ const Items = () => {
     const navigate = useNavigate();
     const { items, isLoading } = useItems();
     const [selectedItems, setSelectedItems] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>
@@ -32,12 +33,20 @@ const Items = () => {
     };
 
     const navigateToCreateCategory = () => {
-        navigate('/warehouse/items/new');
+        navigate('/inventory/items/new');
     }
 
     const navigateToDetailsCategory = (id) => {
-        navigate(`/warehouse/items/${id}`);
+        navigate(`/inventory/items/${id}`);
     }
+
+    // **Filter data berdasarkan nilai pencarian**
+    const filteredItems = items.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
 
     const columns = [
         { header: "Kode Item", accessor: "code" },
@@ -55,9 +64,10 @@ const Items = () => {
     return (
         <div className="main-container">
             <div className="main-container-header">
-                <SearchValue label="merek" />
-
-                <FilterValue placeholder={"Semua Kategori"} />
+                <SearchValue
+                    label="item"
+                    onSearchChange={setSearchTerm}
+                />
 
                 {/* Import */}
                 <IconButton
@@ -83,7 +93,7 @@ const Items = () => {
 
             <Table
                 columns={columns}
-                data={items}
+                data={filteredItems}
                 isLoading={isLoading}
                 selectedItems={selectedItems}
                 onCheckboxChange={handleCheckboxChange}

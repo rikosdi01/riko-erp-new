@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import './ContentHeader.css'
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import React from "react";
 
-const ContentHeader = ({ title }) => {
+const ContentHeader = ({ title, enablePrint = false }) => {
     const navigate = useNavigate();
 
     const handleBackPage = () => {
@@ -17,6 +17,13 @@ const ContentHeader = ({ title }) => {
                 Kembali
             </button>
             <div className='content-title'>{title}</div>
+            
+            {enablePrint && (
+                <button className="print-page">
+                    <span><Printer size={20} /></span>
+                    Cetak
+                </button>
+            )}
         </div>
     )
 }

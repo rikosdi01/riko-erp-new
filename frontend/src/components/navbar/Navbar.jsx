@@ -12,7 +12,7 @@ const Navbar = () => {
                 <Search className='icon-search' size={18} />
                 <input
                     type="text"
-                    placeholder="Cari Karyawan..."
+                    placeholder="Cari..."
                     className='search-text'
                 />
             </div>

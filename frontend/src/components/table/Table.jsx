@@ -1,8 +1,8 @@
 import { useState } from "react";
 import ActionButton from "../button/actionbutton/ActionButton";
 import ConfirmationModal from "../modal/confirmation_modal/ConfirmationModal";
-import { Edit, Trash2 } from "lucide-react";
-import './Table.css'
+import { Edit, Trash2, Filter } from "lucide-react"; // Import ikon Filter
+import "./Table.css";
 import React from "react";
 
 const Table = ({
@@ -16,11 +16,15 @@ const Table = ({
     title,
     enableCheckbox = true,
     onclick,
+    onFilterClick, // Tambahkan fungsi untuk menangani filter
 }) => {
-    // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
-    console.log(data);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(8);
 
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentData = data.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className='table-wrapper'>
@@ -37,7 +41,17 @@ const Table = ({
                             </th>
                         )}
                         {columns.map((col, index) => (
-                            <th key={index}>{col.header}</th>
+                            <th key={index}>
+                                <div className="table-header">
+                                    {col.header}
+                                    <button
+                                        className="filter-btn"
+                                        onClick={() => onFilterClick(col.accessor)}
+                                    >
+                                        <Filter size={16} />
+                                    </button>
+                                </div>
+                            </th>
                         ))}
                     </tr>
                 </thead>
@@ -49,17 +63,15 @@ const Table = ({
                             </td>
                         </tr>
                     ) : (
-                        data.length > 0 ? (
-                            data.map((item) => (
+                        currentData.length > 0 ? (
+                            currentData.map((item) => (
                                 <tr key={item.id} onClick={() => onclick(item.id)}>
                                     {enableCheckbox && (
                                         <td>
                                             <input
                                                 type="checkbox"
                                                 checked={selectedItems.includes(item.id)}
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Seharusnya mencegah event onClick <tr>
-                                                }}
+                                                onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => {
                                                     e.stopPropagation();
                                                     onCheckboxChange(item.id);
@@ -81,7 +93,6 @@ const Table = ({
                                                     : item[col.accessor])}
                                         </td>
                                     ))}
-
                                 </tr>
                             ))
                         ) : (
@@ -95,24 +106,40 @@ const Table = ({
                 </tbody>
             </table>
 
+            {/* Pagination */}
+            <div className="pagination">
+                <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+                    &laquo; Prev
+                </button>
+                <span>Hal. {currentPage} | {totalPages}</span>
+                <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                    Next &raquo;
+                </button>
+
+                <div className="items-per-page">
+                    <select value={itemsPerPage} onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                    }}>
+                        <option value={8}>8</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                    <span> per halaman</span>
+                </div>
+            </div>
+
             {selectedItems.length > 0 && (
                 <div className="selected-employee">
                     <p>{selectedItems.length} {title} dipilih</p>
                     <div className='selected-button-employee'>
-                        {/* <ActionButton
-                            icon={<Edit size={16} />}
-                            title="Ubah Status"
-                            background="rgb(227, 208, 84)"
-                            color="#9C5700"
-                            padding=" 10px 18px"
-                            fontSize='14px'
-                        /> */}
                         <ActionButton
                             icon={<Trash2 size={16} />}
                             title="Hapus"
                             background="rgb(255, 35, 35)"
                             color="#fff"
-                            padding=" 10px 18px"
+                            padding="10px 18px"
                             fontSize='14px'
                             onclick={() => setIsModalOpen(true)}
                         />
@@ -121,14 +148,12 @@ const Table = ({
             )}
 
             {/* Modal Konfirmasi Hapus */}
-            <div>
-                <ConfirmationModal
-                    title={title}
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onclick={handleDeleteItems}
-                />
-            </div>
+            <ConfirmationModal
+                title={title}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onclick={handleDeleteItems}
+            />
         </div>
     );
 };

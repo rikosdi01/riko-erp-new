@@ -13,10 +13,13 @@
     "date-fns": "^4.1.0",
     "firebase": "^11.5.0",
     "js-cookie": "^3.0.5",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.484.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.4.0",
+    "react-select": "^5.10.1",
     "react-tooltip": "^5.28.0",
     "recharts": "^2.15.1"
   },

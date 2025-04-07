@@ -1,0 +1,36 @@
+.add-merk-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 50px;
+}
+
+.add-merk-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.error-message {
+    margin-top: -10px;
+    padding-left: 10px;
+}
+
+.add-customer-sales-section {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.add-customer-sales-section svg {
+    align-items: center;
+    display: flex;
+    color: red;
+}
+
+.selected-salesman-customer {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}

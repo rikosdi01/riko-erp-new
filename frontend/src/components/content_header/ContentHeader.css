@@ -44,3 +44,37 @@
     font-size: 24px;
     font-weight: 600;
 }
+
+.print-page {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #e4e4e4;
+    border: 1px solid #040404;
+    font-weight: normal;
+    cursor: pointer;
+    outline: none; /* Mencegah border kuning */
+}
+
+.print-page span {
+    display: flex;
+    align-items: center;
+}
+
+.print-page:hover {
+    border: 1px solid #ddd
+}
+
+.print-page:active {
+    border: 1px solid #ddd
+}
+
+.print-page:focus {
+    outline: none; /* Mencegah efek fokus browser */
+    border: 1px solid #ddd; /* Opsional: jika ingin ada border saat fokus */
+}
