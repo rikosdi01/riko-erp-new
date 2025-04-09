@@ -1,4 +1,4 @@
-import { Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
+import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import React from "react";
 
@@ -15,6 +15,11 @@ const SidebarPages = () => {
                 text="Penjualan"
                 to="/sales"
                 subItems={[
+                    {
+                        text: "Dashboard",
+                        to: "/sales/sales-dashboard",
+                        icon: <Activity size={20}/>
+                    },
                     {
                         text: "Pesanan Penjualan",
                         to: "/sales/sales-order",
@@ -48,6 +53,11 @@ const SidebarPages = () => {
                 text="Inventaris"
                 to="/inventory"
                 subItems={[
+                    {
+                        text: "Dashboard",
+                        to: "/inventory/inventory-dashboard",
+                        icon: <Activity size={20}/>
+                    },
                     {
                         text: "Penyimpanan Stok",
                         to: "/inventory/storage",
@@ -87,6 +97,11 @@ const SidebarPages = () => {
                 to="/logistic"
                 subItems={[
                     {
+                        text: "Dashboard",
+                        to: "/logistic/logistic-dashboard",
+                        icon: <Activity size={20}/>
+                    },
+                    {
                         text: "Pengiriman Pesanan",
                         to: "/logistic/delivery-order",
                         icon: <Truck size={20}/>
@@ -113,7 +128,7 @@ const SidebarPages = () => {
                         icon: <Ship size={20}/>
                     },
                     {
-                        text: "Routes",
+                        text: "Rute",
                         to: "/logistic/routes",
                         icon: <Map size={20}/>
                     },

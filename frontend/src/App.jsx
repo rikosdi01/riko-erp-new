@@ -66,6 +66,9 @@ import AddCourier from "./pages/features/logistic/courier/children/add_courier/A
 import DetailCourier from "./pages/features/logistic/courier/children/detail_courier/DetailCourier";
 import AddExpress from "./pages/features/logistic/express/children/add_express/AddExpress";
 import DetailExpress from "./pages/features/logistic/express/children/detail_express/DetailExpress";
+import SalesDashboard from "./pages/features/sales/sales_dashboard/SalesDashboard";
+import LogisticDashboard from "./pages/features/logistic/logistic_dashboard/LogisticDashboard";
+import InventoryDashboard from "./pages/features/warehouse/inventory_dashboard/InventoryDashboard";
 
 function AppContent() {
   const location = useLocation();
@@ -92,6 +95,9 @@ function AppContent() {
 
           {/* Sales */}
           <Route path="/sales" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
+
+          {/* Dashboard */}
+          <Route path="/sales/sales-dashboard" element={<ProtectedRoute><SalesDashboard /></ProtectedRoute>} />
 
           {/* SO */}
           <Route path="/sales/sales-order" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
@@ -124,6 +130,9 @@ function AppContent() {
           {/* Logistic */}
           <Route path="/logistic" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
 
+          {/* Dashboard */}
+          <Route path="/logistic/logistic-dashboard" element={<ProtectedRoute><LogisticDashboard /></ProtectedRoute>} />
+
           {/* DO */}
           <Route path="/logistic/delivery-order" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
           <Route path="/logistic/delivery-order/:id" element={<ProtectedRoute><DetailDeliveryOrder /></ProtectedRoute>} />
@@ -149,6 +158,9 @@ function AppContent() {
 
           {/* Warehouse */}
           <Route path="/inventory" element={<ProtectedRoute><Merks /></ProtectedRoute>} />
+
+          {/* Dashboard */}
+          <Route path="/inventory/inventory-dashboard" element={<ProtectedRoute><InventoryDashboard /></ProtectedRoute>} />
 
           {/* Inventory */}
           <Route path="/inventory/storage" element={<ProtectedRoute><Storage /></ProtectedRoute>} />

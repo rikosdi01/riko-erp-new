@@ -1,0 +1,71 @@
+.dashboard-container {
+    padding: 10px 20px;
+    min-height: 100vh;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.card {
+    background: linear-gradient(to bottom right, #ffffff, #e7e9ec);
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: #555;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.card-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 10px;
+    color: #2c3e50;
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 28px;
+}
+
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.chart-card:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+.chart-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: #444;
+    text-align: center;
+}
