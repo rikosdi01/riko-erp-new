@@ -71,7 +71,7 @@ const TrackingOrder = () => {
                     <input placeholder="Cari Orderan..." className="tracking-search" />
                 </div>
                 <ul className="order-list">
-                    {orders.map((order) => (
+                    {/* {orders.map((order) => (
                         <li key={order.id} className={`order-item ${orderLocation.id === order.id ? "active" : ""}`}>
                             <div className="order-header" onClick={() => {
                                 setOrderLocation(order);
@@ -94,7 +94,7 @@ const TrackingOrder = () => {
                                     />
                                 </div>
                             </div>
-                            {/* Tampilkan proses pengiriman jika order diklik */}
+
                             {expandedOrder === order.id && (
                                 <ul className="tracking-details">
                                     {order.tracking.map((step, index) => (
@@ -115,7 +115,8 @@ const TrackingOrder = () => {
                                 </ul>
                             )}
                         </li>
-                    ))}
+                    ))} */}
+                    Tidak ada data
                 </ul>
             </div>
 

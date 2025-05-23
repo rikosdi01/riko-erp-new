@@ -12,18 +12,3 @@
     left: 12px;
     color: #777;
 }
-
-/* Search bar */
-.search-input {
-    width: 100%;
-    padding: 10px 20px 10px 40px; /* Tambah padding kiri agar tidak bertumpuk dengan ikon */
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 12px;
-    outline: none;
-    transition: 1s all;
-}
-
-.search-input:focus {
-    border: 1px solid #0d82ff;
-}

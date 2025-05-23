@@ -12,8 +12,11 @@ import { useAdjustment } from '../../../../context/warehouse/AdjustmentContext';
 
 const Adjustment = () => {
     const navigate = useNavigate();
-    const { adjustment, isLoading } = useAdjustment();
+    // const { adjustment, isLoading } = useAdjustment();
     const [selectedItems, setSelectedItems] = useState([]);
+    const adjustment = [];
+    const isLoading = false;
+
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

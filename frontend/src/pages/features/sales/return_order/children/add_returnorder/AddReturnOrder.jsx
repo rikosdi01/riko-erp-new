@@ -36,7 +36,7 @@ const AddReturnOrder = () => {
 
     return (
         <div className="main-container">
-            <ContentHeader title="Tambah Retur Penjualan" enablePrint={true}/>
+            <ContentHeader title="Tambah Retur Penjualan"/>
 
             <div className='add-merk-input'>
                 <InputLabel
@@ -93,12 +93,6 @@ const AddReturnOrder = () => {
                     <InputLabel
                         label="Harga"
                         icon={<BadgeDollarSign className='input-icon' />}
-                        value={name}
-                        onChange={handleNameChange}
-                    />
-                    <InputLabel
-                        label="Diskon"
-                        icon={<PercentCircle className='input-icon' />}
                         value={name}
                         onChange={handleNameChange}
                     />

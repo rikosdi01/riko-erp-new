@@ -1,0 +1,58 @@
+.mutation-sales-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.mutation-sales-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.filter-section {
+    display: flex;
+    justify-content: end;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.filter-section select,
+.filter-section input[type="date"]{
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.separator {
+    font-weight: bold;
+}
+
+.mutation-sales-data {
+    padding: 40px;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 10px;
+    background-color: #fafafa;
+}
+
+.no-data {
+    font-size: 16px;
+    color: #999;
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.filter-date {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}

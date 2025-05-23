@@ -49,30 +49,31 @@ const LogisticDashboard = () => {
         <div className="dashboard-container">
             {/* Summary Cards */}
             <div className="card-grid">
-                <div className="card"><h3>Total Delivery Orders</h3><div className="card-value">{deliveryOrder.length}</div></div>
-                <div className="card"><h3>Total Invoices</h3><div className="card-value">{invoice.length}</div></div>
-                <div className="card"><h3>Kurir Aktif</h3><div className="card-value">{couriers.filter(c => c.status === 'Aktif').length}</div></div>
-                <div className="card"><h3>Layanan Ekspedisi</h3><div className="card-value">{express.length}</div></div>
+                <div className="card"><h3>Total Delivery Orders</h3><div className="card-value">{0}</div></div>
+                <div className="card"><h3>Total Invoices</h3><div className="card-value">{0}</div></div>
+                <div className="card"><h3>Kurir Aktif</h3><div className="card-value">{0}</div></div>
+                <div className="card"><h3>Layanan Ekspedisi</h3><div className="card-value">{0}</div></div>
             </div>
 
             <div className="chart-grid">
                 {/* Chart: Invoice per Bulan */}
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Jumlah Invoice per Bulan</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    {/* <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={invoiceChartData}>
                             <XAxis dataKey="month" />
                             <YAxis allowDecimals={false} />
                             <Tooltip />
                             <Line type="monotone" dataKey="count" stroke="#82ca9d" strokeWidth={3} />
                         </LineChart>
-                    </ResponsiveContainer>
+                    </ResponsiveContainer> */}
+                    <div>Tidak ada data</div>
                 </div>
 
                 {/* Tabel: Delivery Order */}
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Status Pengiriman Delivery Order Terbaru</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    {/* <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={latestDOChartData}>
                             <XAxis dataKey="noDO" />
                             <YAxis hide />
@@ -83,7 +84,6 @@ const LogisticDashboard = () => {
                                 barSize={30}
                                 name="Status Pengiriman"
                             >
-                                {/* Warna dinamis berdasarkan status pengiriman */}
                                 {
                                     latestDOChartData.map((entry, index) => (
                                         <Cell
@@ -94,13 +94,13 @@ const LogisticDashboard = () => {
                                 }
                             </Bar>
                         </BarChart>
-                    </ResponsiveContainer>
-
+                    </ResponsiveContainer> */}
+                    <div>Tidak ada data</div>
                 </div>
 
 
                 {/* Tabel: Kurir */}
-                <div className="table-card">
+                {/* <div className="table-card">
                     <h3>Daftar Kurir Aktif</h3>
                     <table className="inventory-table">
                         <thead>
@@ -116,6 +116,24 @@ const LogisticDashboard = () => {
                                     <td>{courier.telp}</td>
                                 </tr>
                             ))}
+                        </tbody>
+                    </table>
+                </div> */}
+
+                <div className="chart-card-custom">
+                    <h3>Daftar Kurir Aktif</h3>
+                    <table className="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>No. Telp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

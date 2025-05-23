@@ -12,9 +12,11 @@ import Formatting from '../../../../utils/format/Formatting';
 
 const Categories = () => {
     const navigate = useNavigate();
-    const { categories, isLoading } = useCategories();
+    // const { categories, isLoading } = useCategories();
     const [selectedItems, setSelectedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const categories = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

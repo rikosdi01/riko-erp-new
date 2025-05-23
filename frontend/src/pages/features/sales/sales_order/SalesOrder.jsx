@@ -12,7 +12,9 @@ import Formatting from '../../../../utils/format/Formatting';
 
 const SalesOrder = () => {
     const navigate = useNavigate();
-    const { salesOrder, isLoading } = useSalesOrder();
+    // const { salesOrder, isLoading } = useSalesOrder();
+    const salesOrder = [];
+    const isLoading = false;
     const [selectedItems, setSelectedItems] = useState([]);
 
     const handleCheckboxChange = (id) => {
@@ -93,7 +95,7 @@ const SalesOrder = () => {
                 onCheckboxChange={handleCheckboxChange}
                 onSelectAllChange={handleSelectAllChange}
                 handleDeleteItems={() => { }}
-                title="Merek"
+                title="Pesanan"
                 onclick={(id) => navigateToDetailMerk(id)}
             />
 

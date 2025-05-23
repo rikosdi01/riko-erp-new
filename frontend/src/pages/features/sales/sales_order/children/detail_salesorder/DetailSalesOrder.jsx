@@ -57,7 +57,7 @@ const DetailSalesOrder = () => {
 
     return (
         <div className="main-container">
-            <ContentHeader title="Rincian Pesanan" enablePrint={true}/>
+            <ContentHeader title="Rincian Pesanan" enablePrint={true} />
 
             <div className='add-merk-input'>
                 <InputLabel
@@ -152,6 +152,37 @@ const DetailSalesOrder = () => {
                         label="Diskon"
                         icon={<PercentCircle className='input-icon' />}
                         value={"5%"}
+                        onChange={handleNameChange}
+                    />
+                </div>
+
+                <div className='add-merk-input-area'>
+                    <Dropdown
+                        values={category}
+                        label="Pilih Kategori"
+                        icon={<LayoutGrid className="input-icon" />}
+                    />
+                    <Dropdown
+                        values={item}
+                        label="Pilih Item"
+                        icon={<Computer className="input-icon" />}
+                    />
+                    <InputLabel
+                        label="Kuantitas"
+                        icon={<Sheet className='input-icon' />}
+                        value={""}
+                        onChange={handleNameChange}
+                    />
+                    <InputLabel
+                        label="Harga"
+                        icon={<BadgeDollarSign className='input-icon' />}
+                        value={""}
+                        onChange={handleNameChange}
+                    />
+                    <InputLabel
+                        label="Diskon"
+                        icon={<PercentCircle className='input-icon' />}
+                        value={""}
                         onChange={handleNameChange}
                     />
                 </div>

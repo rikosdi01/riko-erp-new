@@ -12,8 +12,10 @@ import { useDeliveryOrder } from '../../../../context/logistic/DeliveryOrderCont
 
 const DeliveryOrder = () => {
     const navigate = useNavigate();
-    const { deliveryOrder, isLoading } = useDeliveryOrder();
+    // const { deliveryOrder, isLoading } = useDeliveryOrder();
     const [selectedItems, setSelectedItems] = useState([]);
+    const deliveryOrder = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

@@ -11,8 +11,11 @@ import { useCustomers } from '../../../../context/sales/CustomersContext';
 
 const Customers = () => {
     const navigate = useNavigate();
-    const { customers, isLoading } = useCustomers();
+    // const { customers, isLoading } = useCustomers();
     const [selectedItems, setSelectedItems] = useState([]);
+
+    const customers = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

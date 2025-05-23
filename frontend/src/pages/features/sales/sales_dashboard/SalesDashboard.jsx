@@ -90,9 +90,9 @@ const SalesDashboard = () => {
 
             {/* Charts */}
             <div className="chart-grid">
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Status Pemesanan</h3>
-                    <PieChart width={300} height={250}>
+                    {/* <PieChart width={300} height={250}>
                         <Pie
                             data={orderStatusData}
                             cx="50%"
@@ -106,43 +106,47 @@ const SalesDashboard = () => {
                             ))}
                         </Pie>
                         <Tooltip />
-                    </PieChart>
+                    </PieChart> */}
+                    <div>Tidak ada data</div>
                 </div>
 
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Penjualan per Customer</h3>
-                    <BarChart width={400} height={250} data={salesByCustomer}>
+                    {/* <BarChart width={400} height={250} data={salesByCustomer}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis tickFormatter={(value) => `Rp ${value / 1000}k`} />
                         <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
                         <Legend />
                         <Bar dataKey="total" fill="#8884d8" name="Penjualan" />
-                    </BarChart>
+                    </BarChart> */}
+                    <div>Tidak ada data</div>
                 </div>
 
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Penjualan per Salesman</h3>
-                    <BarChart width={400} height={250} data={salesBySalesman}>
+                    {/* <BarChart width={400} height={250} data={salesBySalesman}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis tickFormatter={(value) => `Rp ${value / 1000}k`} />
                         <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
                         <Legend />
                         <Bar dataKey="total" fill="#82ca9d" name="Penjualan" />
-                    </BarChart>
+                    </BarChart> */}
+                    <div>Tidak ada data</div>
                 </div>
 
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Tren Penjualan Bulanan</h3>
-                    <LineChart width={400} height={250} data={monthlySalesData}>
+                    {/* <LineChart width={400} height={250} data={monthlySalesData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis tickFormatter={(value) => `Rp ${value / 1000}k`} />
                         <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
                         <Legend />
                         <Line type="monotone" dataKey="total" stroke="#ff7300" name="Penjualan Bulanan" />
-                    </LineChart>
+                    </LineChart> */}
+                    <div>Tidak ada data</div>
                 </div>
 
             </div>

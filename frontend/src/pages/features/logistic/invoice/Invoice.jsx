@@ -12,8 +12,11 @@ import { useInvoice } from '../../../../context/sales/InvoiceContext';
 
 const Invoice = () => {
     const navigate = useNavigate();
-    const { invoice, isLoading } = useInvoice();
+    // const { invoice, isLoading } = useInvoice();
     const [selectedItems, setSelectedItems] = useState([]);
+
+    const invoice = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

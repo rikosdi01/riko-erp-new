@@ -12,9 +12,11 @@ import Formatting from '../../../../utils/format/Formatting';
 
 const Items = () => {
     const navigate = useNavigate();
-    const { items, isLoading } = useItems();
+    // const { items, isLoading } = useItems();
     const [selectedItems, setSelectedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const items = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>
@@ -70,25 +72,25 @@ const Items = () => {
                 />
 
                 {/* Import */}
-                <IconButton
+                {/* <IconButton
                     tooltipLabel="Impor"
                     icon={<Download size={18} />}
-                />
+                /> */}
 
                 {/* Export */}
-                <IconButton
+                {/* <IconButton
                     tooltipLabel="Ekspor"
                     icon={<Upload size={18} />}
-                />
+                /> */}
 
                 {/* Create */}
-                <IconButton
+                {/* <IconButton
                     tooltipLabel="Tambah Kategori"
                     icon={<Plus size={18} />}
                     onclick={navigateToCreateCategory}
                     background='#0d82ff'
                     color='white'
-                />
+                /> */}
             </div>
 
             <Table

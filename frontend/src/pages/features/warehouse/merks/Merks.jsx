@@ -10,9 +10,12 @@ import { useState } from 'react';
 
 const Merks = () => {
     const navigate = useNavigate();
-    const { merks, isLoading } = useMerks();
+    // const { merks, isLoading } = useMerks();
     const [selectedItems, setSelectedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const merks = [];
+    const isLoading = false;
+
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

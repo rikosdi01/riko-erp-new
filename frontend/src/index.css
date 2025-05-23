@@ -29,6 +29,8 @@ a:hover {
 
 body {
   margin: 0;
+  position: fixed;
+  width: 100%;
 }
 
 h1 {

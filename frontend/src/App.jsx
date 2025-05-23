@@ -69,6 +69,15 @@ import DetailExpress from "./pages/features/logistic/express/children/detail_exp
 import SalesDashboard from "./pages/features/sales/sales_dashboard/SalesDashboard";
 import LogisticDashboard from "./pages/features/logistic/logistic_dashboard/LogisticDashboard";
 import InventoryDashboard from "./pages/features/warehouse/inventory_dashboard/InventoryDashboard";
+import Dashboard from "./pages/features/dashboard/Dashboard";
+import MutationSales from "./pages/personalization/settings/children/mutations/mutation_sales/MutationSales";
+import MutationInventory from "./pages/personalization/settings/children/mutations/mutation_inventory/MutationInventory";
+import MutationLogistic from "./pages/personalization/settings/children/mutations/mutation_logistic/MutationLogistic";
+import ManageAccount from "./pages/personalization/settings/children/manage_account/ManageAccount";
+import SettingActivity from "./pages/personalization/settings/children/activity/SettingActivity";
+import SettingNotification from "./pages/personalization/settings/children/notification/SettingNotification";
+import SettingHelp from "./pages/personalization/settings/children/help/SettingHelp";
+import SignUp from "./pages/authentication/signup/SignUp";
 
 function AppContent() {
   const location = useLocation();
@@ -87,9 +96,7 @@ function AppContent() {
           <Route path="/signin" element={<SignIn />} />
 
           {/* Protected Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
 
 
@@ -191,6 +198,21 @@ function AppContent() {
           <Route path="/inventory/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
           <Route path="/inventory/items/new" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
           <Route path="/inventory/items/:id" element={<ProtectedRoute><DetailItem /></ProtectedRoute>} />
+
+
+
+          {/* Settings */}
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/settings/mutation-sales" element={<ProtectedRoute><MutationSales /></ProtectedRoute>} />
+          <Route path="/settings/mutation-inventory" element={<ProtectedRoute><MutationInventory /></ProtectedRoute>} />
+          <Route path="/settings/mutation-logistic" element={<ProtectedRoute><MutationLogistic /></ProtectedRoute>} />
+          <Route path="/settings/manage-account" element={<ProtectedRoute><ManageAccount /></ProtectedRoute>} />
+          <Route path="/settings/activity" element={<ProtectedRoute><SettingActivity /></ProtectedRoute>} />
+          <Route path="/settings/notification" element={<ProtectedRoute><SettingNotification /></ProtectedRoute>} />
+          <Route path="/settings/help" element={<ProtectedRoute><SettingHelp /></ProtectedRoute>} />
+
+          
+          <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute> }/>
 
           {/* Not Found Page */}
           <Route path="*" element={<NotFound />} />

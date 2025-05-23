@@ -48,7 +48,7 @@ const Table = ({
                                         className="filter-btn"
                                         onClick={() => onFilterClick(col.accessor)}
                                     >
-                                        <Filter size={16} />
+                                        {/* <Filter size={16} /> */}
                                     </button>
                                 </div>
                             </th>
@@ -111,8 +111,10 @@ const Table = ({
                 <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
                     &laquo; Prev
                 </button>
-                <span>Hal. {currentPage} | {totalPages}</span>
-                <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                {/* <span>Hal. {currentPage} | {totalPages}</span> */}
+                <span>Hal. {currentPage} | {1}</span>
+                {/* <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}> */}
+                <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
                     Next &raquo;
                 </button>
 

@@ -11,8 +11,10 @@ import { useCourier } from '../../../../context/logistic/CourierContext';
 
 const Courier = () => {
     const navigate = useNavigate();
-    const { couriers, isLoading } = useCourier();
+    // const { couriers, isLoading } = useCourier();
     const [selectedItems, setSelectedItems] = useState([]);
+    const couriers = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

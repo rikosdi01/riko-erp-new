@@ -18,13 +18,19 @@ const InventoryDashboard = () => {
     const { items } = useItems();
 
     // Kalkulasi metrik
-    const totalStock = items.reduce((total, item) => total + Number(item.quantity), 0);
-    const uniqueItems = items.length;
-    const totalAdjustments = adjustment.length;
-    const totalTransfers = transfer.length;
-    const totalCategories = categories.length;
-    const totalMerks = merks.length;
-    
+    // const totalStock = items.reduce((total, item) => total + Number(item.quantity), 0);
+    // const uniqueItems = items.length;
+    // const totalAdjustments = adjustment.length;
+    // const totalTransfers = transfer.length;
+    // const totalCategories = categories.length;
+    // const totalMerks = merks.length;
+    const totalStock = 0;
+    const uniqueItems = 0;
+    const totalAdjustments = 0;
+    const totalTransfers = 0;
+    const totalCategories = 0;
+    const totalMerks = 0;
+
 
     // Ambil Top 5 item berdasarkan quantity
     const topItems = [...items]
@@ -49,7 +55,7 @@ const InventoryDashboard = () => {
     // Helper untuk format bulan
     const formatMonth = (dateInput) => {
         let date;
-    
+
         if (typeof dateInput === 'object' && typeof dateInput.toDate === 'function') {
             // Jika Firestore Timestamp
             date = dateInput.toDate();
@@ -57,11 +63,11 @@ const InventoryDashboard = () => {
             // Asumsikan miliseconds number
             date = new Date(dateInput);
         }
-    
+
         if (isNaN(date)) return 'Invalid Date'; // Fallback jika tetap gagal
-    
+
         return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-    }; 
+    };
 
     // Hitung adjustment per bulan
     const adjustmentPerMonth = {};
@@ -72,8 +78,8 @@ const InventoryDashboard = () => {
 
     // Ubah jadi array untuk Recharts
     const adjustmentData = Object.entries(adjustmentPerMonth)
-    .sort(([a], [b]) => new Date(a) - new Date(b)) // urutkan berdasarkan tanggal
-    .map(([month, count]) => ({ month, count }));
+        .sort(([a], [b]) => new Date(a) - new Date(b)) // urutkan berdasarkan tanggal
+        .map(([month, count]) => ({ month, count }));
 
 
 
@@ -83,14 +89,22 @@ const InventoryDashboard = () => {
     return (
         <div className="dashboard-container">
             <div className="card-grid">
-                <div className="card">
+                {/* <div className="card">
                     <h3>Total Stok Barang</h3>
                     <div className="card-value">{totalStock}</div>
-                </div>
+                </div> */}
                 <div className="card">
-                    <h3>Item Unik</h3>
+                    <h3>Total Item</h3>
                     <div className="card-value">{uniqueItems}</div>
                 </div>
+                <div className="card">
+                    <h3>Total Kategori</h3>
+                    <div className="card-value">{totalCategories}</div>
+                </div>
+                {/* <div className="card">
+                    <h3>Total Merk</h3>
+                    <div className="card-value">{totalMerks}</div>
+                </div> */}
                 <div className="card">
                     <h3>Total Adjustment</h3>
                     <div className="card-value">{totalAdjustments}</div>
@@ -99,32 +113,25 @@ const InventoryDashboard = () => {
                     <h3>Total Transfer</h3>
                     <div className="card-value">{totalTransfers}</div>
                 </div>
-                <div className="card">
-                    <h3>Total Kategori</h3>
-                    <div className="card-value">{totalCategories}</div>
-                </div>
-                <div className="card">
-                    <h3>Total Merk</h3>
-                    <div className="card-value">{totalMerks}</div>
-                </div>
             </div>
 
             <div className="chart-grid">
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Top 5 Barang dengan Stok Terbanyak</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    {/* <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={topItems}>
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
                             <Bar dataKey="quantity" fill="#8884d8" />
                         </BarChart>
-                    </ResponsiveContainer>
+                    </ResponsiveContainer> */}
+                    <div>Tidak ada data</div>
                 </div>
 
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Distribusi Stok Berdasarkan Merk</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    {/* <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                             <Pie
                                 data={merkData}
@@ -143,10 +150,11 @@ const InventoryDashboard = () => {
                             <Tooltip />
                             <Legend />
                         </PieChart>
-                    </ResponsiveContainer>
+                    </ResponsiveContainer> */}
+                    <div>Tidak ada data</div>
                 </div>
 
-                <div className="table-card">
+                {/* <div className="table-card">
                     <h3>5 Barang dengan Stok Terendah</h3>
                     <table className="inventory-table">
                         <thead>
@@ -171,18 +179,41 @@ const InventoryDashboard = () => {
                                 ))}
                         </tbody>
                     </table>
+                </div> */}
+
+                <div className="chart-card-custom">
+                    <h3>5 Barang dengan Stok Terendah</h3>
+                    <table className="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Merk</th>
+                                <th>Kategori</th>
+                                <th>Stok</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <div className="chart-card">
+                <div className="chart-card-custom">
                     <h3>Grafik Garis: Jumlah Adjustment per Bulan</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    {/* <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={adjustmentData}>
                             <XAxis dataKey="month" />
                             <YAxis allowDecimals={false} />
                             <Tooltip />
                             <Line type="monotone" dataKey="count" stroke="#FF6B6B" strokeWidth={3} />
                         </LineChart>
-                    </ResponsiveContainer>
+                    </ResponsiveContainer> */}
+                    <div>Tidak ada data</div>
                 </div>
             </div>
         </div>

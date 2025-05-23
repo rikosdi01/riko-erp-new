@@ -33,7 +33,7 @@ export default function Sidebar({ children }) {
                     <ul className="sidebar-items">{children}</ul>
                 </SidebarContext.Provider>
 
-                <div className="user-profile">
+                {/* <div className="user-profile">
                     <img
                         src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
                         alt="Profile"
@@ -44,9 +44,8 @@ export default function Sidebar({ children }) {
                             <h4 className="user-name">Junior Chen</h4>
                             <span className="user-email">ct.junior7@gmail.com</span>
                         </div>
-                        <MoreVertical size={20} cursor="pointer" />
                     </div>
-                </div>
+                </div> */}
             </nav>
         </aside>
     );

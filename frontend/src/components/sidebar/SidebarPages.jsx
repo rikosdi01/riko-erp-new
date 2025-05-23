@@ -10,7 +10,17 @@ const SidebarPages = () => {
                 text="Dashboard"
                 to="/dashboard"  // Mengarah ke halaman Dashboard
             />
+            {/* <SidebarItem
+                icon={<Computer size={20} />}
+                text="Item"
+                to="/inventory/items"  // Mengarah ke halaman Dashboard
+            />
             <SidebarItem
+                icon={<Truck size={20} />}
+                text="Pengiriman Pesanan"
+                to="/logistic/delivery-order"  // Mengarah ke halaman Dashboard
+            /> */}
+            {/* <SidebarItem
                 icon={<ClipboardEdit size={20} />}
                 text="Penjualan"
                 to="/sales"
@@ -41,14 +51,14 @@ const SidebarPages = () => {
                         to: "/sales/salesman",
                         icon: <UsersRound size={20}/>
                     },
-                    {
-                        text: "Counter Sales Office",
-                        to: "/sales/cso",
-                        icon: <Users size={20}/>
-                    },
+                    // {
+                    //     text: "Counter Sales Office",
+                    //     to: "/sales/cso",
+                    //     icon: <Users size={20}/>
+                    // },
                 ]}
-            />
-            <SidebarItem
+            /> */}
+            {/* <SidebarItem
                 icon={<Warehouse size={20} />}
                 text="Inventaris"
                 to="/inventory"
@@ -90,7 +100,7 @@ const SidebarPages = () => {
                         icon: <Computer size={20}/>
                     },
                 ]}
-            />
+            /> */}
             <SidebarItem
                 icon={<Package size={20} />}
                 text="Logistik"
@@ -127,11 +137,11 @@ const SidebarPages = () => {
                         to: "/logistic/express",
                         icon: <Ship size={20}/>
                     },
-                    {
-                        text: "Rute",
-                        to: "/logistic/routes",
-                        icon: <Map size={20}/>
-                    },
+                    // {
+                    //     text: "Rute",
+                    //     to: "/logistic/routes",
+                    //     icon: <Map size={20}/>
+                    // },
                 ]}
             />
             <hr />

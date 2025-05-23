@@ -75,6 +75,7 @@
     flex: 1;
     padding: 0 0.75rem;
     gap: 10px;
+    margin: 0;
 }
 
 .sidebar-spaces {
@@ -251,7 +252,7 @@
 .sub-menu {
     transition: 0.5s all;
     background-color: #e9ebee;
-    padding: 5px 10px;
+    padding: 5px 5px;
     border-radius: 10px;
 }
 

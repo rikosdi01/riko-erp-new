@@ -12,8 +12,11 @@ import Formatting from '../../../../utils/format/Formatting';
 
 const Express = () => {
     const navigate = useNavigate();
-    const { express, isLoading } = useExpress();
+    // const { express, isLoading } = useExpress();
     const [selectedItems, setSelectedItems] = useState([]);
+    
+    const express = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

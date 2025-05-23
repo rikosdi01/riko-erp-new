@@ -83,3 +83,8 @@
   align-items: center;
   gap: 5px;
 }
+
+.empty-table {
+  display: flex;
+  background-color: red;
+}

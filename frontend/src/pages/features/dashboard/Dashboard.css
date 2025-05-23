@@ -1,23 +1,21 @@
-.dashboard-container {
-    padding: 20px;
-    text-align: center;
+.active-users {
+    margin-top: 60px;
 }
 
-.chart-container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 20px;
+.active-users ul {
+    list-style: none;
+    padding: 0;
 }
 
-.chart {
-    width: 45%;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.active-users li {
+    background: #e6f7ff;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
 }
 
-h2, h3 {
-    color: #333;
-}
+/* Tambahkan class berdasarkan role jika ingin beda warna, misal: */
+li.admin { color: #007bff; }
+li.cso { color: #28a745; }
+li.logistik { color: #ffc107; }
+li.stok-controller { color: #dc3545; }

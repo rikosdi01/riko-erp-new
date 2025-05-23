@@ -8,7 +8,7 @@ const customStyles = {
         display: "flex",
         alignItems: "center",
         paddingLeft: "30px", // Beri ruang untuk ikon
-        border: "1px solid #ccc",
+        border: "1px solid rgb(212, 212, 212)",
         borderRadius: "10px",
         fontFamily: "Poppins",
         fontSize: "14px",

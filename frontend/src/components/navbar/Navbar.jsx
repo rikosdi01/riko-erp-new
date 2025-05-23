@@ -6,7 +6,21 @@ const Navbar = () => {
     return (
         <div className='navbar-container'>
             <div className='navbar-title'>
-                {/* Pinjaman dan Simpanan di bulan {Formatting.formatMonth()} */}
+                <div className='underline-navbar-title'>
+                    Logistik
+                </div>
+                <div>
+                    /
+                </div>
+                <div className='underline-navbar-title active'>
+                    Pengaturan
+                </div>
+                {/* <div>
+                    /
+                </div>
+                <div className='underline-navbar-title active'>
+                    Riwayat Aktifitas
+                </div> */}
             </div>
             <div className="navbar-search">
                 <Search className='icon-search' size={18} />

@@ -12,8 +12,10 @@ import { useReturnOrder } from '../../../../context/sales/ReturnOrderContext';
 
 const ReturnOrder = () => {
     const navigate = useNavigate();
-    const { returnOrder, isLoading } = useReturnOrder();
+    // const { returnOrder, isLoading } = useReturnOrder();
     const [selectedItems, setSelectedItems] = useState([]);
+    const returnOrder = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>
@@ -60,8 +62,6 @@ const ReturnOrder = () => {
         <div className="main-container">
             <div className="main-container-header">
                 <SearchValue label="returan" />
-
-                <FilterValue placeholder={"Semua Status"} />
 
                 {/* Import */}
                 <IconButton

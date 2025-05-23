@@ -12,8 +12,10 @@ import { useInventory } from '../../../../context/warehouse/InventoryContext';
 
 const Storage = () => {
     const navigate = useNavigate();
-    const { inventory, isLoading } = useInventory();
+    // const { inventory, isLoading } = useInventory();
     const [selectedItems, setSelectedItems] = useState([]);
+    const inventory = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

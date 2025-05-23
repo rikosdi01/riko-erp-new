@@ -11,8 +11,10 @@ import { useSalesman } from '../../../../context/sales/SalesmanContext';
 
 const Salesman = () => {
     const navigate = useNavigate();
-    const { salesman, isLoading } = useSalesman();
+    // const { salesman, isLoading } = useSalesman();
     const [selectedItems, setSelectedItems] = useState([]);
+    const salesman = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

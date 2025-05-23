@@ -12,8 +12,10 @@ import { useTransfer } from '../../../../context/warehouse/TransferContext';
 
 const Transfer = () => {
     const navigate = useNavigate();
-    const { transfer, isLoading } = useTransfer();
+    // const { transfer, isLoading } = useTransfer();
     const [selectedItems, setSelectedItems] = useState([]);
+    const transfer = [];
+    const isLoading = false;
 
     const handleCheckboxChange = (id) => {
         setSelectedItems((prevSelected) =>

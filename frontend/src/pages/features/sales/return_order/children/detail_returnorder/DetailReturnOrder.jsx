@@ -62,7 +62,7 @@ const DetailReturnOrder = () => {
 
     return (
         <div className="main-container">
-            <ContentHeader title="Rincian Retur Penjualan" enablePrint={true}/>
+            <ContentHeader title="Rincian Retur Penjualan" />
 
             <div className='add-merk-input'>
                 <InputLabel
@@ -150,6 +150,31 @@ const DetailReturnOrder = () => {
                         label="Harga"
                         icon={<BadgeDollarSign className='input-icon' />}
                         value={Formatting.formatCurrencyIDR("770400")}
+                        onChange={handleNameChange}
+                    />
+                </div>
+
+                <div className='add-merk-input-area'>
+                    <Dropdown
+                        values={category}
+                        label="Pilih Kategori"
+                        icon={<LayoutGrid className="input-icon" />}
+                    />
+                    <Dropdown
+                        values={item}
+                        label="Pilih Item"
+                        icon={<Computer className="input-icon" />}
+                    />
+                    <InputLabel
+                        label="Kuantitas"
+                        icon={<Sheet className='input-icon' />}
+                        value={""}
+                        onChange={handleNameChange}
+                    />
+                    <InputLabel
+                        label="Harga"
+                        icon={<BadgeDollarSign className='input-icon' />}
+                        value={""}
                         onChange={handleNameChange}
                     />
                 </div>
