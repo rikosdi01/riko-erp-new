@@ -47,7 +47,7 @@ const DetailSalesman = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Sales" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Kode Sales"
                     icon={<KeyRound className='input-icon' />}
@@ -57,7 +57,7 @@ const DetailSalesman = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Sales"
                     icon={<PackagePlus className='input-icon' />}
@@ -67,7 +67,7 @@ const DetailSalesman = () => {
                 {nameError && <div className="error-message">{nameError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <Dropdown
                     values={[]}
                     label="Nama Pelanggan"
@@ -90,7 +90,7 @@ const DetailSalesman = () => {
                 <span><X size={20}/></span>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

@@ -105,7 +105,7 @@ const DetailItem = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Item" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Kode Item"
                     icon={<KeyRound className='input-icon' />}
@@ -115,7 +115,7 @@ const DetailItem = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <div>
                     <InputLabel
                         label="Nama Item"
@@ -134,7 +134,7 @@ const DetailItem = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <Dropdown
                     values={categories}
                     selectedId={"sFqkc0YgC0BT7OFlXSVj"}
@@ -143,7 +143,7 @@ const DetailItem = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <div>
                     <InputLabel
                         label="Harga Jual"
@@ -165,7 +165,7 @@ const DetailItem = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

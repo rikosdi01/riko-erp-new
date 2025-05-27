@@ -2,6 +2,14 @@ import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query,
 import { db } from "../../firebase";
 
 export default class ItemsRepository {
+    static subscribeToItemsChanges(callback) {
+        const unsub = onSnapshot(collection(db, 'Items'), (snapshot) => {
+            callback(snapshot);
+        });
+
+        return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
+    }
+
     static getItems(callback) {
         try {
             // Query Firestore untuk mengurutkan berdasarkan 'name'

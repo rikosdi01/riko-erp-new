@@ -59,7 +59,7 @@ const DetailSalesOrder = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Pesanan" enablePrint={true} />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Pesanan"
                     icon={<KeyRound className='input-icon' />}
@@ -69,7 +69,7 @@ const DetailSalesOrder = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Keterangan"
                     icon={<ClipboardPen className='input-icon' />}
@@ -90,7 +90,7 @@ const DetailSalesOrder = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Pesanan</div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Paking Full Set RIKO"}
@@ -123,7 +123,7 @@ const DetailSalesOrder = () => {
                     />
                 </div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Botol Klep RIKO"}
@@ -156,7 +156,7 @@ const DetailSalesOrder = () => {
                     />
                 </div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         label="Pilih Kategori"
@@ -188,7 +188,7 @@ const DetailSalesOrder = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

@@ -47,7 +47,7 @@ const DetailCSO = () => {
         <div className="main-container">
             <ContentHeader title="Rincian CSO" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Kode Merek"
                     icon={<KeyRound className='input-icon' />}
@@ -57,7 +57,7 @@ const DetailCSO = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Merek"
                     icon={<Users className='input-icon' />}
@@ -67,7 +67,7 @@ const DetailCSO = () => {
                 {nameError && <div className="error-message">{nameError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Sales"
                     icon={<Users2 className='input-icon' />}
@@ -78,7 +78,7 @@ const DetailCSO = () => {
             </div>
 
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

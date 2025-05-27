@@ -59,7 +59,7 @@ const DetailDeliveryOrder = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Pengiriman" enablePrint={true}/>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Pengiriman"
                     icon={<KeyRound className='input-icon' />}
@@ -69,7 +69,7 @@ const DetailDeliveryOrder = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Keterangan"
                     icon={<ClipboardPen className='input-icon' />}
@@ -90,7 +90,7 @@ const DetailDeliveryOrder = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Pengiriman</div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Paking Full Set RIKO"}
@@ -111,7 +111,7 @@ const DetailDeliveryOrder = () => {
                     />
                 </div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Botol Klep RIKO"}
@@ -133,7 +133,7 @@ const DetailDeliveryOrder = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

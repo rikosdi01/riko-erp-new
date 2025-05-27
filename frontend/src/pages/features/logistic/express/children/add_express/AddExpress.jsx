@@ -36,7 +36,7 @@ const AddExpress = () => {
         <div className="main-container">
             <ContentHeader title="Tambah Pengangkutan" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Pengangkutan"
                     icon={<Ship className='input-icon' size={20}/>}
@@ -46,7 +46,7 @@ const AddExpress = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Alamat Pengangkutan"
                     icon={<MapPin className='input-icon' size={20}/>}
@@ -61,7 +61,7 @@ const AddExpress = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Jasa"
                     icon={<HandPlatter className='input-icon' size={20}/>}
@@ -82,7 +82,7 @@ const AddExpress = () => {
                 />
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Reset"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
@@ -90,7 +90,7 @@ const AddExpress = () => {
                     onclick={handleReset}
                 />
 
-                {/* <div className='add-merk-actions-right'>
+                {/* <div className='add-container-actions-right'>
                     <ActionButton title="Simpan & Tutup"
                         background="linear-gradient(to top right,rgb(51, 231, 117),rgb(35, 255, 127))"
                         color="#146A3E"

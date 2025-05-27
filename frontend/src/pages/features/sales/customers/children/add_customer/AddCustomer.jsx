@@ -37,7 +37,7 @@ const AddCustomer = () => {
         <div className="main-container">
             <ContentHeader title="Tambah Pelanggan" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Kode Pelanggan"
                     icon={<KeyRound className='input-icon' />}
@@ -47,7 +47,7 @@ const AddCustomer = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Pelanggan"
                     icon={<Store className='input-icon' />}
@@ -57,7 +57,7 @@ const AddCustomer = () => {
                 {nameError && <div className="error-message">{nameError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Alamat"
                     icon={<MapPin className='input-icon' />}
@@ -72,7 +72,7 @@ const AddCustomer = () => {
                 />
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Reset"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
@@ -80,7 +80,7 @@ const AddCustomer = () => {
                     onclick={handleReset}
                 />
 
-                {/* <div className='add-merk-actions-right'>
+                {/* <div className='add-container-actions-right'>
                     <ActionButton title="Simpan & Tutup"
                         background="linear-gradient(to top right,rgb(51, 231, 117),rgb(35, 255, 127))"
                         color="#146A3E"

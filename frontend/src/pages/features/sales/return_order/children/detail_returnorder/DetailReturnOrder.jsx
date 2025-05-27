@@ -64,7 +64,7 @@ const DetailReturnOrder = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Retur Penjualan" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Returan"
                     icon={<KeyRound className='input-icon' />}
@@ -79,7 +79,7 @@ const DetailReturnOrder = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Alasan Retur"
                     icon={<ClipboardPen className='input-icon' />}
@@ -100,7 +100,7 @@ const DetailReturnOrder = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Returan</div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Paking Full Set RIKO"}
@@ -127,7 +127,7 @@ const DetailReturnOrder = () => {
                     />
                 </div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Botol Klep RIKO"}
@@ -154,7 +154,7 @@ const DetailReturnOrder = () => {
                     />
                 </div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         label="Pilih Kategori"
@@ -180,7 +180,7 @@ const DetailReturnOrder = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

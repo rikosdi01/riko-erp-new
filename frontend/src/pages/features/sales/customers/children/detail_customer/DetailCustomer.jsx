@@ -46,7 +46,7 @@ const DetailCustomer = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Pelanggan" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Kode Pelanggan"
                     icon={<KeyRound className='input-icon' />}
@@ -56,7 +56,7 @@ const DetailCustomer = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Pelanggan"
                     icon={<Store className='input-icon' />}
@@ -66,7 +66,7 @@ const DetailCustomer = () => {
                 {nameError && <div className="error-message">{nameError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Alamat"
                     icon={<MapPin className='input-icon' />}
@@ -81,7 +81,7 @@ const DetailCustomer = () => {
                 />
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

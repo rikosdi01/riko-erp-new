@@ -45,7 +45,7 @@ const DetailCourier = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Kurir" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Kurir"
                     icon={<UserCog className='input-icon' size={20} />}
@@ -55,7 +55,7 @@ const DetailCourier = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="No. Telpon"
                     icon={<Phone className='input-icon' size={20} />}
@@ -65,12 +65,12 @@ const DetailCourier = () => {
                 {nameError && <div className="error-message">{nameError}</div>}
             </div>
 
-            <div className='add-merk-checkbox'>
+            <div className='add-container-checkbox'>
                 <input type='checkbox' />
                 <label>Status Karyawan: Aktif</label>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

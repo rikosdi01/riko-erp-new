@@ -115,7 +115,7 @@ const DetailAdjustment = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Penyesuaian Stok" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Penyesuaian"
                     icon={<KeyRound className='input-icon' />}
@@ -125,7 +125,7 @@ const DetailAdjustment = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Keterangan"
                     icon={<ClipboardPen className='input-icon' />}
@@ -146,7 +146,7 @@ const DetailAdjustment = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Penyesuaian</div>
 
-                <div className='add-merk-input'>
+                <div className='add-container-input'>
                     <Dropdown
                         values={category}
                         selectedId={"As Kick Stater RIKO"}
@@ -166,7 +166,7 @@ const DetailAdjustment = () => {
                         onChange={handleNameChange}
                     />
                 </div>
-                <div className='add-merk-input'>
+                <div className='add-container-input'>
                     <Dropdown
                         values={category}
                         selectedId={"As Kick Stater RIKO"}
@@ -186,7 +186,7 @@ const DetailAdjustment = () => {
                         onChange={handleNameChange}
                     />
                 </div>
-                <div className='add-merk-input'>
+                <div className='add-container-input'>
                     <Dropdown
                         values={category}
                         selectedId={"Botol Klep RIKO"}
@@ -206,7 +206,7 @@ const DetailAdjustment = () => {
                         onChange={handleNameChange}
                     />
                 </div>
-                <div className='add-merk-input'>
+                <div className='add-container-input'>
                     <Dropdown
                         values={category}
                         label="Pilih Kategori"
@@ -226,7 +226,7 @@ const DetailAdjustment = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

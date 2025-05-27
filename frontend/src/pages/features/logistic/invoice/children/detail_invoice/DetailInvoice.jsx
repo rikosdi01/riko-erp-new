@@ -60,7 +60,7 @@ const DetailInvoice = () => {
             <ContentHeader title="Rincian Faktur" enablePrint={true} />
 
 
-            <div className='add-merk-input-attribute'>
+            <div className='add-container-input-attribute'>
                 <InputLabel
                     label="Kurir"
                     icon={<UserCog className='input-icon' />}
@@ -75,7 +75,7 @@ const DetailInvoice = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Pengiriman"
                     icon={<KeyRound className='input-icon' />}
@@ -85,7 +85,7 @@ const DetailInvoice = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Pelanggan"
                     icon={<Store className='input-icon' />}
@@ -106,7 +106,7 @@ const DetailInvoice = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Keterangan"
                     icon={<ClipboardPen className='input-icon' />}
@@ -127,7 +127,7 @@ const DetailInvoice = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Faktur</div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Paking Full Set RIKO"}
@@ -160,7 +160,7 @@ const DetailInvoice = () => {
                     />
                 </div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         selectedId={"Botol Klep RIKO"}
@@ -194,7 +194,7 @@ const DetailInvoice = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

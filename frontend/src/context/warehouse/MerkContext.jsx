@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import React from "react";
 import MerksRepository from '../../repository/warehouse/MerksRepository';
 
 const MerkContext = createContext();

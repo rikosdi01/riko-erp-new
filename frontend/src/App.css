@@ -7,41 +7,19 @@
   flex: 1;
   padding: 20px;
   margin-top: 60px;
+  scrollbar-width: none;
 }
 
-/* Container utama */
-.main-container {
-  padding: 20px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #eaeaea;
-  background-color: white;
-  color: black;
-  border-radius: 10px;
-  max-width: 1200px;
-  margin: auto;
+.main-container::-webkit-scrollbar {
+  display: none;
 }
 
-/* Header input dan tombol */
-.main-container-header {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  align-items: center;
-}
-
-#tooltip {
-  background-color: rgb(232, 232, 232);
-  color: #333;
-  border-radius: 10px;
-  font-weight: 500;
-}
-
-.add-merk-input-attribute {
+.add-container-input-attribute {
   display: flex;
   gap: 20px;
 }
 
-.add-merk-input-attribute div {
+.add-container-input-attribute > div:nth-child(n+1){
   flex: 1;
 }
 
@@ -65,23 +43,36 @@
   margin-bottom: 20px;
 }
 
-.add-merk-input-area {
+.add-container-input-area {
   display: flex;
   gap: 20px;
 }
 
-.add-merk-input-area div:nth-child(1) {
+.add-container-input-area div:nth-child(1) {
   flex: 3;
 }
 
-.add-merk-input-area div:nth-child(n + 3) {
+.add-container-input-area div:nth-child(n + 3) {
   flex: 1;
 }
 
-.add-merk-checkbox {
+.add-container-checkbox {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.add-container-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.add-container-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .empty-table {

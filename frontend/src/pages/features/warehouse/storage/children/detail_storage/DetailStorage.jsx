@@ -115,7 +115,7 @@ const DetailStorage = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Penyimpanan Stok" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <Dropdown
                     values={category}
                     selectedId={"As Kick Stater RIKO"}
@@ -125,7 +125,7 @@ const DetailStorage = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <Dropdown
                     values={item}
                     selectedId={"Beat"}
@@ -141,7 +141,7 @@ const DetailStorage = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Rak"
                     icon={<MapPinHouse className='input-icon' />}
@@ -162,7 +162,7 @@ const DetailStorage = () => {
                 />
             </div>
 
-            <div className='add-merk-input-attribute'>
+            <div className='add-container-input-attribute'>
                 <div>
                     <InputLabel
                         label="No. Dus"
@@ -184,7 +184,7 @@ const DetailStorage = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

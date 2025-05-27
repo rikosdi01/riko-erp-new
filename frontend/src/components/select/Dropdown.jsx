@@ -1,6 +1,5 @@
 import Select from "react-select";
 import './Dropdown.css'
-import React from "react";
 
 const customStyles = {
     control: (provided) => ({
@@ -21,13 +20,18 @@ const customStyles = {
 
 function Dropdown({ values, selectedId, setSelectedId, label, icon, width }) {
     // Konversi data ke format `react-select`
-    const valuesOption = values.map(value => ({
-        value: value.id,
-        label: value.name,
-    }));
+    const valuesOption = values.map(value => {
+        if (value.value && value.label) return value;
+        return {
+            value: value.id,
+            label: value.name,
+        };
+    });
+    console.log("Dropdown valuesOption:", valuesOption);
 
     // Temukan karyawan yang dipilih saat ini
     const selectedValue = valuesOption.find(opt => opt.value === selectedId) || null;
+    console.log("Dropdown selectedValue:", selectedValue);
 
     return (
         <div className="input-label">

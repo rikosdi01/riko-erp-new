@@ -82,7 +82,7 @@ const AddTransfer = () => {
         <div className="main-container">
             <ContentHeader title="Tambah Pemindahan Stok" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Transferan"
                     icon={<KeyRound className='input-icon' />}
@@ -92,7 +92,7 @@ const AddTransfer = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Keterangan"
                     icon={<ClipboardPen className='input-icon' />}
@@ -113,7 +113,7 @@ const AddTransfer = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Pemindahan</div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={category}
                         label="Pilih Kategori"
@@ -139,7 +139,7 @@ const AddTransfer = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Reset"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
@@ -147,7 +147,7 @@ const AddTransfer = () => {
                     onclick={handleReset}
                 />
 
-                {/* <div className='add-merk-actions-right'>
+                {/* <div className='add-container-actions-right'>
                     <ActionButton title="Simpan & Tutup"
                         background="linear-gradient(to top right,rgb(51, 231, 117),rgb(35, 255, 127))"
                         color="#146A3E"

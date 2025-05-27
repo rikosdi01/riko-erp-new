@@ -1,0 +1,152 @@
+import { useEffect, useState } from 'react';
+import Table from '../../table/Table';
+import './CustomAlgoliaContainer.css';
+import { Configure, InstantSearch, useHits } from 'react-instantsearch';
+import CustomPagination from '../custom_pagination/CustomPagination';
+import CustomSearchBox from '../custom_searchbox/CustomSearchBox';
+import IconButton from '../../button/icon_button/IconButton';
+import { Download, Plus, Upload } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import AlgoliaListener from '../custom_listener/CustomListener';
+import CustomAlgoliaDropdown from '../custom_dropdown/CustomDropdown';
+import Dropdown from '../../select/Dropdown';
+
+const CustomAlgoliaContainer = ({
+    pageLabel,
+    searchClient,
+    indexName,
+    columns,
+    subscribeFn,
+    createOnclick,
+    enableDropdown = false,
+}) => {
+    // Hooks
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [itemsPerPage, setItemsPerPage] = useState(8);
+    useEffect(() => {
+        console.log('itemsPerPage:', itemsPerPage);
+    }, [itemsPerPage]);
+
+    const ItemsHit = () => {
+        const { items } = useHits();
+
+        return (
+            <Table
+                isAlgoliaTable={true}
+                columns={columns}
+                data={items}
+                isLoading={false}
+                selectedItems={selectedItems}
+                onCheckboxChange={handleCheckboxChange}
+                onSelectAllChange={handleSelectAllChange}
+                handleDeleteItems={() => { }}
+                title={pageLabel}
+                onclick={(id) => navigateToDetail(id)}
+                itemsPerPage={itemsPerPage}
+                setItemsPerPage={setItemsPerPage}
+            />
+        )
+    }
+
+
+    // ================================================================================
+
+
+    // Variables
+    const [selectedItems, setSelectedItems] = useState([]);
+
+
+    // ================================================================================
+
+
+    // Logic
+    // Checkbox Checked
+    const handleCheckboxChange = (id) => {
+        setSelectedItems((prevSelected) =>
+            prevSelected.includes(id)
+                ? prevSelected.filter((itemId) => itemId !== id)
+                : [...prevSelected, id]
+        );
+    };
+
+    // Checkbox Selected All
+    const handleSelectAllChange = () => {
+        if (selectedItems.length === merks.length) {
+            setSelectedItems([]);
+        } else {
+            setSelectedItems(merks.map((emp) => emp.id));
+        }
+    };
+
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Detail
+    const navigateToDetail = (id) => {
+        navigate(`${location.pathname}/${id}`);
+    }
+
+    return (
+        <div className="main-container">
+            <InstantSearch
+                searchClient={searchClient}
+                indexName={indexName}
+            >
+
+                <AlgoliaListener subscribeFn={subscribeFn} />
+                <Configure
+                    hitsPerPage={itemsPerPage}
+                />
+
+                <div className="main-container-header">
+                    <CustomSearchBox
+                        placeholder={`Cari ${pageLabel} dengan nama atau kata kunci...`}
+                    />
+
+                    {enableDropdown && (
+                        <CustomAlgoliaDropdown
+                            attribute="part"
+                        />
+                    )}
+
+                    {/* Import */}
+                    <IconButton
+                        tooltipLabel={`Impor ${pageLabel}`}
+                        icon={<Download size={18} />}
+                    />
+
+                    {/* Export */}
+                    <IconButton
+                        tooltipLabel={`Ekspor ${pageLabel}`}
+                        icon={<Upload size={18} />}
+                    />
+
+                    {/* Create */}
+                    <IconButton
+                        tooltipLabel={`Tambah ${pageLabel}`}
+                        icon={<Plus size={18} />}
+                        onclick={createOnclick}
+                        background='#0d82ff'
+                        color='white'
+                    />
+
+                </div>
+
+                <div className='table-wrapper'>
+                    <ItemsHit />
+
+                    <CustomPagination
+                        itemsPerPage={itemsPerPage}
+                        setItemsPerPage={setItemsPerPage}
+                    />
+                </div>
+
+            </InstantSearch>
+        </div>
+    )
+}
+
+export default CustomAlgoliaContainer;

@@ -1,7 +1,33 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore"
 import { db } from "../../firebase";
 
 export default class CategoriesRepository {
+    static subscribeToCategoriesChanges(callback) {
+        const unsub = onSnapshot(collection(db, 'Categories'), (snapshot) => {
+            callback(snapshot);
+        });
+
+        return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
+    }
+
+    static async checkCategoryCodeExists(categoryCode, merkCode, excludeId = null) {
+        try {
+            const q = query(
+                collection(db, "Categories"),
+                where("code", "==", categoryCode),
+                where("merks.code", "==", merkCode),
+                limit(1)
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            return querySnapshot.docs.some(doc => doc.id !== excludeId);
+        } catch (error) {
+            console.error("Error checking category existence: ", error);
+            throw error
+        }
+    }
+
     static getCategories(callback) {
         try {
             // Query Firestore untuk mengurutkan berdasarkan 'name'
@@ -22,7 +48,7 @@ export default class CategoriesRepository {
         }
     }
 
-    static async getCategoriesById(categoryId) {
+    static async getCategoryById(categoryId) {
         try {
             const docRef = doc(db, "Categories", categoryId);
             const docSnapshot = await getDoc(docRef);

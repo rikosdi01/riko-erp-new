@@ -38,7 +38,7 @@ const AddReturnOrder = () => {
         <div className="main-container">
             <ContentHeader title="Tambah Retur Penjualan"/>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nomor Returan"
                     icon={<KeyRound className='input-icon' />}
@@ -52,7 +52,7 @@ const AddReturnOrder = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Alasan Retur"
                     icon={<ClipboardPen className='input-icon' />}
@@ -73,7 +73,7 @@ const AddReturnOrder = () => {
             <div className='list-item-container'>
                 <div className='list-item-header'>List Returan</div>
 
-                <div className='add-merk-input-area'>
+                <div className='add-container-input-area'>
                     <Dropdown
                         values={[]}
                         label="Pilih Kategori"
@@ -99,7 +99,7 @@ const AddReturnOrder = () => {
                 </div>
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Reset"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
@@ -107,7 +107,7 @@ const AddReturnOrder = () => {
                     onclick={handleReset}
                 />
 
-                {/* <div className='add-merk-actions-right'>
+                {/* <div className='add-container-actions-right'>
                     <ActionButton title="Simpan & Tutup"
                         background="linear-gradient(to top right,rgb(51, 231, 117),rgb(35, 255, 127))"
                         color="#146A3E"

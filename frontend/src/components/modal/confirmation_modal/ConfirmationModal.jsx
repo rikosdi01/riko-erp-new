@@ -1,15 +1,20 @@
 
 import ActionButton from '../../button/actionbutton/ActionButton';
 import './ConfirmationModal.css'
-import React from "react";
 
-const ConfirmationModal = ({ isOpen, onClose, onclick, title }) => {
+const ConfirmationModal = ({
+    isOpen,
+    onClose,
+    onClick,
+    title,
+    itemDelete,
+}) => {
     if (!isOpen) return null; // Jika modal tidak terbuka, jangan render apapun
 
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <div className='modal-title'>Apakah Anda yakin ingin menghapus {title} ini?</div>
+                <div className='modal-title'>Apakah Anda yakin ingin menghapus {title} "<span className='modal-item'>{itemDelete}</span>" ini?</div>
                 <div className='modal-subtitle'>Data yang dihapus tidak dapat dikembalikan lagi!</div>
                 <div className='modal-actions'>
                     <ActionButton
@@ -24,7 +29,7 @@ const ConfirmationModal = ({ isOpen, onClose, onclick, title }) => {
                         type="button"
                         title="Hapus"
                         onclick={() => {
-                            onclick();
+                            onClick();
                             onClose();
                         }}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

@@ -46,7 +46,7 @@ const DetailExpress = () => {
         <div className="main-container">
             <ContentHeader title="Rincian Pengangkutan" />
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Nama Pengangkutan"
                     icon={<Ship className='input-icon' size={20}/>}
@@ -56,7 +56,7 @@ const DetailExpress = () => {
                 {codeError && <div className="error-message">{codeError}</div>}
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Alamat Pengangkutan"
                     icon={<MapPin className='input-icon' size={20}/>}
@@ -71,7 +71,7 @@ const DetailExpress = () => {
                 />
             </div>
 
-            <div className='add-merk-input'>
+            <div className='add-container-input'>
                 <InputLabel
                     label="Jasa"
                     icon={<HandPlatter className='input-icon' size={20}/>}
@@ -92,7 +92,7 @@ const DetailExpress = () => {
                 />
             </div>
 
-            <div className='add-merk-actions'>
+            <div className='add-container-actions'>
                 <ActionButton
                     title="Hapus"
                     background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"

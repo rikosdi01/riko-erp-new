@@ -20,7 +20,7 @@ const SidebarPages = () => {
                 text="Pengiriman Pesanan"
                 to="/logistic/delivery-order"  // Mengarah ke halaman Dashboard
             /> */}
-            {/* <SidebarItem
+            <SidebarItem
                 icon={<ClipboardEdit size={20} />}
                 text="Penjualan"
                 to="/sales"
@@ -57,8 +57,8 @@ const SidebarPages = () => {
                     //     icon: <Users size={20}/>
                     // },
                 ]}
-            /> */}
-            {/* <SidebarItem
+            />
+            <SidebarItem
                 icon={<Warehouse size={20} />}
                 text="Inventaris"
                 to="/inventory"
@@ -100,7 +100,7 @@ const SidebarPages = () => {
                         icon: <Computer size={20}/>
                     },
                 ]}
-            /> */}
+            />
             <SidebarItem
                 icon={<Package size={20} />}
                 text="Logistik"

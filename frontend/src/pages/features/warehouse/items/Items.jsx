@@ -1,53 +1,13 @@
-import './Items.css';
-import { Download, Plus, Upload } from "lucide-react";
-import { Tooltip } from "react-tooltip";
-import { useNavigate } from "react-router-dom";
-import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
-import IconButton from '../../../../components/button/icon_button/IconButton';
-import Table from '../../../../components/table/Table';
-import { useState } from 'react';
-import { useItems } from '../../../../context/warehouse/ItemContext';
+import { useNavigate } from 'react-router-dom';
+import { ALGOLIA_INDEX_ITEMS, clientItems } from '../../../../../config/algoliaConfig';
+import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
+import ItemsRepository from '../../../../repository/warehouse/ItemsRepository';
 import Formatting from '../../../../utils/format/Formatting';
+import './Items.css';
 
 const Items = () => {
+    // Hooks
     const navigate = useNavigate();
-    // const { items, isLoading } = useItems();
-    const [selectedItems, setSelectedItems] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const items = [];
-    const isLoading = false;
-
-    const handleCheckboxChange = (id) => {
-        setSelectedItems((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((itemId) => itemId !== id)
-                : [...prevSelected, id]
-        );
-    };
-
-    const handleSelectAllChange = () => {
-        if (selectedItems.length === items.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(items.map((emp) => emp.id));
-        }
-    };
-
-    const navigateToCreateCategory = () => {
-        navigate('/inventory/items/new');
-    }
-
-    const navigateToDetailsCategory = (id) => {
-        navigate(`/inventory/items/${id}`);
-    }
-
-    // **Filter data berdasarkan nilai pencarian**
-    const filteredItems = items.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
 
     const columns = [
@@ -63,58 +23,26 @@ const Items = () => {
         },
     ]
 
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Create
+    const navigateToCreateItems = () => {
+        navigate('/inventory/items/new');
+    }
+    
     return (
-        <div className="main-container">
-            <div className="main-container-header">
-                <SearchValue
-                    label="item"
-                    onSearchChange={setSearchTerm}
-                />
-
-                {/* Import */}
-                {/* <IconButton
-                    tooltipLabel="Impor"
-                    icon={<Download size={18} />}
-                /> */}
-
-                {/* Export */}
-                {/* <IconButton
-                    tooltipLabel="Ekspor"
-                    icon={<Upload size={18} />}
-                /> */}
-
-                {/* Create */}
-                {/* <IconButton
-                    tooltipLabel="Tambah Kategori"
-                    icon={<Plus size={18} />}
-                    onclick={navigateToCreateCategory}
-                    background='#0d82ff'
-                    color='white'
-                /> */}
-            </div>
-
-            <Table
-                columns={columns}
-                data={filteredItems}
-                isLoading={isLoading}
-                selectedItems={selectedItems}
-                onCheckboxChange={handleCheckboxChange}
-                onSelectAllChange={handleSelectAllChange}
-                handleDeleteItems={() => { }}
-                title="Merek"
-                onclick={(id) => navigateToDetailsCategory(id)}
-            />
-
-            {/* Tooltip dengan efek fade-in dan muncul di bawah */}
-            <Tooltip
-                id="tooltip"
-                place="bottom"
-                effect="solid"
-                delayShow={200}
-                className="custom-tooltip"
-            />
-        </div>
-    );
+        <CustomAlgoliaContainer
+            pageLabel="Item"
+            searchClient={clientItems}
+            indexName={ALGOLIA_INDEX_ITEMS}
+            columns={columns}
+            createOnclick={navigateToCreateItems}
+            subscribeFn={ItemsRepository.subscribeToItemsChanges}
+        />
+    )
 }
 
 export default Items;

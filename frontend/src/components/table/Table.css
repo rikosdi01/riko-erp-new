@@ -1,8 +1,7 @@
 .table-wrapper {
     margin-top: 15px;
-    border: 1px solid #ededed;
     border-radius: 5px;
-    height: 450px;
+    height: 100%;
     position: relative;
 }
 
@@ -66,12 +65,9 @@ tbody tr:last-child td {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 15px;
+    width: 100%;
+    margin: 30px 40px;
     gap: 10px;
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%); /* Ini akan benar-benar memusatkan elemen */
 }
 
 .pagination button {
@@ -129,9 +125,6 @@ tbody tr:last-child td {
     color: #007bff;
 }
 
-th:nth-child(3) {
-    /* width: 250px; */
-}
 /* 
 tbody tr:nth-child(n + 3) {
     background-color: rgb(145, 255, 145);

@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './ContentHeader.css'
 import { ArrowLeft, Printer } from 'lucide-react';
-import React from "react";
 
 const ContentHeader = ({ title, enablePrint = false }) => {
     const navigate = useNavigate();

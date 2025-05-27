@@ -3,9 +3,9 @@ import ActionButton from "../button/actionbutton/ActionButton";
 import ConfirmationModal from "../modal/confirmation_modal/ConfirmationModal";
 import { Edit, Trash2, Filter } from "lucide-react"; // Import ikon Filter
 import "./Table.css";
-import React from "react";
 
 const Table = ({
+    isAlgoliaTable = false,
     columns,
     data,
     isLoading,
@@ -18,16 +18,18 @@ const Table = ({
     onclick,
     onFilterClick, // Tambahkan fungsi untuk menangani filter
 }) => {
+    console.log('Data: ', data);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    
     const [itemsPerPage, setItemsPerPage] = useState(8);
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = data.slice(startIndex, startIndex + itemsPerPage);
+    const currentData = isAlgoliaTable ? data : data.slice(startIndex, startIndex + itemsPerPage);
 
     return (
-        <div className='table-wrapper'>
+        <div className={!isAlgoliaTable ? 'table-wrapper' : ''}>
             <table>
                 <thead>
                     <tr>
@@ -65,7 +67,7 @@ const Table = ({
                     ) : (
                         currentData.length > 0 ? (
                             currentData.map((item) => (
-                                <tr key={item.id} onClick={() => onclick(item.id)}>
+                                <tr key={item.id || item.objectID} onClick={() => onclick(item.id)}>
                                     {enableCheckbox && (
                                         <td>
                                             <input
@@ -107,30 +109,38 @@ const Table = ({
             </table>
 
             {/* Pagination */}
-            <div className="pagination">
-                <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
-                    &laquo; Prev
-                </button>
-                {/* <span>Hal. {currentPage} | {totalPages}</span> */}
-                <span>Hal. {currentPage} | {1}</span>
-                {/* <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}> */}
-                <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
-                    Next &raquo;
-                </button>
+            {!isAlgoliaTable && (
+                <div className="pagination">
+                    <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+                        &laquo; Awal
+                    </button>
+                    <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+                        &lt; Prev
+                    </button>
+                    {/* <span>Hal. {currentPage} | {totalPages}</span> */}
+                    <span>Hal. {currentPage} | {1}</span>
+                    {/* <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}> */}
+                    <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
+                        Next &gt;
+                    </button>
+                    <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
+                        Akhir &raquo;
+                    </button>
 
-                <div className="items-per-page">
-                    <select value={itemsPerPage} onChange={(e) => {
-                        setItemsPerPage(Number(e.target.value));
-                        setCurrentPage(1);
-                    }}>
-                        <option value={8}>8</option>
-                        <option value={25}>25</option>
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                    </select>
-                    <span> per halaman</span>
+                    <div className="items-per-page">
+                        <select value={itemsPerPage} onChange={(e) => {
+                            setItemsPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                        }}>
+                            <option value={8}>8</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                        </select>
+                        <span> per halaman</span>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {selectedItems.length > 0 && (
                 <div className="selected-employee">

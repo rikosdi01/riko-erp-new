@@ -1,112 +1,56 @@
-import './Categories.css';
-import { Download, Plus, Upload } from "lucide-react";
-import { Tooltip } from "react-tooltip";
-import { useNavigate } from "react-router-dom";
-import { useCategories } from '../../../../context/warehouse/CategoryContext';
-import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
-import IconButton from '../../../../components/button/icon_button/IconButton';
-import Table from '../../../../components/table/Table';
 import { useState } from 'react';
-import Formatting from '../../../../utils/format/Formatting';
+import { ALGOLIA_INDEX_CATEGORIES, clientCategories } from '../../../../../config/algoliaConfig';
+import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
+import CategoriesRepository from '../../../../repository/warehouse/CategoriesRepository';
+import './Categories.css';
+import { useNavigate } from 'react-router-dom';
 
 const Categories = () => {
+    // Hooks
     const navigate = useNavigate();
-    // const { categories, isLoading } = useCategories();
-    const [selectedItems, setSelectedItems] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const categories = [];
-    const isLoading = false;
 
-    const handleCheckboxChange = (id) => {
-        setSelectedItems((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((itemId) => itemId !== id)
-                : [...prevSelected, id]
-        );
-    };
 
-    const handleSelectAllChange = () => {
-        if (selectedItems.length === categories.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(categories.map((emp) => emp.id));
-        }
-    };
+    // ================================================================================
 
-    const navigateToCreateCategory = () => {
+
+    // Variables
+    // Columns for the table
+    const columns = [
+        { 
+            header: "Kode Kategori",
+            accessor: "codeCategoryMerk",
+            renderCell: (_, category) => {
+                const code = category?.code ?? "";
+                const merkCode = category?.merks?.code ?? "";
+                return merkCode + '-' + code;
+            }
+         },
+        { header: "Nama Kategori", accessor: "name" },
+        { header: "Bagian Kategori", accessor: "part" },
+        { header: "Merek", accessor: "merks.name" },
+    ]
+
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Create
+    const navigateToCreateCategories = () => {
         navigate('/inventory/categories/new');
     }
 
-    const navigateToDetailsCategory = (id) => {
-        navigate(`/inventory/categories/${id}`);
-    }
-
-    // **Filter data berdasarkan nilai pencarian**
-    // const filteredCategories = categories.filter(category =>
-    //     Formatting.isSearchMatch(category.name, searchTerm) ||
-    //     Formatting.isSearchMatch(category.code, searchTerm) ||
-    //     Formatting.isSearchMatch(category.merkName, searchTerm)
-    // );
-
-    const columns = [
-        { header: "Kode Kategori", accessor: "code" },
-        { header: "Nama Kategori", accessor: "name" },
-        { header: "Merek", accessor: "merkName" },
-    ]
-
     return (
-        <div className="main-container">
-            <div className="main-container-header">
-                <SearchValue
-                    label="kategori"
-                    onSearchChange={setSearchTerm}
-                />
-
-                {/* Import */}
-                <IconButton
-                    tooltipLabel="Impor"
-                    icon={<Download size={18} />}
-                />
-
-                {/* Export */}
-                <IconButton
-                    tooltipLabel="Ekspor"
-                    icon={<Upload size={18} />}
-                />
-
-                {/* Create */}
-                <IconButton
-                    tooltipLabel="Tambah Kategori"
-                    icon={<Plus size={18} />}
-                    onclick={navigateToCreateCategory}
-                    background='#0d82ff'
-                    color='white'
-                />
-            </div>
-
-            <Table
-                columns={columns}
-                data={categories}
-                isLoading={isLoading}
-                selectedItems={selectedItems}
-                onCheckboxChange={handleCheckboxChange}
-                onSelectAllChange={handleSelectAllChange}
-                handleDeleteItems={() => { }}
-                title="Merek"
-                onclick={(id) => navigateToDetailsCategory(id)}
-            />
-
-            {/* Tooltip dengan efek fade-in dan muncul di bawah */}
-            <Tooltip
-                id="tooltip"
-                place="bottom"
-                effect="solid"
-                delayShow={200}
-                className="custom-tooltip"
-            />
-        </div>
-    );
+        <CustomAlgoliaContainer
+            pageLabel="Kategori"
+            searchClient={clientCategories}
+            indexName={ALGOLIA_INDEX_CATEGORIES}
+            columns={columns}
+            createOnclick={navigateToCreateCategories}
+            subscribeFn={CategoriesRepository.subscribeToCategoriesChanges}
+            enableDropdown={true}
+        />
+    )
 }
 
 export default Categories;

@@ -12,8 +12,8 @@ import AddMerk from "./pages/features/warehouse/merks/children/add_merk/AddMerk"
 import { MerkProvider } from "./context/warehouse/MerkContext";
 import DetailMerk from "./pages/features/warehouse/merks/children/detail_merk/DetailMerk";
 import Categories from "./pages/features/warehouse/categories/Categories";
-import AddCategories from "./pages/features/warehouse/categories/children/add_category/AddCategories";
-import DetailCategories from "./pages/features/warehouse/categories/children/detail_category/DetailCategories";
+import AddCategory from "./pages/features/warehouse/categories/children/add_category/AddCategory";
+import DetailCategory from "./pages/features/warehouse/categories/children/detail_category/DetailCategory";
 import { CategoryProvider } from "./context/warehouse/CategoryContext";
 import Items from "./pages/features/warehouse/items/Items";
 import { ItemProvider } from "./context/warehouse/ItemContext";
@@ -191,8 +191,8 @@ function AppContent() {
 
           {/* Categories */}
           <Route path="/inventory/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
-          <Route path="/inventory/categories/new" element={<ProtectedRoute><AddCategories /></ProtectedRoute>} />
-          <Route path="/inventory/categories/:id" element={<ProtectedRoute><DetailCategories /></ProtectedRoute>} />
+          <Route path="/inventory/categories/new" element={<ProtectedRoute><AddCategory /></ProtectedRoute>} />
+          <Route path="/inventory/categories/:id" element={<ProtectedRoute><DetailCategory /></ProtectedRoute>} />
 
           {/* Items */}
           <Route path="/inventory/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />

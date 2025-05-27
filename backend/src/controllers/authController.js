@@ -39,7 +39,11 @@ exports.login = async (req, res) => {
 
     res.json({ accessToken });
   } catch (error) {
-    res.status(401).json({ message: "Login gagal", error });
+    res.status(401).json({
+      message: "Login gagal",
+      error: error.message, // tambah message string
+      stack: error.stack,   // opsional, debugging
+    });
   }
 };
 
@@ -49,23 +53,23 @@ exports.refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-      return res.status(403).json({ message: "Tidak ada refresh token" });
+    return res.status(403).json({ message: "Tidak ada refresh token" });
   }
 
   try {
-      const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
-      const uid = decoded.uid;
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    const uid = decoded.uid;
 
-      const doc = await db.collection("refreshTokens").doc(uid).get();
-      if (!doc.exists || doc.data().refreshToken !== refreshToken) {
-          return res.status(403).json({ message: "Refresh token tidak valid atau tidak cocok" });
-      }
+    const doc = await db.collection("refreshTokens").doc(uid).get();
+    if (!doc.exists || doc.data().refreshToken !== refreshToken) {
+      return res.status(403).json({ message: "Refresh token tidak valid atau tidak cocok" });
+    }
 
-      const accessToken = await createAccessToken(uid);
-      res.json({ accessToken });
+    const accessToken = await createAccessToken(uid);
+    res.json({ accessToken });
   } catch (error) {
-      console.error("Error saat verifikasi refresh token:", error);
-      res.status(403).json({ message: "Refresh token tidak valid", error });
+    console.error("Error saat verifikasi refresh token:", error);
+    res.status(403).json({ message: "Refresh token tidak valid", error });
   }
 };
 
