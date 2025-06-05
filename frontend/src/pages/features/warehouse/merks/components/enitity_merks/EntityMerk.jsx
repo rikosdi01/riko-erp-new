@@ -143,7 +143,7 @@ const EntityMerk = ({
 
     return (
         <div className="main-container">
-            <ContentHeader title="Tambah Merek" />
+            <ContentHeader title={mode === "create" ? "Tambah Merek" : "Rincian Merek"} />
 
             <div className='add-container-input'>
                 <InputLabel

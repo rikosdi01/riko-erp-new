@@ -11,14 +11,22 @@ const Items = () => {
 
 
     const columns = [
-        { header: "Kode Item", accessor: "code" },
+        { 
+            header: "Kode Item",
+            accessor: "codeItemCategory",
+            renderCell: (_, item) => {
+                const code = item?.code ?? "";
+                const categoryCode = item?.category?.code ?? "";
+                return categoryCode + '-' + code;
+            }
+        },
         { header: "Nama Item", accessor: "name" },
-        { header: "Kategori", accessor: "categoryName" },
-        { header: "Motor", accessor: "brandName" },
-        { header: "Kuantitas", accessor: "quantity" },
+        { header: "Kategori", accessor: "category.name" },
+        { header: "Motor", accessor: "brand" },
+        { header: "Kuantitas", accessor: "qty" },
         {
             header: "Harga Jual",
-            accessor: "price",
+            accessor: "salePrice",
             renderCell: (value) => Formatting.formatCurrencyIDR(value)
         },
     ]

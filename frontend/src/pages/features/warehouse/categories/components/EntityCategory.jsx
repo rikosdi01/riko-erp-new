@@ -177,7 +177,7 @@ const EntityCategory = ({
 
     return (
         <div className="main-container">
-            <ContentHeader title="Tambah Kategori" />
+            <ContentHeader title={mode === "create" ? "Tambah Kategori" : "Rincian Kategori"} />
 
             <div className='add-container-input'>
                 <InputLabel

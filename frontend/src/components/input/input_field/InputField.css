@@ -4,6 +4,10 @@
     align-items: center;
 }
 
+.input-wrapper > div {
+    flex: 1;
+}
+
 .input-text {
     width: 100%;
     border-radius: 8px;

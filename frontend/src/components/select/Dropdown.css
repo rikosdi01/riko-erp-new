@@ -1,12 +1,21 @@
 .react-select-container {
+    color: #3c3c3c;
     width: 100%;
 }
 
-.react-select__control {
-    border: 1px solid rgb(212, 212, 212);
+.react-select__control, .css-1eniyt9-control, .css-1n6cia6-control {
     border-radius: 5px;
-    padding: 5px;
+    padding: 3.5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.css-1eniyt9-control, .css-1n6cia6-control {
+    min-width: 200px;
+}
+
+.react-select__control:hover, .css-1eniyt9-control:hover, .css-1n6cia6-control:hover {
+  border: 1px solid #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .react-select__menu {

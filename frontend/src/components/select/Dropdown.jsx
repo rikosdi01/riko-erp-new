@@ -1,53 +1,113 @@
 import Select from "react-select";
+import AsyncSelect from "react-select/async";
 import './Dropdown.css'
 
-const customStyles = {
-    control: (provided) => ({
+const customStyles = (hasIcon) => ({
+    control: (provided, state) => ({
         ...provided,
         display: "flex",
         alignItems: "center",
-        paddingLeft: "30px", // Beri ruang untuk ikon
-        border: "1px solid rgb(212, 212, 212)",
+        paddingLeft: hasIcon ? "30px" : undefined, // Beri ruang untuk ikon
+        paddingTop: "5px",
+        paddingBottom: "5px",
+        border: "1px solid #ccc",
+        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
         borderRadius: "10px",
         fontFamily: "Poppins",
         fontSize: "14px",
+        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+    }),
+    singleValue: (provided) => ({
+        ...provided,
+        color: "#333", // teks terpilih
     }),
     menu: (provided) => ({
         ...provided,
         zIndex: 1000, // Tambahkan z-index tinggi agar muncul di atas ikon
+        fontSize: "14px",
+        fontWeight: 400,
     }),
-};
+    option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected
+            ? "#007bff"   // warna saat terpilih
+            : state.isFocused
+                ? "#d9ebfc"  // warna saat hover/fokus
+                : "white",    // warna default
+        color: state.isSelected ? "white" : "#3c3c3c",
+        cursor: "pointer",
+    }),
+    noOptionsMessage: (provided) => ({
+        ...provided,
+        fontSize: "14px",
+        textAlign: "left",
+        fontWeight: 400,
+    }),
+});
 
-function Dropdown({ values, selectedId, setSelectedId, label, icon, width }) {
+function Dropdown({
+    values,
+    selectedId,
+    setSelectedId,
+    label,
+    icon,
+    width,
+    isRequired = false,
+    isAlgoliaDropdown = false,
+}) {
     // Konversi data ke format `react-select`
-    const valuesOption = values.map(value => {
-        if (value.value && value.label) return value;
-        return {
+    let valuesOption = [];
+    let selectedValue = null;
+
+    if (!isAlgoliaDropdown) {
+        valuesOption = values.map(value => ({
             value: value.id,
             label: value.name,
-        };
-    });
-    console.log("Dropdown valuesOption:", valuesOption);
+            code: value.code,
+        }));
 
-    // Temukan karyawan yang dipilih saat ini
-    const selectedValue = valuesOption.find(opt => opt.value === selectedId) || null;
-    console.log("Dropdown selectedValue:", selectedValue);
+        // Temukan nilai yang dipilih saat ini
+        selectedValue = valuesOption.find(opt => opt.value === selectedId) || null;
+    }
+
+    const styles = customStyles(!!icon);
 
     return (
         <div className="input-label">
-            <label className="input-text-label">{label}</label>
+            {label && (
+                <div>
+                    {isRequired && <label className="required-field">*</label>}
+                    <label className="input-text-label">{label}</label>
+                </div>
+            )}
             <div className="input-wrapper" style={{ width: width }}>
                 {icon}
-                <Select
-                    options={valuesOption}
-                    value={selectedValue}
-                    onChange={(selectedOption) => setSelectedId(selectedOption.value)}
-                    placeholder={label}
-                    isSearchable // Mengaktifkan fitur pencarian
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={customStyles}
-                />
+                {isAlgoliaDropdown ? (
+                    <AsyncSelect
+                        getOptionLabel={(e) => e.name}
+                        getOptionValue={(e) => e.id}
+                        cacheOptions
+                        loadOptions={values}
+                        defaultOptions
+                        value={selectedId}
+                        onChange={(selectedOption) => setSelectedId(selectedOption)}
+                        placeholder={label}
+                        noOptionsMessage={() => "Tidak ada hasil, coba ketik kata kunci lain..."}
+                        styles={styles}
+                        isClearable={true}
+                    />
+                ) : (
+                    <Select
+                        options={valuesOption}
+                        value={selectedValue}
+                        onChange={(selectedOption) => setSelectedId(selectedOption.value)}
+                        placeholder={label}
+                        isSearchable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={styles}
+                    />
+                )}
             </div>
         </div>
     );

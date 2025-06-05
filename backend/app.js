@@ -8,9 +8,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
+  origin: "http://localhost:14298", // ganti dengan origin React kamu
+  credentials: true, // penting agar cookie dikirim
 }));
+
 
 app.use("/auth", authRoutes);
 
