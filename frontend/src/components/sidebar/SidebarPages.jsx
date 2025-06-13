@@ -85,6 +85,11 @@ const SidebarPages = () => {
                     },
                     { type: "divider" }, // Tambahkan divider di sini
                     {
+                        text: "Gudang Rak",
+                        to: "/inventory/warehouse",
+                        icon: <Warehouse size={20}/>
+                    },
+                    {
                         text: "Merek",
                         to: "/inventory/merks",
                         icon: <BadgeCheckIcon size={20}/>

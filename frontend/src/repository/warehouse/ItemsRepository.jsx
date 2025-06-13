@@ -9,24 +9,24 @@ export default class ItemsRepository {
 
         return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
     }
-    
-        static async checkItemsExists(itemCode, categoryId, excludeId = null) {
-            try {
-                const q = query(
-                    collection(db, "Items"),
-                    where("code", "==", itemCode),
-                    where("category.id", "==", categoryId),
-                    limit(1)
-                );
-    
-                const querySnapshot = await getDocs(q);
-    
-                return querySnapshot.docs.some(doc => doc.id !== excludeId);
-            } catch (error) {
-                console.error("Error checking category existence: ", error);
-                throw error
-            }
+
+    static async checkItemsExists(itemCode, categoryId, excludeId = null) {
+        try {
+            const q = query(
+                collection(db, "Items"),
+                where("code", "==", itemCode),
+                where("category.id", "==", categoryId),
+                limit(1)
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            return querySnapshot.docs.some(doc => doc.id !== excludeId);
+        } catch (error) {
+            console.error("Error checking category existence: ", error);
+            throw error
         }
+    }
 
     static getItems(callback) {
         try {

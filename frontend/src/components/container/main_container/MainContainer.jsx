@@ -55,7 +55,7 @@ const MainContainer = ({
     // Navigation
     // Navigation to Detail
     const navigateToDetail = (id) => {
-        navigate(`/inventory/merks/${id}`);
+        navigate(`/inventory/warehouse/${id}`);
     }
 
 

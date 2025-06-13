@@ -61,7 +61,7 @@ const EntityCategory = ({
                 name: merk.name,
             }));
             setMerks(merksDropdown);
-            setSelectedMerk(initialData.merks?.id || merksDropdown[0]?.id || "");
+            setSelectedMerk(initialData.merks?.id || merksDropdown[0]?.id || 1);
         }
     }, [merksData]);
 
@@ -77,7 +77,7 @@ const EntityCategory = ({
         setSelectedCategoryPart(initialData.categoryPart || categoryPart[0].id || 1);
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId || `guest-${Date.now()}`);
-    }, [initialData, merksData]);
+    }, [initialData]);
 
 
     // ================================================================================

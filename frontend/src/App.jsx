@@ -36,7 +36,6 @@ import { DeliveryOrderProvider } from "./context/logistic/DeliveryOrderContext";
 import { ExpressProvider } from "./context/logistic/ExpressContext";
 import Express from "./pages/features/logistic/express/Express";
 import TrackingOrder from "./pages/features/logistic/tracking_order/TrackingOrder";
-import { InventoryProvider } from "./context/warehouse/InventoryContext";
 import AddItem from "./pages/features/warehouse/items/children/add_item/AddItem";
 import DetailItem from "./pages/features/warehouse/items/children/detail_item/DetailItem";
 import Storage from "./pages/features/warehouse/storage/Storage";
@@ -78,6 +77,10 @@ import SettingActivity from "./pages/personalization/settings/children/activity/
 import SettingNotification from "./pages/personalization/settings/children/notification/SettingNotification";
 import SettingHelp from "./pages/personalization/settings/children/help/SettingHelp";
 import SignUp from "./pages/authentication/signup/SignUp";
+import RackWarehouse from "./pages/features/warehouse/rack_warehouse/RackWarehouse";
+import { RackProvider } from "./context/warehouse/RackWarehouseContext";
+import AddRacks from "./pages/features/warehouse/rack_warehouse/children/add_racks/AddRacks";
+import DetailRacks from "./pages/features/warehouse/rack_warehouse/children/detail_racks/DetailRacks";
 
 function AppContent() {
   const location = useLocation();
@@ -184,6 +187,11 @@ function AppContent() {
           <Route path="/inventory/transfer/new" element={<ProtectedRoute><AddTransfer /></ProtectedRoute>} />
           <Route path="/inventory/transfer/:id" element={<ProtectedRoute><DetailTransfer /></ProtectedRoute>} />
 
+          {/* Warehouse */}
+          <Route path="/inventory/warehouse" element={<ProtectedRoute><RackWarehouse /></ProtectedRoute>} />
+          <Route path="/inventory/warehouse/new" element={<ProtectedRoute><AddRacks /></ProtectedRoute>} />
+          <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><DetailRacks /></ProtectedRoute>} />
+
           {/* Merks */}
           <Route path="/inventory/merks" element={<ProtectedRoute><Merks /></ProtectedRoute>} />
           <Route path="/inventory/merks/new" element={<ProtectedRoute><AddMerk /></ProtectedRoute>} />
@@ -211,8 +219,8 @@ function AppContent() {
           <Route path="/settings/notification" element={<ProtectedRoute><SettingNotification /></ProtectedRoute>} />
           <Route path="/settings/help" element={<ProtectedRoute><SettingHelp /></ProtectedRoute>} />
 
-          
-          <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute> }/>
+
+          <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
 
           {/* Not Found Page */}
           <Route path="*" element={<NotFound />} />
@@ -225,39 +233,39 @@ function AppContent() {
 function App() {
   return (
     <ToastProvider>
-      <MerkProvider>
-        <CategoryProvider>
-          <ItemProvider>
-            <AdjustmentProvider>
-              <TransferProvider>
-                <InventoryProvider>
-                  <CustomersProvider>
-                    <SalesmanProvider>
-                      <CSOProvider>
-                        <SalesOrderProvider>
-                          <CourierProvider>
-                            <ExpressProvider>
-                              <DeliveryOrderProvider>
-                                <InvoiceProvider>
-                                  <ReturnProvider>
-                                    <Router>
-                                      <AppContent />
-                                    </Router>
-                                  </ReturnProvider>
-                                </InvoiceProvider>
-                              </DeliveryOrderProvider>
-                            </ExpressProvider>
-                          </CourierProvider>
-                        </SalesOrderProvider>
-                      </CSOProvider>
-                    </SalesmanProvider>
-                  </CustomersProvider>
-                </InventoryProvider>
-              </TransferProvider>
-            </AdjustmentProvider>
-          </ItemProvider>
-        </CategoryProvider>
-      </MerkProvider>
+      <RackProvider>
+        <MerkProvider>
+          <CategoryProvider>
+            <ItemProvider>
+              <AdjustmentProvider>
+                <TransferProvider>
+                    <CustomersProvider>
+                      <SalesmanProvider>
+                        <CSOProvider>
+                          <SalesOrderProvider>
+                            <CourierProvider>
+                              <ExpressProvider>
+                                <DeliveryOrderProvider>
+                                  <InvoiceProvider>
+                                    <ReturnProvider>
+                                      <Router>
+                                        <AppContent />
+                                      </Router>
+                                    </ReturnProvider>
+                                  </InvoiceProvider>
+                                </DeliveryOrderProvider>
+                              </ExpressProvider>
+                            </CourierProvider>
+                          </SalesOrderProvider>
+                        </CSOProvider>
+                      </SalesmanProvider>
+                    </CustomersProvider>
+                </TransferProvider>
+              </AdjustmentProvider>
+            </ItemProvider>
+          </CategoryProvider>
+        </MerkProvider>
+      </RackProvider>
     </ToastProvider>
   );
 }

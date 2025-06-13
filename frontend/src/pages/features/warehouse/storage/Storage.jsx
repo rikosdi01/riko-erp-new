@@ -1,109 +1,56 @@
+import { ALGOLIA_INDEX_INVENTORY, clientInventory } from '../../../../../config/algoliaConfig';
+import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
+import CategoriesRepository from '../../../../repository/warehouse/CategoriesRepository';
+import InventoryRepository from '../../../../repository/warehouse/InventoryRepository';
 import './Storage.css';
-import { Download, Plus, Upload } from "lucide-react";
-import { Tooltip } from "react-tooltip";
-import { useNavigate } from "react-router-dom";
-import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
-import IconButton from '../../../../components/button/icon_button/IconButton';
-import Table from '../../../../components/table/Table';
-import { useState } from 'react';
-import Formatting from '../../../../utils/format/Formatting';
-import { useInventory } from '../../../../context/warehouse/InventoryContext';
+import { useNavigate } from 'react-router-dom';
 
 const Storage = () => {
+    // Hooks
     const navigate = useNavigate();
-    // const { inventory, isLoading } = useInventory();
-    const [selectedItems, setSelectedItems] = useState([]);
-    const inventory = [];
-    const isLoading = false;
 
-    const handleCheckboxChange = (id) => {
-        setSelectedItems((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((itemId) => itemId !== id)
-                : [...prevSelected, id]
-        );
-    };
 
-    const handleSelectAllChange = () => {
-        if (selectedItems.length === inventory.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(inventory.map((emp) => emp.id));
-        }
-    };
+    // ================================================================================
 
-    const navigateToCreateCategory = () => {
-        navigate('/inventory/storage/new');
-    }
 
-    const navigateToDetailsCategory = (id) => {
-        navigate(`/inventory/storage/${id}`);
-    }
-
+    // Variables
+    // Columns for the table
     const columns = [
-        { header: "Item", accessor: "name" },
-        { header: "Kategori", accessor: "categoryName" },
-        { header: "Motor", accessor: "brandName" },
+        { header: "Item", accessor: "items.name" },
         { header: "Kts", accessor: "quantity" },
-        // { header: "Status Packing", accessor: "packingStatus" },
+        { header: "Status Packing", accessor: "packingStatus" },
         { header: "Rak", accessor: "rack" },
         { header: "Baris", accessor: "rackLines" },
         { header: "No. Dus", accessor: "boxNumber" },
         { header: "Trip", accessor: "trip" },
+        { header: "Gudang", accessor: "warehouse.name" },
     ]
 
+
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Create
+    const navigateToCreateInventory = () => {
+        navigate('/inventory/storage/new');
+    }
+
     return (
-        <div className="main-container">
-            <div className="main-container-header">
-                <SearchValue label="merek" />
-
-                <FilterValue placeholder={"Semua Status"} />
-
-                {/* Import */}
-                <IconButton
-                    tooltipLabel="Impor"
-                    icon={<Download size={18} />}
-                />
-
-                {/* Export */}
-                <IconButton
-                    tooltipLabel="Ekspor"
-                    icon={<Upload size={18} />}
-                />
-
-                {/* Create */}
-                <IconButton
-                    tooltipLabel="Tambah Kategori"
-                    icon={<Plus size={18} />}
-                    onclick={navigateToCreateCategory}
-                    background='#0d82ff'
-                    color='white'
-                />
-            </div>
-
-            <Table
-                columns={columns}
-                data={inventory}
-                isLoading={isLoading}
-                selectedItems={selectedItems}
-                onCheckboxChange={handleCheckboxChange}
-                onSelectAllChange={handleSelectAllChange}
-                handleDeleteItems={() => { }}
-                title="Merek"
-                onclick={(id) => navigateToDetailsCategory(id)}
-            />
-
-            {/* Tooltip dengan efek fade-in dan muncul di bawah */}
-            <Tooltip
-                id="tooltip"
-                place="bottom"
-                effect="solid"
-                delayShow={200}
-                className="custom-tooltip"
-            />
-        </div>
-    );
+        <CustomAlgoliaContainer
+            pageLabel="Penyimpanan"
+            searchClient={clientInventory}
+            indexName={ALGOLIA_INDEX_INVENTORY}
+            columns={columns}
+            createOnclick={navigateToCreateInventory}
+            subscribeFn={InventoryRepository.subscribeToInvetoryChanges}
+            enableDropdown={true}
+            enableImport={false}
+            enableExport={false}
+            enableCreate={false}
+        />
+    )
 }
 
 export default Storage;

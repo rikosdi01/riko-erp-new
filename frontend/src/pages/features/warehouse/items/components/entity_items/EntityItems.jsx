@@ -141,7 +141,7 @@ const EntityItems = ({
     };
 
 
-    const handleReset = (e) => {
+    const handleReset = () => {
         setCode("");
         setName("");
         setCategory([]);
@@ -210,7 +210,7 @@ const EntityItems = ({
                 />
             </div>
 
-            <div className='add-container-input'>
+            <div className='add-container-input-attribute'>
                 <div>
                     <InputLabel
                         label="Harga Jual"

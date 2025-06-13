@@ -19,6 +19,9 @@ const CustomAlgoliaContainer = ({
     subscribeFn,
     createOnclick,
     enableDropdown = false,
+    enableImport = true,
+    enableExport = true,
+    enableCreate = true,
 }) => {
     // Hooks
     const location = useLocation();
@@ -45,6 +48,7 @@ const CustomAlgoliaContainer = ({
                 onclick={(id) => navigateToDetail(id)}
                 itemsPerPage={itemsPerPage}
                 setItemsPerPage={setItemsPerPage}
+                enableCheckbox={false}
             />
         )
     }
@@ -108,30 +112,36 @@ const CustomAlgoliaContainer = ({
 
                     {enableDropdown && (
                         <CustomAlgoliaDropdown
-                            attribute="part"
+                            attribute="warehouse.name"
                         />
                     )}
 
                     {/* Import */}
-                    <IconButton
-                        tooltipLabel={`Impor ${pageLabel}`}
-                        icon={<Download size={18} />}
-                    />
+                    {enableImport && (
+                        <IconButton
+                            tooltipLabel={`Impor ${pageLabel}`}
+                            icon={<Download size={18} />}
+                        />
+                    )}
 
                     {/* Export */}
-                    <IconButton
-                        tooltipLabel={`Ekspor ${pageLabel}`}
-                        icon={<Upload size={18} />}
-                    />
+                    {enableExport && (
+                        <IconButton
+                            tooltipLabel={`Ekspor ${pageLabel}`}
+                            icon={<Upload size={18} />}
+                        />
+                    )}
 
                     {/* Create */}
-                    <IconButton
-                        tooltipLabel={`Tambah ${pageLabel}`}
-                        icon={<Plus size={18} />}
-                        onclick={createOnclick}
-                        background='#0d82ff'
-                        color='white'
-                    />
+                    {enableCreate && (
+                        <IconButton
+                            tooltipLabel={`Tambah ${pageLabel}`}
+                            icon={<Plus size={18} />}
+                            onclick={createOnclick}
+                            background='#0d82ff'
+                            color='white'
+                        />
+                    )}
 
                 </div>
 
