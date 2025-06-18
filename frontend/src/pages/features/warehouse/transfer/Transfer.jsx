@@ -58,7 +58,7 @@ const Transfer = () => {
     // Navigation
     // Navigation to Create
     const navigateToCreateMerk = () => {
-        navigate('/inventory/merks/new');
+        navigate('/inventory/transfer/new');
     }
 
 
