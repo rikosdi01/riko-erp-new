@@ -1,6 +1,6 @@
 import './MainContainer.css';
 import { Download, Plus, Upload } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import SearchValue from '../../input/search_value/SearchValue';
 import CustomTooltip from '../../customize/custom_tooltip/CustomTooltip';
@@ -17,6 +17,7 @@ const MainContainer = ({
 }) => {
     // Hooks
     const navigate = useNavigate();
+    const location = useLocation();
 
 
     // ================================================================================
@@ -55,7 +56,7 @@ const MainContainer = ({
     // Navigation
     // Navigation to Detail
     const navigateToDetail = (id) => {
-        navigate(`/inventory/warehouse/${id}`);
+        navigate(`${location.pathname}/${id}`);
     }
 
 

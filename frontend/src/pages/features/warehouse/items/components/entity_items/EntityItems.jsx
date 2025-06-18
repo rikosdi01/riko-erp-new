@@ -152,18 +152,18 @@ const EntityItems = ({
         setNameError("");
     }
 
-        // handler delete
-        const handleDeleteItem= async () => {
-            try {
-                await ItemsRepository.deleteItem(initialData.id);
-                showToast("berhasil", "Item berhasil dihapus!");
-                navigate("/inventory/items");
-            } catch (error) {
-                console.error("Error deleting item: ", error);
-                showToast("gagal", "Gagal menghapus Item!");
-            }
+    // handler delete
+    const handleDeleteItem = async () => {
+        try {
+            await ItemsRepository.deleteItem(initialData.id);
+            showToast("berhasil", "Item berhasil dihapus!");
+            navigate("/inventory/items");
+        } catch (error) {
+            console.error("Error deleting item: ", error);
+            showToast("gagal", "Gagal menghapus Item!");
         }
-    
+    }
+
 
     return (
         <div className="main-container">

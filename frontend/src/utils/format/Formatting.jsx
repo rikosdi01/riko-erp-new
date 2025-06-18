@@ -1,9 +1,27 @@
 import { CheckCircle, Clock, RefreshCw } from "lucide-react";
 import { differenceInDays, differenceInMonths, differenceInYears, addMonths, addYears, isBefore } from "date-fns";
 import { Timestamp } from "firebase/firestore";
-import React from "react";
 
 export default class Formatting {
+        static formatDateForInput = (date) => {
+        const pad = (n) => n.toString().padStart(2, '0');
+
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1); // Bulan 0-11
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    static formatTimestampToISO(timestamp) {
+        if (!timestamp) return ""; // Tangani kasus null atau undefined
+        const date = timestamp.toDate(); // Konversi Firestore Timestamp ke Date
+        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000); // Koreksi ke waktu lokal
+        return localDate.toISOString().slice(0, 16); // Format untuk input datetime-local
+    };
+    
     static getCurrentDateTime = () => {
         const now = new Date();
         return now.toISOString().slice(0, 16); // Format sesuai datetime-local (YYYY-MM-DDTHH:MM)

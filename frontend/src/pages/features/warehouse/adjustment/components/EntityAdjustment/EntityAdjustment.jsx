@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './EntityTransfer.css';
+import './EntityAdjustment.css';
 import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
@@ -12,8 +12,9 @@ import { productIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
+import AdjustmentRepository from '../../../../../../repository/warehouse/AdjustmentRepository';
 
-const EntityTransfer = ({
+const EntityAdjustment = ({
     mode,
     initialData = {},
     onSubmit,
@@ -23,12 +24,11 @@ const EntityTransfer = ({
     const { showToast } = useToast();
     const { racks } = useRacks();
 
-    const emptyData = [{ item: '', qty: '', notes: '' }]
+    const emptyData = [{ item: '', qty: '' }]
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
-    const [warehouseFrom, setWarehouseFrom] = useState(initialData.warehouseFrom?.id || '');
-    const [warehouseTo, setWarehouseTo] = useState(initialData.warehouseTo?.id || '');
+    const [warehouse, setWarehouse] = useState(initialData.warehouse?.id || '');
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
@@ -51,11 +51,11 @@ const EntityTransfer = ({
 
         // Row dianggap berisi jika ada salah satu field terisi
         const isRowFilled = (row) =>
-            row.item || row.qty || row.notes;
+            row.item || row.qty;
 
         // Tambahkan row kosong baru jika row terakhir lengkap
         if (isRowComplete(updatedItems[updatedItems.length - 1])) {
-            updatedItems.push({ item: "", qty: "", notes: "" });
+            updatedItems.push({ item: "", qty: "" });
         }
 
         // Temukan index terakhir yang masih berisi data
@@ -86,98 +86,74 @@ const EntityTransfer = ({
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
-        setWarehouseFrom(initialData.warehouseFrom?.id || '');
-        setWarehouseTo(initialData.warehouseTo?.id || '');
+        setWarehouse(initialData.warehouse?.id || '');
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
     }, [initialData]);
 
-    const handleWarehouseFromChange = (value) => {
-        setWarehouseFrom(value);
-        if (value && value === warehouseTo) {
-            setWarehouseError("Gudang asal dan tujuan tidak boleh sama!");
-        } else {
-            setWarehouseError("");
-        }
-    };
 
-    const handleWarehouseToChange = (value) => {
-        setWarehouseTo(value);
-        if (value && value === warehouseFrom) {
-            setWarehouseError("Gudang asal dan tujuan tidak boleh sama!");
-        } else {
-            setWarehouseError("");
-        }
-    };
-
-
-    const handleTransfer = async (e) => { // Tambahkan 'e' di sini
+    const handleAdjustment = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
 
         let valid = true;
 
         if (!code.trim()) {
-            setCodeError('Kode Merek tidak boleh kosong!');
+            setCodeError('Kode Penyesuaian tidak boleh kosong!');
+            valid = false;
+        }
+
+        if (!warehouse.trim()) {
+            setWarehouseError('Gudang tidak boleh kosong!');
             valid = false;
         }
 
         if (JSON.stringify(items) === JSON.stringify(emptyData)) {
             valid = false;
-            setItemError('List Item Transfer tidak boleh kosong!');
+            setItemError('List Item Penyesuaian tidak boleh kosong!');
         }
 
         if (!valid) return setLoading(false);
 
         try {
             const filteredItems = items.filter(item => item.item && item.qty);
-            const whFrom = racks.find(wh => wh.id === warehouseFrom);
-            const whTo = racks.find(wh => wh.id === warehouseTo);
+            const wh = racks.find(wh => wh.id === warehouse);
 
-            const filteredWHFrom = {
-                id: whFrom.id,
-                code: whFrom.code,
-                name: whFrom.name,
+            const filteredWH = {
+                id: wh.id,
+                code: wh.code,
+                name: wh.name,
             };
 
-            const filteredWHTo = {
-                id: whTo.id,
-                code: whTo.code,
-                name: whTo.name,
-            };
-
-            const exists = await TransferRepository.checkTransferExists(
+            const exists = await AdjustmentRepository.checkAdjExists(
                 code.trim(),
                 mode === "detail" ? initialData.id : null
             );
 
             if (exists) {
-                showToast("gagal", "Kode Transferan sudah digunakan!");
+                showToast("gagal", "Kode Penyesuaian sudah digunakan!");
                 return setLoading(false);
             }
 
-            const newTransfers = {
+            const newAdj = {
                 code,
                 description,
                 items: filteredItems,
-                warehouseFrom: filteredWHFrom,
-                warehouseTo: filteredWHTo,
-                createdAt: createdAt,
+                warehouse: filteredWH,
+                createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
 
-            console.log('New Transfer: ', newTransfers);
-
             try {
-                await onSubmit(newTransfers, handleReset); // Eksekusi yang berisiko error
+                await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
+                showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
                 return;
             }
 
-            showToast('berhasil', 'Merek berhasil ditambahkan!');
+            showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
             showToast('gagal', 'Gagal menambahkan merek baru!');
@@ -190,8 +166,7 @@ const EntityTransfer = ({
         setCode("");
         setDescription("");
         setItems(emptyData);
-        setWarehouseFrom("");
-        setWarehouseTo("");
+        setWarehouse("");
         setCodeError("");
         setItemError("");
         setWarehouseError("");
@@ -227,35 +202,16 @@ const EntityTransfer = ({
 
     return (
         <div className="main-container">
-            <ContentHeader title={mode === "create" ? "Tambah Pemindahan Stok" : "Rincian Pemindahan Stok"} />
+            <ContentHeader title={mode === "create" ? "Tambah Penyesuaian Stok" : "Rincian Penyesuaian Stok"} />
 
             <div className='add-container-input'>
                 <InputLabel
-                    label="Nomor Transferan"
+                    label="Nomor Penyesuaian"
                     icon={<KeyRound className='input-icon' />}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                 />
                 {codeError && <div className="error-message">{codeError}</div>}
-            </div>
-
-            <div className='add-container-input-attribute'>
-                <Dropdown
-                    values={racks}
-                    selectedId={warehouseFrom}
-                    setSelectedId={handleWarehouseFromChange}
-                    label="Gudang Asal"
-                    icon={<Warehouse className="input-icon" />}
-                />
-
-                <Dropdown
-                    values={racks}
-                    selectedId={warehouseTo}
-                    setSelectedId={handleWarehouseToChange}
-                    label="Gudang Tujuan"
-                    icon={<Warehouse className="input-icon" />}
-                />
-                {warehouseError && <div className="error-message">{warehouseError}</div>}
             </div>
 
             <div className='add-container-input'>
@@ -265,6 +221,16 @@ const EntityTransfer = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
+                <div>
+                <Dropdown
+                    values={racks}
+                    selectedId={warehouse}
+                    setSelectedId={setWarehouse}
+                    label="Gudang"
+                    icon={<Warehouse className="input-icon" />}
+                />
+                {warehouseError && <div className="error-message">{warehouseError}</div>}
+                </div>
                 <InputLabel
                     label="Tanggal"
                     type="datetime-local"
@@ -277,7 +243,7 @@ const EntityTransfer = ({
             <div className='divider'></div>
 
             <div className='list-item-container'>
-                <div className='list-item-header'>List Pemindahan</div>
+                <div className='list-item-header'>List Penyesuaian</div>
 
                 {items.map((item, index) => (
                     <div key={index} className="add-container-input-area">
@@ -294,12 +260,6 @@ const EntityTransfer = ({
                             icon={<Sheet className='input-icon' />}
                             value={item.qty}
                             onChange={(e) => handleItemChange(index, "qty", e.target.value)}
-                        />
-                        <InputLabel
-                            label="Keterangan"
-                            icon={<ClipboardPen className='input-icon' />}
-                            value={item.notes}
-                            onChange={(e) => handleItemChange(index, "notes", e.target.value)}
                         />
                     </div>
                 ))}
@@ -318,7 +278,7 @@ const EntityTransfer = ({
                     <ActionButton
                         title={loading ? "Menyimpan..." : "Simpan"}
                         disabled={loading}
-                        onclick={handleTransfer}
+                        onclick={handleAdjustment}
                     />
                 </div>
             ) : (
@@ -333,7 +293,7 @@ const EntityTransfer = ({
                     <ActionButton
                         title={loading ? "Memperbarui..." : "Perbarui"}
                         disabled={loading}
-                        onclick={handleTransfer}
+                        onclick={handleAdjustment}
                     />
                 </div>
             )}
@@ -351,4 +311,4 @@ const EntityTransfer = ({
     )
 }
 
-export default EntityTransfer;
+export default EntityAdjustment;

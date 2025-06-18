@@ -1,110 +1,85 @@
 import './Adjustment.css';
-import { Download, Plus, Upload } from "lucide-react";
-import { Tooltip } from "react-tooltip";
-import { useNavigate } from "react-router-dom";
-import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
-import IconButton from '../../../../components/button/icon_button/IconButton';
-import Table from '../../../../components/table/Table';
+import MainContainer from '../../../../components/container/main_container/MainContainer';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useTransfer } from '../../../../context/warehouse/TransferContext';
 import Formatting from '../../../../utils/format/Formatting';
 import { useAdjustment } from '../../../../context/warehouse/AdjustmentContext';
 
 const Adjustment = () => {
+    // Hooks
     const navigate = useNavigate();
-    // const { adjustment, isLoading } = useAdjustment();
-    const [selectedItems, setSelectedItems] = useState([]);
-    const adjustment = [];
-    const isLoading = false;
 
 
-    const handleCheckboxChange = (id) => {
-        setSelectedItems((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((itemId) => itemId !== id)
-                : [...prevSelected, id]
-        );
-    };
+    // ================================================================================
 
-    const handleSelectAllChange = () => {
-        if (selectedItems.length === adjustment.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(adjustment.map((emp) => emp.id));
-        }
-    };
 
-    const navigateToCreateCategory = () => {
-        navigate('/inventory/adjustment/new');
-    }
+    // Context
+    const { adjustment, isLoading } = useAdjustment();
 
-    const navigateToDetailsCategory = (id) => {
-        navigate(`/inventory/adjustment/${id}`);
-    }
 
+    // ================================================================================
+
+
+    // Variables
+    const [searchTerm, setSearchTerm] = useState("");
+
+
+    // ================================================================================
+
+
+    // Data
+    // Columns Data
     const columns = [
-        { header: "No. Penyesuaian", accessor: "code" },
-        { 
-            header: "Harga",
-            accessor: "price",
-            renderCell: (value) => Formatting.formatCurrencyIDR(value)
-        },
-        { header: "Keterangan", accessor: "description" },
+        { header: "Kode Penyesuaian", accessor: "code" },
         {
             header: "Tanggal",
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDate(value)
         },
+        { header: "Deskripsi", accessor: "description" },
+        { header: "Gudang Penyesuaian", accessor: "warehouse.name" },
     ]
 
+    // Filter Data
+    const filteredAdjustment = adjustment.filter(adj =>
+        adj.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        Formatting.formatDate(adj.createdAt).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        adj.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        adj.warehouse?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Create
+    const navigateToCreateAdjustment = () => {
+        navigate('/inventory/adjustment/new');
+    }
+
+
+    // ================================================================================
+
+
+    // Logic
+
+
+    // ================================================================================
+
+
+    // Page Container
     return (
-        <div className="main-container">
-            <div className="main-container-header">
-                <SearchValue label="merek" />
-
-                {/* Import */}
-                <IconButton
-                    tooltipLabel="Impor"
-                    icon={<Download size={18} />}
-                />
-
-                {/* Export */}
-                <IconButton
-                    tooltipLabel="Ekspor"
-                    icon={<Upload size={18} />}
-                />
-
-                {/* Create */}
-                <IconButton
-                    tooltipLabel="Tambah Kategori"
-                    icon={<Plus size={18} />}
-                    onclick={navigateToCreateCategory}
-                    background='#0d82ff'
-                    color='white'
-                />
-            </div>
-
-            <Table
-                columns={columns}
-                data={adjustment}
-                isLoading={isLoading}
-                selectedItems={selectedItems}
-                onCheckboxChange={handleCheckboxChange}
-                onSelectAllChange={handleSelectAllChange}
-                handleDeleteItems={() => { }}
-                title="Merek"
-                onclick={(id) => navigateToDetailsCategory(id)}
-            />
-
-            {/* Tooltip dengan efek fade-in dan muncul di bawah */}
-            <Tooltip
-                id="tooltip"
-                place="bottom"
-                effect="solid"
-                delayShow={200}
-                className="custom-tooltip"
-            />
-        </div>
+        <MainContainer
+            pageLabel="Penyesuaian Barang"
+            setSearchValue={setSearchTerm}
+            createOnclick={navigateToCreateAdjustment}
+            columns={columns}
+            data={filteredAdjustment}
+            isLoading={isLoading}
+        />
     );
 }
 

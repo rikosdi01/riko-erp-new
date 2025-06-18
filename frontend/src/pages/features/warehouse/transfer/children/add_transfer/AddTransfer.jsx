@@ -1,3 +1,4 @@
+import TransferRepository from "../../../../../../repository/warehouse/TransferRepository";
 import EntityTransfer from "../../components/entity_transfer/EntityTransfer";
 import './AddTransfer.css'
 
@@ -7,7 +8,7 @@ const AddTransfer = () => {
             <EntityTransfer
                 mode={'create'}
                 onSubmit={async (data, reset) => {
-                    // await MerksRepository.createMerk(data);
+                    await TransferRepository.createTransfer(data);
                     reset();
                 }}
             />
