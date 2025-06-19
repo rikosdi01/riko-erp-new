@@ -1,0 +1,13 @@
+.list-item-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    padding-bottom: 20px;
+}
+
+.list-item-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.list-item-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}

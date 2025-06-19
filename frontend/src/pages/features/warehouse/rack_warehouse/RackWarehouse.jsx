@@ -30,14 +30,15 @@ const RackWarehouse = () => {
     // Data
     // Columns Data
     const columns = [
-        { header: "Kode Gudang", accessor: "code" },
         { header: "Nama Gudang", accessor: "name" },
+        { header: "Kategori Gudang", accessor: "category" },
     ]
 
     // Filter Data
     const filteredMerks = racks.filter(merk =>
         merk.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        merk.code.toLowerCase().includes(searchTerm.toLowerCase())
+        merk.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        merk.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
 

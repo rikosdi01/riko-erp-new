@@ -69,6 +69,25 @@
   flex: 1;
 }
 
+.add-container-input-area-horizontal {
+  display: flex;
+  gap: 20px;
+}
+
+.add-container-input-area-horizontal > * {
+  flex: 0 0 auto;
+  min-width: 200px; /* atau sesuai kebutuhan */
+}
+
+.add-container-input-area-horizontal > div:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: white; /* Warna latar belakang untuk elemen sticky */
+}
+
+
+
 .add-container-checkbox {
   display: flex;
   align-items: center;

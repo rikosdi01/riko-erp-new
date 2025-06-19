@@ -4,7 +4,7 @@
     align-items: center;
 }
 
-.input-wrapper > div {
+.input-wrapper>div {
     flex: 1;
 }
 
@@ -12,7 +12,8 @@
     width: 100%;
     border-radius: 8px;
     border: 1px solid #ccc;
-    padding: 12px 12px 12px 40px; /* Padding kiri lebih besar untuk ikon */
+    padding: 12px 12px 12px 40px;
+    /* Padding kiri lebih besar untuk ikon */
     font-size: 14px;
     transition: all 0.3s ease;
     outline: none;
@@ -33,8 +34,10 @@
     position: absolute;
     left: 12px;
     top: 50%;
-    z-index: 1;
+    z-index: 12;
     transform: translateY(-50%);
+    pointer-events: none;
+    /* Biar tidak menghalangi klik */
     color: #949494;
     pointer-events: none;
 }

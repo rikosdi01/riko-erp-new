@@ -3,7 +3,7 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityTransfer.css';
-import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse } from "lucide-react";
+import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, PackageOpen } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
@@ -12,6 +12,7 @@ import { productIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
+import { set } from 'date-fns';
 
 const EntityTransfer = ({
     mode,
@@ -23,18 +24,53 @@ const EntityTransfer = ({
     const { showToast } = useToast();
     const { racks } = useRacks();
 
-    const emptyData = [{ item: '', qty: '', notes: '' }]
+    const packingStatusOptions = [
+        { id: 1, name: "Sudah Kemas" },
+        { id: 2, name: "Belum Kemas" },
+    ]
+
+    const filterPackingStatus = packingStatusOptions.find((packingStatus) => packingStatus.name === initialData.packingStatus);
+    const defaultPackingStatus = filterPackingStatus?.id || packingStatusOptions[0]?.id || 1;
+
+    const emptyData =
+        [{
+            item: '',
+            qty: '',
+            notes: '',
+            packingStatus: defaultPackingStatus,
+            rack: '',
+            rackLines: '',
+            boxNumber: '',
+            trip: '',
+        }]
+
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
     const [warehouseFrom, setWarehouseFrom] = useState(initialData.warehouseFrom?.id || '');
     const [warehouseTo, setWarehouseTo] = useState(initialData.warehouseTo?.id || '');
-    const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
+    const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
     const [warehouseError, setWarehouseError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [typeList, setTypeList] = useState('in');
+
+    useEffect(() => {
+        if (warehouseTo) {
+            const racksData = racks.find(wh => wh.id === warehouseTo);
+            if (racksData.category === 'Sales Department') {
+                setTypeList('out');
+            } else {
+                setTypeList('in');
+            }
+        }
+    }, [warehouseTo]);
+
+    useEffect(() => {
+        console.log('Type List Updated: ', typeList);
+    }, [typeList]);
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
@@ -82,12 +118,14 @@ const EntityTransfer = ({
     // 🔁 Sinkronkan initialData ke state setiap kali initialData berubah
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
+        console.log('Updating state with initialData: ', initialData);
 
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
         setWarehouseFrom(initialData.warehouseFrom?.id || '');
         setWarehouseTo(initialData.warehouseTo?.id || '');
+        setPackingStatus(defaultPackingStatus);
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -131,7 +169,6 @@ const EntityTransfer = ({
         if (!valid) return setLoading(false);
 
         try {
-            const filteredItems = items.filter(item => item.item && item.qty);
             const whFrom = racks.find(wh => wh.id === warehouseFrom);
             const whTo = racks.find(wh => wh.id === warehouseTo);
 
@@ -147,6 +184,18 @@ const EntityTransfer = ({
                 name: whTo.name,
             };
 
+            // Cek apakah warehouseTo adalah F7 atau Sales Depo
+            const shouldAddIsTaken = ["F7", "Sales Depot"].includes(whTo.name);
+
+            // Tambahkan isTaken hanya jika kondisi terpenuhi
+            const filteredItems = items
+                .filter(item => item.item && item.qty)
+                .map(item => ({
+                    ...item,
+                    ...(shouldAddIsTaken && { isTaken: false }), // hanya menambahkan isTaken jika kondisi terpenuhi
+                }));
+
+
             const exists = await TransferRepository.checkTransferExists(
                 code.trim(),
                 mode === "detail" ? initialData.id : null
@@ -157,25 +206,27 @@ const EntityTransfer = ({
                 return setLoading(false);
             }
 
+            const createdAtDate = createdAt ? new Date(createdAt) : new Date();
+
             const newTransfers = {
                 code,
                 description,
                 items: filteredItems,
                 warehouseFrom: filteredWHFrom,
                 warehouseTo: filteredWHTo,
-                createdAt: createdAt,
+                createdAt: Timestamp.fromDate(createdAtDate),
                 updatedAt: Timestamp.now(),
             };
 
             console.log('New Transfer: ', newTransfers);
 
-            try {
-                await onSubmit(newTransfers, handleReset); // Eksekusi yang berisiko error
-            } catch (submitError) {
-                console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
-                return;
-            }
+            // try {
+            //     await onSubmit(newTransfers, handleReset); // Eksekusi yang berisiko error
+            // } catch (submitError) {
+            //     console.error("Error during onSubmit: ", submitError);
+            //     showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
+            //     return;
+            // }
 
             showToast('berhasil', 'Merek berhasil ditambahkan!');
         } catch (error) {
@@ -277,33 +328,64 @@ const EntityTransfer = ({
             <div className='divider'></div>
 
             <div className='list-item-container'>
-                <div className='list-item-header'>List Pemindahan</div>
+                <div className='list-item-wrapper'>
+                    <div className='list-item-header'>List Pemindahan</div>
 
-                {items.map((item, index) => (
-                    <div key={index} className="add-container-input-area">
-                        <Dropdown
-                            isAlgoliaDropdown={true}
-                            values={loadItemOptions}
-                            selectedId={item.item}
-                            setSelectedId={(value) => handleItemChange(index, "item", value)}
-                            label="Pilih Item"
-                            icon={<Computer className="input-icon" />}
-                        />
-                        <InputLabel
-                            label="Kuantitas"
-                            icon={<Sheet className='input-icon' />}
-                            value={item.qty}
-                            onChange={(e) => handleItemChange(index, "qty", e.target.value)}
-                        />
-                        <InputLabel
-                            label="Keterangan"
-                            icon={<ClipboardPen className='input-icon' />}
-                            value={item.notes}
-                            onChange={(e) => handleItemChange(index, "notes", e.target.value)}
-                        />
-                    </div>
-                ))}
-                {itemError && <div className="error-message">{itemError}</div>}
+                    {typeList === 'in' ? (
+                        items.map((item, index) => (
+                            <div key={index} className="add-container-input-area-horizontal">
+                                <Dropdown
+                                    isAlgoliaDropdown={true}
+                                    values={loadItemOptions}
+                                    selectedId={item.item}
+                                    setSelectedId={(value) => handleItemChange(index, "item", value)}
+                                    label="Pilih Item"
+                                    icon={<Computer className="input-icon" />}
+                                />
+                                <InputLabel
+                                    label="Kuantitas"
+                                    icon={<Sheet className='input-icon' />}
+                                    value={item.qty}
+                                    onChange={(e) => handleItemChange(index, "qty", e.target.value)}
+                                />
+                                <Dropdown
+                                    values={packingStatusOptions}
+                                    selectedId={item.packingStatus}
+                                    setSelectedId={(value) => handleItemChange(index, "packingStatus", value)}
+                                    label="Status Paking"
+                                    icon={<PackageOpen className="input-icon" />}
+                                />
+                                <InputLabel
+                                    label="Rak"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.rack}
+                                    onChange={(e) => handleItemChange(index, "rack", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Baris Rak"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.rackLines}
+                                    onChange={(e) => handleItemChange(index, "rackLines", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Nomor Kotak"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.boxNumber}
+                                    onChange={(e) => handleItemChange(index, "boxNumber", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Partai"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.trip}
+                                    onChange={(e) => handleItemChange(index, "trip", e.target.value)}
+                                />
+                                {/* {itemError && <div className="error-message">{itemError}</div>} */}
+                            </div>
+                        ))
+                    ) : (
+                        <div>a</div>
+                    )}
+                </div>
             </div>
 
             {mode === "create" ? (

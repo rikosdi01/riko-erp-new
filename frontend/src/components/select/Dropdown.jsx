@@ -23,7 +23,6 @@ const customStyles = (hasIcon) => ({
     }),
     menu: (provided) => ({
         ...provided,
-        zIndex: 1000, // Tambahkan z-index tinggi agar muncul di atas ikon
         fontSize: "14px",
         fontWeight: 400,
     }),
@@ -36,6 +35,7 @@ const customStyles = (hasIcon) => ({
                 : "white",    // warna default
         color: state.isSelected ? "white" : "#3c3c3c",
         cursor: "pointer",
+        zIndex: 1000,
     }),
     noOptionsMessage: (provided) => ({
         ...provided,
@@ -95,6 +95,8 @@ function Dropdown({
                         noOptionsMessage={() => "Tidak ada hasil, coba ketik kata kunci lain..."}
                         styles={styles}
                         isClearable={true}
+                        menuPosition="fixed"
+                        // menuPortalTarget={document.body}
                     />
                 ) : (
                     <Select
@@ -106,6 +108,8 @@ function Dropdown({
                         className="react-select-container"
                         classNamePrefix="react-select"
                         styles={styles}
+                        menuPosition="fixed"
+                        // menuPortalTarget={document.body}
                     />
                 )}
             </div>
