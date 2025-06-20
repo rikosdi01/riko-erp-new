@@ -1,6 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import React from "react";
-import SalesOrderRepository from '../../repository/sales/SalesOrderRepository';
 import SalesmanRepository from '../../repository/sales/SalesmanRepository';
 
 const SalesmanContext = createContext();

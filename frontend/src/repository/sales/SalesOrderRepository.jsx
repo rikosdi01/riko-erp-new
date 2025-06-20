@@ -1,7 +1,24 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore"
 import { db } from "../../firebase";
 
 export default class SalesOrderRepository {
+    static async checkSalesOrderExists(soCode, excludeId = null) {
+        try {
+            const q = query(
+                collection(db, "SalesOrder"),
+                where("code", "==", soCode),
+                limit(1)
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            return querySnapshot.docs.some(doc => doc.id !== excludeId);
+        } catch (error) {
+            console.error("Error checking category existence: ", error);
+            throw error
+        }
+    }
+
     static getSalesOrder(callback) {
         try {
             // Query Firestore untuk mengurutkan berdasarkan 'name'

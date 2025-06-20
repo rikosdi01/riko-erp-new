@@ -2,29 +2,36 @@ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './EntityAdjustment.css';
-import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse } from "lucide-react";
+import './EntitySalesOrder.css';
+import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, BadgeDollarSign, PercentCircle, Store } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { productIndex } from '../../../../../../../config/algoliaConfig';
+import { customerIndex, productIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
-import AdjustmentRepository from '../../../../../../repository/warehouse/AdjustmentRepository';
+import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
+import { useCustomers } from '../../../../../../context/sales/CustomersContext';
 
-const EntityAdjustment = ({
+const EntitySalesOrder = ({
     mode,
     initialData = {},
     onSubmit,
 }) => {
-    console.log('Initial Data: ', initialData);
     // Context
     const { showToast } = useToast();
     const { racks } = useRacks();
+    const { customers } = useCustomers();
 
-    const emptyData = [{ item: '', qty: '' }]
+    const emptyData = [{
+        item: '',
+        qty: '',
+        price: '',
+        discount: '',
+    }]
+    const [customer, setCustomer] = useState(initialData.customer?.id || '');
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
@@ -38,27 +45,41 @@ const EntityAdjustment = ({
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
+        console.log('Items: ', items);
 
-        // Update field yang diubah
-        updatedItems[index] = {
-            ...updatedItems[index],
-            [field]: value ?? "",
-        };
-
-        // Row dianggap lengkap jika 'item' dan 'qty' terisi
-        const isRowComplete = (row) =>
-            row.item && row.qty;
-
-        // Row dianggap berisi jika ada salah satu field terisi
-        const isRowFilled = (row) =>
-            row.item || row.qty;
-
-        // Tambahkan row kosong baru jika row terakhir lengkap
-        if (isRowComplete(updatedItems[updatedItems.length - 1])) {
-            updatedItems.push({ item: "", qty: "" });
+        if (field === "item") {
+            updatedItems[index] = {
+                ...updatedItems[index],
+                item: value,
+                price: value?.price ? Formatting.formatCurrencyIDR(value?.price) : "",
+            };
+        } else if (field === "price") {
+            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
+            updatedItems[index] = {
+                ...updatedItems[index],
+                price: raw ? Formatting.formatCurrencyIDR(raw) : "",
+            };
+        } else if (field === "discount") {
+            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
+            updatedItems[index] = {
+                ...updatedItems[index],
+                discount: raw ? `${raw}%` : "",
+            };
+        } else {
+            updatedItems[index] = {
+                ...updatedItems[index],
+                [field]: value ?? "",
+            };
         }
 
-        // Temukan index terakhir yang masih berisi data
+        // Validasi dan tambah baris seperti biasa
+        const isRowComplete = (row) => row.item && row.qty;
+        const isRowFilled = (row) => row.item || row.qty;
+
+        if (isRowComplete(updatedItems[updatedItems.length - 1])) {
+            updatedItems.push({ item: "", qty: "", price: "", discount: "" });
+        }
+
         let lastFilledIndex = -1;
         for (let i = 0; i < updatedItems.length; i++) {
             if (isRowFilled(updatedItems[i])) {
@@ -66,10 +87,11 @@ const EntityAdjustment = ({
             }
         }
 
-        // Sisakan 1 row kosong setelah baris terakhir yang berisi
         const cleanedItems = updatedItems.slice(0, lastFilledIndex + 2);
         setItems(cleanedItems);
     };
+
+
 
     // Hanya jalan sekali saat komponen pertama kali dimount
     useEffect(() => {
@@ -83,6 +105,7 @@ const EntityAdjustment = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
+        setCustomer(initialData.customer?.id || '');
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
@@ -118,6 +141,19 @@ const EntityAdjustment = ({
 
         try {
             const filteredItems = items.filter(item => item.item && item.qty);
+            const cleanedItems = filteredItems.map(item => ({
+                item: {
+                    id: item.item?.id,
+                    code: item.item?.code,
+                    name: item.item?.name,
+                },
+                qty: parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                discount: parseFloat(
+                    (item.discount || "0").toString().replace(/[^0-9.]/g, "")
+                ) / 100 || 0,
+            }));
+
             const wh = racks.find(wh => wh.id === warehouse);
 
             const filteredWH = {
@@ -126,32 +162,35 @@ const EntityAdjustment = ({
                 category: wh.category,
             };
 
-            const exists = await AdjustmentRepository.checkAdjExists(
+            const exists = await SalesOrderRepository.checkSalesOrderExists(
                 code.trim(),
                 mode === "detail" ? initialData.id : null
             );
 
             if (exists) {
-                showToast("gagal", "Kode Penyesuaian sudah digunakan!");
+                showToast("gagal", "Kode Sales Order sudah digunakan!");
                 return setLoading(false);
             }
 
-            const newAdj = {
+            const newSalesOrder = {
+                customer,
                 code,
                 description,
-                items: filteredItems,
+                items: cleanedItems,
                 warehouse: filteredWH,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
 
-            try {
-                await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
-            } catch (submitError) {
-                console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
-                return;
-            }
+            console.log('New Sales Order Data: ', newSalesOrder);
+
+            // try {
+            //     await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
+            // } catch (submitError) {
+            //     console.error("Error during onSubmit: ", submitError);
+            //     showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
+            //     return;
+            // }
 
             showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
@@ -181,6 +220,20 @@ const EntityAdjustment = ({
         return hits.map(hit => ({
             name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
             code: hit.category.code + '-' + hit.code,
+            price: hit.salePrice,
+            id: hit.objectID,
+        }));
+    };
+
+    const loadCustomerOptions = async (inputValue) => {
+        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
+        const { hits } = await customerIndex.search(searchTerm, {
+            hitsPerPage: 10,
+        });
+
+        return hits.map(hit => ({
+            name: hit.name + ' (' + hit.salesman.name + ')',
+            sales: hit.salesman.name,
             id: hit.objectID,
         }));
     };
@@ -199,14 +252,21 @@ const EntityAdjustment = ({
     }
 
 
-
     return (
         <div className="main-container">
-            <ContentHeader title={mode === "create" ? "Tambah Penyesuaian Stok" : "Rincian Penyesuaian Stok"} />
+            <ContentHeader title={mode === "create" ? "Tambah Pesanan" : "Rincian Pesanan"} />
 
             <div className='add-container-input'>
+                <Dropdown
+                isAlgoliaDropdown={true}
+                    values={loadCustomerOptions}
+                    selectedId={customer}
+                    setSelectedId={setCustomer}
+                    label="Pelanggan"
+                    icon={<Store className="input-icon" />}
+                />
                 <InputLabel
-                    label="Nomor Penyesuaian"
+                    label="Nomor Pesanan"
                     icon={<KeyRound className='input-icon' />}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
@@ -222,14 +282,14 @@ const EntityAdjustment = ({
                     onChange={(e) => setDescription(e.target.value)}
                 />
                 <div>
-                <Dropdown
-                    values={racks}
-                    selectedId={warehouse}
-                    setSelectedId={setWarehouse}
-                    label="Gudang"
-                    icon={<Warehouse className="input-icon" />}
-                />
-                {warehouseError && <div className="error-message">{warehouseError}</div>}
+                    <Dropdown
+                        values={racks}
+                        selectedId={warehouse}
+                        setSelectedId={setWarehouse}
+                        label="Gudang"
+                        icon={<Warehouse className="input-icon" />}
+                    />
+                    {warehouseError && <div className="error-message">{warehouseError}</div>}
                 </div>
                 <InputLabel
                     label="Tanggal"
@@ -243,15 +303,15 @@ const EntityAdjustment = ({
             <div className='divider'></div>
 
             <div className='list-item-container'>
-                <div className='list-item-header'>List Penyesuaian</div>
+                <div className='list-item-header'>List Pesanan</div>
 
                 {items.map((item, index) => (
                     <div key={index} className="add-container-input-area">
                         <Dropdown
                             isAlgoliaDropdown={true}
                             values={loadItemOptions}
-                            selectedId={item.item}
-                            setSelectedId={(value) => handleItemChange(index, "item", value)}
+                            selectedId={item.item} // harus objek, bukan string
+                            setSelectedId={(selectedItem) => handleItemChange(index, "item", selectedItem)}
                             label="Pilih Item"
                             icon={<Computer className="input-icon" />}
                         />
@@ -260,6 +320,18 @@ const EntityAdjustment = ({
                             icon={<Sheet className='input-icon' />}
                             value={item.qty}
                             onChange={(e) => handleItemChange(index, "qty", e.target.value)}
+                        />
+                        <InputLabel
+                            label="Harga"
+                            icon={<BadgeDollarSign className='input-icon' />}
+                            value={item.price}
+                            onChange={(e) => handleItemChange(index, "price", e.target.value)}
+                        />
+                        <InputLabel
+                            label="Diskon"
+                            icon={<PercentCircle className='input-icon' />}
+                            value={item.discount}
+                            onChange={(e) => handleItemChange(index, "discount", e.target.value)}
                         />
                     </div>
                 ))}
@@ -311,4 +383,4 @@ const EntityAdjustment = ({
     )
 }
 
-export default EntityAdjustment;
+export default EntitySalesOrder;

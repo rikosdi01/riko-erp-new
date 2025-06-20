@@ -36,12 +36,12 @@ const EntityTransfer = ({
         [{
             item: '',
             qty: '',
-            notes: '',
             packingStatus: defaultPackingStatus,
             rack: '',
             rackLines: '',
             boxNumber: '',
             trip: '',
+            isTaken: false,
         }]
 
     const [code, setCode] = useState(initialData.code || "");
@@ -83,15 +83,15 @@ const EntityTransfer = ({
 
         // Row dianggap lengkap jika 'item' dan 'qty' terisi
         const isRowComplete = (row) =>
-            row.item && row.qty;
+            row.item && row.qty && row.rack;
 
         // Row dianggap berisi jika ada salah satu field terisi
         const isRowFilled = (row) =>
-            row.item || row.qty || row.notes;
+            row.item || row.qty || row.packingStatus ||  row.rack || row.rackLines || row.boxNumber || row.trip;
 
         // Tambahkan row kosong baru jika row terakhir lengkap
         if (isRowComplete(updatedItems[updatedItems.length - 1])) {
-            updatedItems.push({ item: "", qty: "", notes: "" });
+            updatedItems.push({ item: "", qty: "", packingStatus: "", rack: "", rackLines: "", boxNumber: "", trip: "" });
         }
 
         // Temukan index terakhir yang masih berisi data
@@ -125,7 +125,6 @@ const EntityTransfer = ({
         setItems(initialData.items || emptyData);
         setWarehouseFrom(initialData.warehouseFrom?.id || '');
         setWarehouseTo(initialData.warehouseTo?.id || '');
-        setPackingStatus(defaultPackingStatus);
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -174,14 +173,14 @@ const EntityTransfer = ({
 
             const filteredWHFrom = {
                 id: whFrom.id,
-                code: whFrom.code,
                 name: whFrom.name,
+                category: whFrom.category,
             };
 
             const filteredWHTo = {
                 id: whTo.id,
-                code: whTo.code,
                 name: whTo.name,
+                category: whTo.category,
             };
 
             // Cek apakah warehouseTo adalah F7 atau Sales Depo
@@ -190,10 +189,18 @@ const EntityTransfer = ({
             // Tambahkan isTaken hanya jika kondisi terpenuhi
             const filteredItems = items
                 .filter(item => item.item && item.qty)
-                .map(item => ({
-                    ...item,
-                    ...(shouldAddIsTaken && { isTaken: false }), // hanya menambahkan isTaken jika kondisi terpenuhi
-                }));
+                .map(item => {
+                    const packingStatusName = packingStatusOptions.find(
+                        (ps) => ps.id === item.packingStatus
+                    )?.name || "Sudah Kemas"; // fallback default
+
+                    return {
+                        ...item,
+                        packingStatus: packingStatusName,
+                        ...(shouldAddIsTaken && { isTaken: false }),
+                    };
+                });
+
 
 
             const exists = await TransferRepository.checkTransferExists(
@@ -220,13 +227,13 @@ const EntityTransfer = ({
 
             console.log('New Transfer: ', newTransfers);
 
-            // try {
-            //     await onSubmit(newTransfers, handleReset); // Eksekusi yang berisiko error
-            // } catch (submitError) {
-            //     console.error("Error during onSubmit: ", submitError);
-            //     showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
-            //     return;
-            // }
+            try {
+                await onSubmit(newTransfers, handleReset); // Eksekusi yang berisiko error
+            } catch (submitError) {
+                console.error("Error during onSubmit: ", submitError);
+                showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
+                return;
+            }
 
             showToast('berhasil', 'Merek berhasil ditambahkan!');
         } catch (error) {

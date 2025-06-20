@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from "firebase/firestore"
 import { db } from "../../firebase";
 
 export default class TransferRepository {
@@ -43,11 +43,23 @@ export default class TransferRepository {
         try {
             const docRef = doc(db, "Transfer", transferId);
             const docSnapshot = await getDoc(docRef);
-            if (docSnapshot.exists()) {
-                return { id: docSnapshot.id, ...docSnapshot.data() };
-            } else {
+
+            if (!docSnapshot.exists()) {
                 return null;
             }
+
+            const transferData = docSnapshot.data();
+
+            // Ambil subkoleksi Items
+            const itemsColRef = collection(db, "Transfer", transferId, "Items");
+            const itemsSnap = await getDocs(itemsColRef);
+            const items = itemsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            return {
+                id: docSnapshot.id,
+                ...transferData,
+                items, // masukkan items sebagai bagian dari data
+            };
         } catch (error) {
             console.error("Error fetching transfer: ", error);
             throw error;
@@ -56,9 +68,28 @@ export default class TransferRepository {
 
 
     static async createTransfer(transfer) {
+        console.log("Creating transfer:", transfer);
         try {
-            const docRef = await addDoc(collection(db, "Transfer"), transfer);
+            // Pisahkan items
+            const { items, ...transferData } = transfer;
+
+            // 1. Simpan dokumen transfer (tanpa items)
+            const docRef = await addDoc(collection(db, "Transfer"), transferData);
+
+            // 2. Tambahkan id ke dokumen transfer
             await updateDoc(doc(db, "Transfer", docRef.id), { id: docRef.id });
+
+            // 3. Simpan items ke subcollection Transfer/{id}/Items
+            const itemsRef = collection(docRef, "Items");
+            const batch = writeBatch(db);
+
+            items.forEach(item => {
+                const itemDoc = doc(itemsRef); // auto ID
+                batch.set(itemDoc, item);
+            });
+
+            await batch.commit();
+
             return docRef.id;
         } catch (error) {
             console.error("Error creating transfer: ", error);
@@ -68,8 +99,29 @@ export default class TransferRepository {
 
     static async updateTransfer(transferId, updatedTransfer) {
         try {
+            const { items, ...transferData } = updatedTransfer;
             const docRef = doc(db, "Transfer", transferId);
-            await updateDoc(docRef, updatedTransfer);
+
+            // 1. Update data utama (tanpa items)
+            await updateDoc(docRef, transferData);
+
+            // 2. Hapus semua item lama
+            const itemsRef = collection(docRef, "Items");
+            const snapshot = await getDocs(itemsRef);
+
+            const batch = writeBatch(db);
+
+            snapshot.forEach(docSnap => {
+                batch.delete(docSnap.ref);
+            });
+
+            // 3. Simpan ulang items baru
+            items.forEach(item => {
+                const itemDoc = doc(itemsRef); // auto ID
+                batch.set(itemDoc, item);
+            });
+
+            await batch.commit();
         } catch (error) {
             console.error("Error updating transfer: ", error);
             throw error;

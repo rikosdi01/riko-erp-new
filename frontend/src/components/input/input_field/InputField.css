@@ -34,7 +34,7 @@
     position: absolute;
     left: 12px;
     top: 50%;
-    z-index: 12;
+    z-index: 1;
     transform: translateY(-50%);
     pointer-events: none;
     /* Biar tidak menghalangi klik */
