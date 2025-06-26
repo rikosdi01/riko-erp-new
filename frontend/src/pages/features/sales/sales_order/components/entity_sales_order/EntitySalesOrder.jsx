@@ -13,7 +13,7 @@ import TransferRepository from '../../../../../../repository/warehouse/TransferR
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
-import { useCustomers } from '../../../../../../context/sales/CustomersContext';
+import PrintPreview from '../../../../../../components/print/print_preview/PrintPreview';
 
 const EntitySalesOrder = ({
     mode,
@@ -23,7 +23,6 @@ const EntitySalesOrder = ({
     // Context
     const { showToast } = useToast();
     const { racks } = useRacks();
-    const { customers } = useCustomers();
 
     const emptyData = [{
         item: '',
@@ -31,7 +30,7 @@ const EntitySalesOrder = ({
         price: '',
         discount: '',
     }]
-    const [customer, setCustomer] = useState(initialData.customer?.id || '');
+    const [customer, setCustomer] = useState(initialData.customer || []);
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
@@ -42,6 +41,7 @@ const EntitySalesOrder = ({
     const [warehouseError, setWarehouseError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
@@ -105,7 +105,7 @@ const EntitySalesOrder = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
-        setCustomer(initialData.customer?.id || '');
+        setCustomer(initialData.customer || []);
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
@@ -116,7 +116,7 @@ const EntitySalesOrder = ({
     }, [initialData]);
 
 
-    const handleAdjustment = async (e) => { // Tambahkan 'e' di sini
+    const handleSalesOrder = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
 
@@ -154,6 +154,8 @@ const EntitySalesOrder = ({
                 ) / 100 || 0,
             }));
 
+            console.log('cleanedItems: ', cleanedItems);
+
             const wh = racks.find(wh => wh.id === warehouse);
 
             const filteredWH = {
@@ -178,19 +180,24 @@ const EntitySalesOrder = ({
                 description,
                 items: cleanedItems,
                 warehouse: filteredWH,
+                isPrint,
+                totalPrice: cleanedItems.reduce((total, item) => {
+                    const discountedPrice = item.price * (1 - item.discount); // Harga setelah diskon
+                    return total + (discountedPrice * item.qty);
+                }, 0),
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
 
             console.log('New Sales Order Data: ', newSalesOrder);
 
-            // try {
-            //     await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
-            // } catch (submitError) {
-            //     console.error("Error during onSubmit: ", submitError);
-            //     showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
-            //     return;
-            // }
+            try {
+                await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
+            } catch (submitError) {
+                console.error("Error during onSubmit: ", submitError);
+                showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
+                return;
+            }
 
             showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
@@ -202,6 +209,7 @@ const EntitySalesOrder = ({
     };
 
     const handleReset = (e) => {
+        setCustomer([]);
         setCode("");
         setDescription("");
         setItems(emptyData);
@@ -254,11 +262,28 @@ const EntitySalesOrder = ({
 
     return (
         <div className="main-container">
-            <ContentHeader title={mode === "create" ? "Tambah Pesanan" : "Rincian Pesanan"} />
+            <ContentHeader
+                title={mode === "create" ? "Tambah Pesanan" : "Rincian Pesanan"}
+                enablePrint={true}
+                setShowPreview={setShowPreview}
+            />
+
+            <PrintPreview
+                isOpen={showPreview}
+                onClose={() => setShowPreview(false)}
+                data={{
+                    customer: customer.name,
+                    code,
+                    description,
+                    warehouse: warehouse.name,
+                    createdAt,
+                    items,
+                }}
+            />
 
             <div className='add-container-input'>
                 <Dropdown
-                isAlgoliaDropdown={true}
+                    isAlgoliaDropdown={true}
                     values={loadCustomerOptions}
                     selectedId={customer}
                     setSelectedId={setCustomer}
@@ -350,7 +375,7 @@ const EntitySalesOrder = ({
                     <ActionButton
                         title={loading ? "Menyimpan..." : "Simpan"}
                         disabled={loading}
-                        onclick={handleAdjustment}
+                        onclick={handleSalesOrder}
                     />
                 </div>
             ) : (
@@ -365,7 +390,7 @@ const EntitySalesOrder = ({
                     <ActionButton
                         title={loading ? "Memperbarui..." : "Perbarui"}
                         disabled={loading}
-                        onclick={handleAdjustment}
+                        onclick={handleSalesOrder}
                     />
                 </div>
             )}

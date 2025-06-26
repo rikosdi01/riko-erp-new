@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './EntitySalesman.css';
-import { KeyRound, Users2 } from "lucide-react";
+import './EntityExpress.css';
+import { HandPlatter, MapPin, Phone, Receipt, Scale, Ship } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../../../../../context/AuthContext';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
-import SalesmanRepository from '../../../../../../repository/sales/SalesmanRepository';
+import Formatting from '../../../../../../utils/format/Formatting';
+import ExpressRepository from '../../../../../../repository/logistic/ExpressRepository';
 
-const EntitySalesman = ({
+const EntityExpress = ({
     mode,
     initialData = {},
     onSubmit
@@ -21,9 +22,12 @@ const EntitySalesman = ({
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
 
-    const [code, setCode] = useState(initialData.code || "");
     const [name, setName] = useState(initialData.name || "");
-    const [codeError, setCodeError] = useState("");
+    const [address, setAddress] = useState(initialData.address || "");
+    const [phone, setPhone] = useState(initialData.phone || "");
+    const [service, setService] = useState(initialData.service || '');
+    const [price, setPrice] = useState(initialData.price || 0);
+    const [set, setSet] = useState(initialData.set || '');
     const [nameError, setNameError] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(
@@ -37,104 +41,144 @@ const EntitySalesman = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
-        setCode(initialData.code || "");
         setName(initialData.name || "");
+        setAddress(initialData.address || "");
+        setPhone(initialData.phone || "");
+        setService(initialData.service || "");
+        setPrice(initialData.price || 0);
+        setSet(initialData.set || "");
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`)
     }, [initialData]);
 
-    const handleSalesman = async (e) => { // Tambahkan 'e' di sini
+    const handleExpress = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
 
         let valid = true;
 
-        if (!code.trim()) {
-            setCodeError('Kode Sales tidak boleh kosong!');
-            valid = false;
-        }
-
         if (!name.trim()) {
-            setNameError('Nama Sales tidak boleh kosong!');
+            setNameError('Nama Pengangkutan tidak boleh kosong!');
             valid = false;
         }
 
         if (!valid) return setLoading(false);
 
         try {
-            const salesmanData = {
-                code: code.trim(),
+            const expressData = {
                 name: name.trim(),
+                address,
+                phone,
+                service,
+                price: parseInt(price.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                set,
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
                 userId: userId,
             };
 
-            console.log("Data Sales: ", salesmanData);
+            console.log("Data Express: ", expressData);
 
             try {
-                await onSubmit(salesmanData, handleReset); // Eksekusi yang berisiko error
+                await onSubmit(expressData, handleReset); // Eksekusi yang berisiko error
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan sales!" : "Gagal memperbarui sales!");
+                showToast("gagal", mode === "create" ? "Gagal menyimpan pengangkutan!" : "Gagal memperbarui pengangkutan!");
                 return setLoading(false);
             }
 
-            showToast("berhasil", mode === "create" ? "Sales berhasil ditambahkan!" : "Sales berhasil diperbarui!");
+            showToast("berhasil", mode === "create" ? "Pengangkutan berhasil ditambahkan!" : "Pengangkutan berhasil diperbarui!");
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
-            showToast("gagal", mode === "create" ? "Gagal menyimpan sales!" : "Gagal memperbarui sales!");
+            showToast("gagal", mode === "create" ? "Gagal menyimpan pengangkutan!" : "Gagal memperbarui pengangkutan!");
         } finally {
             setLoading(false);
         }
     };
 
     const handleReset = (e) => {
-        setCode("");
         setName("");
-        setCodeError("");
+        setAddress('');
+        setPhone('');
+        setService('');
+        setPrice(0);
+        setSet('');
         setNameError("");
     }
     // handler delete
-    const handleDeleteSalesman = async () => {
+    const hanldeDeleteExpress = async () => {
         try {
-            await SalesmanRepository.deleteSalesman(initialData.id);
-            showToast("berhasil", "Salesman berhasil dihapus!");
+            await ExpressRepository.deleteExpress(initialData.id);
+            showToast("berhasil", "Pengangkutan berhasil dihapus!");
             navigate("/sales/salesman");
         } catch (error) {
             console.error("Error deleting salesman: ", error);
-            showToast("gagal", "Gagal menghapus Salesman!");
+            showToast("gagal", "Gagal menghapus Pengangkutan!");
         }
     }
 
     return (
         <div className="main-container">
             <ContentHeader
-                title={mode === "create" ? "Tambah Sales" : "Rincian Sales"}
+                title={mode === "create" ? "Tambah Pengangkutan" : "Rincian Pengangkutna"}
             />
 
             <div className='add-container-input'>
                 <InputLabel
-                    label="Kode Sales"
-                    icon={<KeyRound className='input-icon' />}
-                    value={code}
-                    onChange={(e) => {
-                        setCode(e.target.value);
-                    }}
-                />
-                {codeError && <div className="error-message">{codeError}</div>}
-            </div>
-
-            <div className='add-container-input'>
-                <InputLabel
-                    label="Nama Sales"
-                    icon={<Users2 className='input-icon' />}
+                    label="Nama Pengangkutan"
+                    icon={<Ship className='input-icon' />}
                     value={name}
                     onChange={(e) => {
                         setName(e.target.value);
                     }}
                 />
-                {nameError && <div className="error-message">{nameError}</div>}
+            </div>
+
+            <div className='add-container-input'>
+                <InputLabel
+                    label="Alamat Pengangkutan"
+                    icon={<MapPin className='input-icon' />}
+                    value={address}
+                    onChange={(e) => {
+                        setAddress(e.target.value);
+                    }}
+                />
+                <InputLabel
+                    label="No. Telpon"
+                    icon={<Phone className='input-icon' size={20} />}
+                    value={phone}
+                    onChange={(e) => {
+                        setPhone(e.target.value);
+                    }}
+                />
+            </div>
+
+            <div className='add-container-input'>
+                <InputLabel
+                    label="Jasa"
+                    icon={<HandPlatter className='input-icon' size={20} />}
+                    value={service}
+                    onChange={(e) => {
+                        setService(e.target.value);
+                    }}
+                />
+                <InputLabel
+                    label="Harga"
+                    icon={<Receipt className='input-icon' size={20} />}
+                    value={price}
+                    onChange={(e) => {
+                        const rawValue = e.target.value.replace(/\D/g, "");
+                        setPrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
+                    }}
+                />
+                <InputLabel
+                    label="Satuan"
+                    icon={<Scale className='input-icon' size={20} />}
+                    value={set}
+                    onChange={(e) => {
+                        setSet(e.target.value);
+                    }}
+                />
             </div>
 
             {mode === "create" ? (
@@ -149,7 +193,7 @@ const EntitySalesman = ({
                     <ActionButton
                         title={loading ? "Menyimpan..." : "Simpan"}
                         disabled={loading}
-                        onclick={handleSalesman}
+                        onclick={handleExpress}
                     />
                 </div>
             ) : (
@@ -164,7 +208,7 @@ const EntitySalesman = ({
                     <ActionButton
                         title={loading ? "Memperbarui..." : "Perbarui"}
                         disabled={loading}
-                        onclick={handleSalesman}
+                        onclick={handleExpress}
                     />
                 </div>
             )}
@@ -173,8 +217,8 @@ const EntitySalesman = ({
                 <ConfirmationModal
                     isOpen={openDeleteModal}
                     onClose={() => setOpenDeleteModal(false)}
-                    onClick={handleDeleteSalesman}
-                    title="Salesman"
+                    onClick={hanldeDeleteExpress}
+                    title="Express"
                     itemDelete={name}
                 />
             )}
@@ -182,4 +226,4 @@ const EntitySalesman = ({
     )
 }
 
-export default EntitySalesman;
+export default EntityExpress;

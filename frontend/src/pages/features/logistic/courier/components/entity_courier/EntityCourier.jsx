@@ -2,28 +2,29 @@ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './EntitySalesman.css';
-import { KeyRound, Users2 } from "lucide-react";
+import './EntityCourier.css';
+import { HandPlatter, MapPin, Phone, Receipt, Scale, Ship, UserCog } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../../../../../context/AuthContext';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
-import SalesmanRepository from '../../../../../../repository/sales/SalesmanRepository';
+import CourierRepository from '../../../../../../repository/logistic/CourierRepository';
 
-const EntitySalesman = ({
+const EntityCourier = ({
     mode,
     initialData = {},
     onSubmit
 }) => {
+    console.log('Initial Data: ', initialData);
     const { showToast } = useToast();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
 
-    const [code, setCode] = useState(initialData.code || "");
     const [name, setName] = useState(initialData.name || "");
-    const [codeError, setCodeError] = useState("");
+    const [phone, setPhone] = useState(initialData.phone || "");
+    const [isActive, setIsActive] = useState(initialData.isActive ?? true);
     const [nameError, setNameError] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(
@@ -37,104 +38,110 @@ const EntitySalesman = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
-        setCode(initialData.code || "");
         setName(initialData.name || "");
+        setPhone(initialData.phone || "");
+        setIsActive(initialData.isActive ?? true);
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`)
     }, [initialData]);
 
-    const handleSalesman = async (e) => { // Tambahkan 'e' di sini
+    const handleCourier = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
 
         let valid = true;
 
-        if (!code.trim()) {
-            setCodeError('Kode Sales tidak boleh kosong!');
-            valid = false;
-        }
-
         if (!name.trim()) {
-            setNameError('Nama Sales tidak boleh kosong!');
+            setNameError('Nama Kurir tidak boleh kosong!');
             valid = false;
         }
 
         if (!valid) return setLoading(false);
 
         try {
-            const salesmanData = {
-                code: code.trim(),
+            const courierData = {
                 name: name.trim(),
+                phone,
+                isActive,
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
                 userId: userId,
             };
 
-            console.log("Data Sales: ", salesmanData);
+            console.log("Data Kurir: ", courierData);
 
             try {
-                await onSubmit(salesmanData, handleReset); // Eksekusi yang berisiko error
+                await onSubmit(courierData, handleReset); // Eksekusi yang berisiko error
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan sales!" : "Gagal memperbarui sales!");
+                showToast("gagal", mode === "create" ? "Gagal menyimpan kurir!" : "Gagal memperbarui kurir!");
                 return setLoading(false);
             }
 
-            showToast("berhasil", mode === "create" ? "Sales berhasil ditambahkan!" : "Sales berhasil diperbarui!");
+            showToast("berhasil", mode === "create" ? "Kurir berhasil ditambahkan!" : "Kurir berhasil diperbarui!");
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
-            showToast("gagal", mode === "create" ? "Gagal menyimpan sales!" : "Gagal memperbarui sales!");
+            showToast("gagal", mode === "create" ? "Gagal menyimpan kurir!" : "Gagal memperbarui kurir!");
         } finally {
             setLoading(false);
         }
     };
 
     const handleReset = (e) => {
-        setCode("");
         setName("");
-        setCodeError("");
+        setPhone('');
+        setIsActive(true);
         setNameError("");
     }
     // handler delete
-    const handleDeleteSalesman = async () => {
+    const handleDeleteCourier = async () => {
         try {
-            await SalesmanRepository.deleteSalesman(initialData.id);
-            showToast("berhasil", "Salesman berhasil dihapus!");
-            navigate("/sales/salesman");
+            await CourierRepository.deleteCourier(initialData.id);
+            showToast("berhasil", "Kurir berhasil dihapus!");
+            navigate("/logistic/couriers");
         } catch (error) {
             console.error("Error deleting salesman: ", error);
-            showToast("gagal", "Gagal menghapus Salesman!");
+            showToast("gagal", "Gagal menghapus Kurir!");
         }
     }
 
     return (
         <div className="main-container">
             <ContentHeader
-                title={mode === "create" ? "Tambah Sales" : "Rincian Sales"}
+                title={mode === "create" ? "Tambah Kurir" : "Rincian Kurir"}
             />
 
             <div className='add-container-input'>
                 <InputLabel
-                    label="Kode Sales"
-                    icon={<KeyRound className='input-icon' />}
-                    value={code}
-                    onChange={(e) => {
-                        setCode(e.target.value);
-                    }}
-                />
-                {codeError && <div className="error-message">{codeError}</div>}
-            </div>
-
-            <div className='add-container-input'>
-                <InputLabel
-                    label="Nama Sales"
-                    icon={<Users2 className='input-icon' />}
+                    label="Nama Kurir"
+                    icon={<UserCog className='input-icon' />}
                     value={name}
                     onChange={(e) => {
                         setName(e.target.value);
                     }}
                 />
-                {nameError && <div className="error-message">{nameError}</div>}
+            </div>
+
+            <div className='add-container-input'>
+                <InputLabel
+                    label="No. Telpon"
+                    icon={<Phone className='input-icon' size={20} />}
+                    value={phone}
+                    onChange={(e) => {
+                        setPhone(e.target.value);
+                    }}
+                />
+            </div>
+
+            <div className='add-container-checkbox'>
+                <input
+                    type='checkbox'
+                    id='active'
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                />
+
+                <label htmlFor='active'>{`Status Karyawan: ${isActive ? 'Aktif' : 'Tidak Aktif'}`}</label>
             </div>
 
             {mode === "create" ? (
@@ -149,7 +156,7 @@ const EntitySalesman = ({
                     <ActionButton
                         title={loading ? "Menyimpan..." : "Simpan"}
                         disabled={loading}
-                        onclick={handleSalesman}
+                        onclick={handleCourier}
                     />
                 </div>
             ) : (
@@ -164,7 +171,7 @@ const EntitySalesman = ({
                     <ActionButton
                         title={loading ? "Memperbarui..." : "Perbarui"}
                         disabled={loading}
-                        onclick={handleSalesman}
+                        onclick={handleCourier}
                     />
                 </div>
             )}
@@ -173,8 +180,8 @@ const EntitySalesman = ({
                 <ConfirmationModal
                     isOpen={openDeleteModal}
                     onClose={() => setOpenDeleteModal(false)}
-                    onClick={handleDeleteSalesman}
-                    title="Salesman"
+                    onClick={handleDeleteCourier}
+                    title="Kurir"
                     itemDelete={name}
                 />
             )}
@@ -182,4 +189,4 @@ const EntitySalesman = ({
     )
 }
 
-export default EntitySalesman;
+export default EntityCourier;

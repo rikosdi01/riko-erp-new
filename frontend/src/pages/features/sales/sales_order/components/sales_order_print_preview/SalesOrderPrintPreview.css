@@ -1,0 +1,30 @@
+.modal-print {
+  background: white;
+  background-color: red;
+  padding: 20px;
+  width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+.modal-header, .modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-content, .print-content * {
+    visibility: visible;
+  }
+  .print-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

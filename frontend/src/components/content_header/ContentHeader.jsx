@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import './ContentHeader.css'
 import { ArrowLeft, Printer } from 'lucide-react';
 
-const ContentHeader = ({ title, enablePrint = false }) => {
+const ContentHeader = ({ title, enablePrint = false, setShowPreview }) => {
     const navigate = useNavigate();
 
     const handleBackPage = () => {
@@ -18,7 +18,8 @@ const ContentHeader = ({ title, enablePrint = false }) => {
             <div className='content-title'>{title}</div>
             
             {enablePrint && (
-                <button className="print-page">
+                <button className="print-page"
+                onClick={() => setShowPreview(true)}>
                     <span><Printer size={20} /></span>
                     Cetak
                 </button>

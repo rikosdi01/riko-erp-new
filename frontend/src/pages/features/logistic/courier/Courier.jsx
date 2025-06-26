@@ -1,99 +1,79 @@
 import './Courier.css';
-import { Download, Plus, Upload } from "lucide-react";
-import { Tooltip } from "react-tooltip";
-import { useNavigate } from "react-router-dom";
-import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
-import IconButton from '../../../../components/button/icon_button/IconButton';
-import Table from '../../../../components/table/Table';
+import MainContainer from '../../../../components/container/main_container/MainContainer';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useCourier } from '../../../../context/logistic/CourierContext';
 
 const Courier = () => {
+    // Hooks
     const navigate = useNavigate();
-    // const { couriers, isLoading } = useCourier();
-    const [selectedItems, setSelectedItems] = useState([]);
-    const couriers = [];
-    const isLoading = false;
 
-    const handleCheckboxChange = (id) => {
-        setSelectedItems((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((itemId) => itemId !== id)
-                : [...prevSelected, id]
-        );
-    };
 
-    const handleSelectAllChange = () => {
-        if (selectedItems.length === couriers.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(couriers.map((emp) => emp.id));
+    // ================================================================================
+
+
+    // Context
+    const { couriers, isLoading } = useCourier();
+
+
+    // ================================================================================
+
+
+    // Variables
+    const [searchTerm, setSearchTerm] = useState("");
+
+
+    // ================================================================================
+
+
+    // Data
+    // Columns Data
+    const columns = [
+        { header: "Nama Kurir", accessor: "name" },
+        { header: "No. Telpon", accessor: "phone"},
+        { 
+            header: "Status", 
+            accessor: "isActive",
+            renderCell: (value) => value ? 'Aktif' : 'Tidak Aktif'
         }
-    };
+    ]
 
-    const navigateToCreateMerk = () => {
+    // Filter Data
+    const filteredCourier = couriers.filter(courier =>
+        courier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        courier.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        courier.status.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Create
+    const navigateToCreateCourier = () => {
         navigate('/logistic/couriers/new');
     }
 
-    const navigateToDetailMerk = (id) => {
-        navigate(`/logistic/couriers/${id}`);
-    }
 
-    const columns = [
-        { header: "Nama Kurir", accessor: "name" },
-        { header: "No. Telpon", accessor: "telp"},
-        { header: "Status", accessor: "status"}
-    ]
+    // ================================================================================
 
+
+    // Logic
+
+
+    // ================================================================================
+
+
+    // Page Container
     return (
-        <div className="main-container">
-            <div className="main-container-header">
-                <SearchValue label="kurir" />
-
-                {/* Import */}
-                <IconButton
-                    tooltipLabel="Impor"
-                    icon={<Download size={18} />}
-                />
-
-                {/* Export */}
-                <IconButton
-                    tooltipLabel="Ekspor"
-                    icon={<Upload size={18} />}
-                />
-
-                {/* Create */}
-                <IconButton
-                    tooltipLabel="Tambah Merek"
-                    icon={<Plus size={18} />}
-                    onclick={navigateToCreateMerk}
-                    background='#0d82ff'
-                    color='white'
-                />
-            </div>
-
-            <Table
-                columns={columns}
-                data={couriers}
-                isLoading={isLoading}
-                selectedItems={selectedItems}
-                onCheckboxChange={handleCheckboxChange}
-                onSelectAllChange={handleSelectAllChange}
-                handleDeleteItems={() => { }}
-                title="Merek"
-                onclick={(id) => navigateToDetailMerk(id)}
-            />
-
-            {/* Tooltip dengan efek fade-in dan muncul di bawah */}
-            <Tooltip
-                id="tooltip"
-                place="bottom"
-                effect="solid"
-                delayShow={200}
-                className="custom-tooltip"
-            />
-        </div>
+        <MainContainer
+            pageLabel="Kurir"
+            setSearchValue={setSearchTerm}
+            createOnclick={navigateToCreateCourier}
+            columns={columns}
+            data={filteredCourier}
+            isLoading={isLoading}
+        />
     );
 }
 

@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import React from "react"
 import CourierRepository from '../../repository/logistic/CourierRepository';
 
 const CourierContext = createContext();

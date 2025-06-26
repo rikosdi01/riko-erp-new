@@ -36,19 +36,23 @@ const SalesOrder = () => {
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDate(value),
         },
-        { header: "Nama Pelanggan", accessor: "customerName" },
+        { header: "Nama Pelanggan", accessor: "customer.name" },
         { header: "Keterangan", accessor: "description" },
         {
             header: "Harga",
-            accessor: "price",
+            accessor: "totalPrice",
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
         },
-        { header: "Status", accessor: "status" }
+        {
+            header: "Status",
+            accessor: "isPrint",
+            renderCell: (value) => value ? 'Sudah Print' : 'Belum Print'
+        }
     ]
 
     // Filter Data
     const filteredSalesOrders = salesOrder.filter(order =>
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||

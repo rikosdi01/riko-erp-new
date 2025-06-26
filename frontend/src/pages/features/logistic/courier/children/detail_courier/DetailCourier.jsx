@@ -1,98 +1,33 @@
-import { useEffect, useState } from 'react';
-import ContentHeader from '../../../../../../components/content_header/ContentHeader';
-import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './DetailCourier.css';
-import { PackagePlus, KeyRound, UserCog, Phone } from "lucide-react";
-import { useToast } from '../../../../../../context/ToastContext';
-import { Timestamp } from 'firebase/firestore';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useMerks } from '../../../../../../context/warehouse/MerkContext';
-import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
-import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
+import { useParams } from "react-router-dom";
+import './DetailCourier.css'
+import { useEffect, useState } from "react";
+import { useCourier } from "../../../../../../context/logistic/CourierContext";
+import EntityCourier from "../../components/entity_courier/EntityCourier";
+import CourierRepository from "../../../../../../repository/logistic/CourierRepository";
 
 const DetailCourier = () => {
-    const { showToast } = useToast();
+    // Hooks
     const { id } = useParams();
-    const { merks } = useMerks();
-    const navigate = useNavigate();
+    const { couriers } = useCourier();
 
-    const [code, setCode] = useState("");
-    const [name, setName] = useState("");
-    const [codeError, setCodeError] = useState("");
-    const [nameError, setNameError] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [courier, setCourier] = useState([]);
 
     useEffect(() => {
-        const selectedMerk = merks.find((m) => m.id === id);
-        if (selectedMerk) {
-            setCode(selectedMerk.code);
-            setName(selectedMerk.name);
+        const selectedCourier = couriers.find((c) => c.id === id);
+        if (selectedCourier) {
+            setCourier(selectedCourier);
         }
-    }, [merks, id]);
-
-    const handleCodeChange = (e) => {
-        setCode(e.target.value);
-        if (e.target.value.trim()) setCodeError("");
-    };
-
-    const handleNameChange = (e) => {
-        setName(e.target.value);
-        if (e.target.value.trim()) setNameError("");
-    };
+    }, [couriers, id]);
 
     return (
-        <div className="main-container">
-            <ContentHeader title="Rincian Kurir" />
-
-            <div className='add-container-input'>
-                <InputLabel
-                    label="Nama Kurir"
-                    icon={<UserCog className='input-icon' size={20} />}
-                    value={code}
-                    onChange={handleCodeChange}
-                />
-                {codeError && <div className="error-message">{codeError}</div>}
-            </div>
-
-            <div className='add-container-input'>
-                <InputLabel
-                    label="No. Telpon"
-                    icon={<Phone className='input-icon' size={20} />}
-                    value={name}
-                    onChange={handleNameChange}
-                />
-                {nameError && <div className="error-message">{nameError}</div>}
-            </div>
-
-            <div className='add-container-checkbox'>
-                <input type='checkbox' />
-                <label>Status Karyawan: Aktif</label>
-            </div>
-
-            <div className='add-container-actions'>
-                <ActionButton
-                    title="Hapus"
-                    background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
-                    color="white"
-                    onclick={() => setIsModalOpen(true)}
-                />
-
-                <ActionButton
-                    title={loading ? "Memperbarui..." : "Perbarui"}
-                    disabled={loading}
-                    onclick={() => { }}
-                />
-            </div>
-
-            <div>
-                <ConfirmationModal
-                    title={`Merek ${name}`}
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onclick={() => { }}
-                />
-            </div>
+        <div>
+            <EntityCourier
+                mode={'detail'}
+                initialData={courier}
+                onSubmit={async (data) => {
+                    await CourierRepository.updateCourier(id, data);
+                }}
+            />
         </div>
     )
 }
