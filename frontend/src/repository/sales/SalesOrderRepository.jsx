@@ -75,6 +75,17 @@ export default class SalesOrderRepository {
         }
     }
 
+    static async updateValueAfterPrint(salesOrderId) {
+        console.log('Sales Order ID: ', salesOrderId);
+        try {
+            const docRef = doc(db, "SalesOrder", salesOrderId); // sesuaikan path koleksi
+            await updateDoc(docRef, { isPrint: true });
+            console.log("Status isPrint berhasil diupdate.");
+        } catch (error) {
+            console.error("Gagal update isPrint:", error);
+        }
+    };
+
     static async deleteSalesOrder(salesOrderId) {
         try {
             const docRef = doc(db, "SalesOrder", salesOrderId);

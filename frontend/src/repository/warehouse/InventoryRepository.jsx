@@ -27,9 +27,9 @@ export default class InventoryRepository {
         }
     }
 
-    static async getInventoryById(inventoryId) {
+    static async getInventoryById(transferId, itemId) {
         try {
-            const docRef = doc(db, "Inventory", inventoryId);
+            const docRef = doc(db, "Transfer", transferId, 'Items', itemId);
             const docSnapshot = await getDoc(docRef);
             if (docSnapshot.exists()) {
                 return { id: docSnapshot.id, ...docSnapshot.data() };

@@ -1,5 +1,6 @@
+import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
 import './SalesOrderPrintPreview.css'
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
   const printRef = useRef();
@@ -13,6 +14,18 @@ const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
     document.body.innerHTML = originalContent;
     window.location.reload(); // Reload untuk kembalikan React state
   };
+
+  useEffect(() => {
+    const handleAfterPrint = async () => {
+      await SalesOrderRepository.updateValueAfterPrint(data.id); // pastikan ada data.id
+    };
+
+    window.addEventListener("afterprint", handleAfterPrint);
+
+    return () => {
+      window.removeEventListener("afterprint", handleAfterPrint);
+    };
+  }, [data.id]);
 
   if (!isOpen) return null;
 

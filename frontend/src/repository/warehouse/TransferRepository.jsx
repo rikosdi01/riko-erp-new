@@ -70,22 +70,31 @@ export default class TransferRepository {
     static async createTransfer(transfer) {
         console.log("Creating transfer:", transfer);
         try {
-            // Pisahkan items
             const { items, ...transferData } = transfer;
 
-            // 1. Simpan dokumen transfer (tanpa items)
+            transferData.warehouseFrom = transfer.warehouseFrom || null;
+            transferData.warehouseTo = transfer.warehouseTo || null;
+            transferData.code = transfer.code || '';
+
             const docRef = await addDoc(collection(db, "Transfer"), transferData);
 
-            // 2. Tambahkan id ke dokumen transfer
             await updateDoc(doc(db, "Transfer", docRef.id), { id: docRef.id });
+            transferData.id = docRef.id;
+            console.log('Transfer Data: ', transferData);
 
-            // 3. Simpan items ke subcollection Transfer/{id}/Items
             const itemsRef = collection(docRef, "Items");
             const batch = writeBatch(db);
 
             items.forEach(item => {
-                const itemDoc = doc(itemsRef); // auto ID
-                batch.set(itemDoc, item);
+                const itemDoc = doc(itemsRef);
+                const itemWithCategory = {
+                    ...item,
+                    secondaryId: docRef.id,
+                    warehouseFrom: transfer.warehouseFrom || null,
+                    warehouseTo: transfer.warehouseTo || null,
+                    transferCode: transfer.code || '',
+                };
+                batch.set(itemDoc, itemWithCategory);
             });
 
             await batch.commit();
@@ -96,6 +105,7 @@ export default class TransferRepository {
             throw error;
         }
     }
+
 
     static async updateTransfer(transferId, updatedTransfer) {
         try {

@@ -6,10 +6,8 @@ import CustomPagination from '../custom_pagination/CustomPagination';
 import CustomSearchBox from '../custom_searchbox/CustomSearchBox';
 import IconButton from '../../button/icon_button/IconButton';
 import { Download, Plus, Upload } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import AlgoliaListener from '../custom_listener/CustomListener';
 import CustomAlgoliaDropdown from '../custom_dropdown/CustomDropdown';
-import Dropdown from '../../select/Dropdown';
 
 const CustomAlgoliaContainer = ({
     pageLabel,
@@ -22,10 +20,9 @@ const CustomAlgoliaContainer = ({
     enableImport = true,
     enableExport = true,
     enableCreate = true,
+    filters,
+    isSecondary = false,
 }) => {
-    // Hooks
-    const location = useLocation();
-    const navigate = useNavigate();
     const [itemsPerPage, setItemsPerPage] = useState(8);
     useEffect(() => {
         console.log('itemsPerPage:', itemsPerPage);
@@ -49,6 +46,7 @@ const CustomAlgoliaContainer = ({
                 itemsPerPage={itemsPerPage}
                 setItemsPerPage={setItemsPerPage}
                 enableCheckbox={false}
+                isSecondary={isSecondary}
             />
         )
     }
@@ -86,13 +84,6 @@ const CustomAlgoliaContainer = ({
 
     // ================================================================================
 
-
-    // Navigation
-    // Navigation to Detail
-    const navigateToDetail = (id) => {
-        navigate(`${location.pathname}/${id}`);
-    }
-
     return (
         <div className="main-container">
             <InstantSearch
@@ -103,6 +94,7 @@ const CustomAlgoliaContainer = ({
                 <AlgoliaListener subscribeFn={subscribeFn} />
                 <Configure
                     hitsPerPage={itemsPerPage}
+                    filters={filters}
                 />
 
                 <div className="main-container-header">

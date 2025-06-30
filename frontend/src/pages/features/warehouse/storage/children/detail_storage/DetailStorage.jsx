@@ -14,7 +14,10 @@ const DetailStorage = () => {
     useEffect(() => {
         const fetchInventoryDetails = async () => {
             try {
-                const inventoryDetails = await InventoryRepository.getInventoryById(id);
+                const [itemId, parentId] = id.split(' - ');
+                console.log('Item ID: ', itemId);
+                console.log('Parent ID: ', parentId);
+                const inventoryDetails = await InventoryRepository.getInventoryById(parentId, itemId);
                 setItem(inventoryDetails);
             } catch (error) {
                 console.error("Error fetching item details: ", error);
@@ -23,6 +26,7 @@ const DetailStorage = () => {
 
         fetchInventoryDetails();
     }, [id]);
+
 
     return (
         <div>

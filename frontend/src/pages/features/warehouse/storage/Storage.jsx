@@ -16,14 +16,14 @@ const Storage = () => {
     // Variables
     // Columns for the table
     const columns = [
-        { header: "Item", accessor: "items.name" },
-        { header: "Kts", accessor: "quantity" },
+        { header: "Item", accessor: "item.name" },
+        { header: "Kts", accessor: "qty" },
         { header: "Status Packing", accessor: "packingStatus" },
         { header: "Rak", accessor: "rack" },
         { header: "Baris", accessor: "rackLines" },
         { header: "No. Dus", accessor: "boxNumber" },
         { header: "Trip", accessor: "trip" },
-        { header: "Gudang", accessor: "warehouse.name" },
+        { header: "Gudang", accessor: "warehouseTo.category" },
     ]
 
 
@@ -49,6 +49,8 @@ const Storage = () => {
             enableImport={false}
             enableExport={false}
             enableCreate={false}
+            filters='hasIsTaken:true'
+            isSecondary={true}
         />
     )
 }

@@ -3,12 +3,10 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityStorage.css';
-import { PackagePlus, KeyRound, LayoutGrid, CarFront, BadgeDollarSign, Scale, Computer, Binary, Sheet, MapPinHouse, ListEnd, PackageOpenIcon, PackageOpen, Warehouse } from "lucide-react";
+import { KeyRound, Scale, Computer, Binary, Sheet, MapPinHouse, ListEnd, PackageOpen, Warehouse } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
-import { categoryIndex, productIndex } from '../../../../../../../config/algoliaConfig';
-import Formatting from '../../../../../../utils/format/Formatting';
 import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
@@ -20,27 +18,23 @@ const EntityStorage = ({
     initialData = {},
     onSubmit,
 }) => {
+    console.log('Initial Data: ', initialData);
     const { showToast } = useToast();
     const navigate = useNavigate();
     const racksData = useRacks();
 
-    const packingStatusOptions = [
-        { id: 1, name: "Sudah Kemas" },
-        { id: 2, name: "Belum Kemas" },
-    ]
+    console.log('Rack Data: ', racksData);
+    console.log('Warehouse: ', initialData?.warehouseTo?.category);
 
-    const filterPackingStatus = packingStatusOptions.find((packingStatus) => packingStatus.name === initialData.packingStatus);
-    const defaultPackingStatus = filterPackingStatus?.id || packingStatusOptions[0]?.id || 1;
-
-    const [code, setCode] = useState(initialData.code || "");
-    const [items, setItems] = useState(initialData.items || []);
-    const [quantity, setQuantity] = useState(initialData.quantity || 0);
+    const [code, setCode] = useState(initialData.transferCode || "");
+    const [item, setItem] = useState(initialData?.item?.name || '');
+    const [quantity, setQuantity] = useState(initialData.qty || 0);
     const [rack, setRack] = useState(initialData.rack || "");
     const [rackLines, setRackLines] = useState(initialData.rackLines || "");
     const [boxNumber, setBoxNumber] = useState(initialData.boxNumber || "");
     const [trip, setTrip] = useState(initialData.trip || "");
-    const [packingStatus, setPackingStatus] = useState(defaultPackingStatus);
-    const [warehouse, setWarehouse] = useState([]);
+    const [packingStatus, setPackingStatus] = useState(initialData.packingStatus || '');
+    const [warehouse, setWarehouse] = useState(initialData?.warehouseTo?.category || '');
     const [selectedWarehouse, setSelectedWarehouse] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(initialData.userId || `guest-${Date.now()}`);
@@ -50,50 +44,24 @@ const EntityStorage = ({
     const [rackError, setRackError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
-
-    useEffect(() => {
-        if (racksData.racks.length > 0) {
-            const racksDropdown = racksData.racks.map(rack => ({
-                id: rack.id,
-                name: rack.name,
-            }));
-            setWarehouse(racksDropdown);
-            setSelectedWarehouse(initialData.warehouse?.id || racksDropdown[0]?.id || 1);
-        }
-    }, [racksData]);
-
+    
     // Fetch Initial Data
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
-        setCode(initialData.code || "");
-        setItems(initialData.items || []);
-        setQuantity(initialData.quantity || 0);
+        setCode(initialData.transferCode || "");
+        setItem(initialData?.item?.name || '');
+        setQuantity(initialData.qty || 0);
         setRack(initialData.rack || "");
         setRackLines(initialData.rackLines || "");
         setBoxNumber(initialData.boxNumber || "");
         setTrip(initialData.trip || "");
-        setPackingStatus(defaultPackingStatus);
-        setWarehouse(warehouse);
-        setSelectedWarehouse(initialData.warehouse?.id || racks[0].id || 1);
+        setPackingStatus(initialData.packingStatus || '');
+        setWarehouse(initialData?.warehouseTo?.category || '');
+        setSelectedWarehouse(initialData?.warehouseTo?.category || '');
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId || `guest-${Date.now()}`);
     }, [initialData]);
-
-    const loadItemOptions = async (inputValue) => {
-        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
-        const { hits } = await productIndex.search(searchTerm, {
-            hitsPerPage: 10,
-        });
-
-        console.log(hits);
-
-        return hits.map(hit => ({
-            name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
-            code: hit.category.code + '-' + hit.code,
-            id: hit.objectID,
-        }));
-    };
 
     const handleStorage = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
@@ -103,11 +71,6 @@ const EntityStorage = ({
 
         if (!code.trim()) {
             setCodeError('Kode Penyimpanan tidak boleh kosong!');
-            valid = false;
-        }
-
-        if (!items || items.length === 0) {
-            setItemsError('Item tidak boleh kosong!');
             valid = false;
         }
 
@@ -174,7 +137,7 @@ const EntityStorage = ({
 
     const handleReset = () => {
         setCode("");
-        setItems([]);
+        setItem([]);
         setQuantity(0);
         setRack("");
         setRackLines("");
@@ -214,13 +177,11 @@ const EntityStorage = ({
             </div>
 
             <div className='add-container-input'>
-                <Dropdown
-                    isAlgoliaDropdown={true}
-                    values={loadItemOptions}
-                    selectedId={items}
-                    setSelectedId={setItems}
+                <InputLabel
                     label="Pilih Item"
-                    icon={<Computer className="input-icon" />}
+                    icon={<Computer className='input-icon' />}
+                    value={item}
+                    onChange={(e) => setItem(e.target.value)}
                 />
                 {itemsError && <div className="error-message">{itemsError}</div>}
             </div>
@@ -236,12 +197,11 @@ const EntityStorage = ({
                     {quantityError && <div className="error-message">{quantityError}</div>}
                 </div>
 
-                <Dropdown
-                    values={packingStatusOptions}
-                    selectedId={packingStatus}
-                    setSelectedId={setPackingStatus}
-                    label="Pilih Status Paking"
-                    icon={<PackageOpen className="input-icon" />}
+                <InputLabel
+                    label="Status Barang"
+                    icon={<PackageOpen className='input-icon' />}
+                    value={packingStatus}
+                    onChange={(e) => setPackingStatus(e.target.value)}
                 />
             </div>
 
@@ -281,12 +241,11 @@ const EntityStorage = ({
             </div>
 
             <div className='add-container-input'>
-                <Dropdown
-                    values={warehouse}
-                    selectedId={selectedWarehouse}
-                    setSelectedId={setSelectedWarehouse}
-                    label="Pilih Gudang"
-                    icon={<Warehouse className="input-icon" />}
+                <InputLabel
+                    label="Gudang"
+                    icon={<Warehouse className='input-icon' />}
+                    value={warehouse}
+                    onChange={(e) => setWarehouse(e.target.value)}
                 />
             </div>
 

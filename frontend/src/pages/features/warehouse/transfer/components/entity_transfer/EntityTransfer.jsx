@@ -12,7 +12,6 @@ import { productIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
-import { set } from 'date-fns';
 
 const EntityTransfer = ({
     mode,
@@ -87,7 +86,7 @@ const EntityTransfer = ({
 
         // Row dianggap berisi jika ada salah satu field terisi
         const isRowFilled = (row) =>
-            row.item || row.qty || row.packingStatus ||  row.rack || row.rackLines || row.boxNumber || row.trip;
+            row.item || row.qty || row.packingStatus || row.rack || row.rackLines || row.boxNumber || row.trip;
 
         // Tambahkan row kosong baru jika row terakhir lengkap
         if (isRowComplete(updatedItems[updatedItems.length - 1])) {
@@ -183,24 +182,32 @@ const EntityTransfer = ({
                 category: whTo.category,
             };
 
-            // Cek apakah warehouseTo adalah F7 atau Sales Depo
-            const shouldAddIsTaken = ["F7", "Sales Depot"].includes(whTo.name);
-
             // Tambahkan isTaken hanya jika kondisi terpenuhi
+            const shouldAddIsTaken = ["F7", "Depo"].includes(whTo.category);
+            console.log("shouldAddIsTaken:", shouldAddIsTaken, "| whTo.name:", whTo.category);
+
             const filteredItems = items
-                .filter(item => item.item && item.qty)
-                .map(item => {
+                .filter(item => item?.item != null && Number(item.qty) > 0)
+                .map((item, i) => {
                     const packingStatusName = packingStatusOptions.find(
                         (ps) => ps.id === item.packingStatus
-                    )?.name || "Sudah Kemas"; // fallback default
+                    )?.name || "Sudah Kemas";
 
-                    return {
+                    const result = {
                         ...item,
                         packingStatus: packingStatusName,
                         ...(shouldAddIsTaken && { isTaken: false }),
+                        ...(shouldAddIsTaken && { hasIsTaken: true }),
                     };
-                });
 
+                    console.log(`Item #${i + 1}:`, result);
+
+                    if (shouldAddIsTaken && !('isTaken' in result)) {
+                        console.warn("isTaken tidak berhasil ditambahkan!", result);
+                    }
+
+                    return result;
+                });
 
 
             const exists = await TransferRepository.checkTransferExists(
@@ -228,7 +235,7 @@ const EntityTransfer = ({
             console.log('New Transfer: ', newTransfers);
 
             try {
-                await onSubmit(newTransfers, handleReset); // Eksekusi yang berisiko error
+                await onSubmit(newTransfers, resetForm); // Eksekusi yang berisiko error
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
                 showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
@@ -243,6 +250,10 @@ const EntityTransfer = ({
             setLoading(false);
         }
     };
+
+    const resetForm = () => {
+
+    }
 
     const handleReset = (e) => {
         setCode("");

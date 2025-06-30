@@ -1,7 +1,8 @@
 import { useState } from "react";
 import ActionButton from "../button/actionbutton/ActionButton";
 import ConfirmationModal from "../modal/confirmation_modal/ConfirmationModal";
-import { Edit, Trash2, Filter } from "lucide-react"; // Import ikon Filter
+import { Trash2 } from "lucide-react"; // Import ikon Filter
+import { useLocation, useNavigate } from 'react-router-dom';
 import "./Table.css";
 
 const Table = ({
@@ -15,18 +16,28 @@ const Table = ({
     handleDeleteItems,
     title,
     enableCheckbox = true,
-    onclick,
     onFilterClick, // Tambahkan fungsi untuk menangani filter
+    isSecondary,
 }) => {
+    // Hooks
+    const location = useLocation();
+    const navigate = useNavigate();
     console.log('Data: ', data);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    
+
     const [itemsPerPage, setItemsPerPage] = useState(8);
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentData = isAlgoliaTable ? data : data.slice(startIndex, startIndex + itemsPerPage);
+
+
+    // Navigation
+    // Navigation to Detail
+    const navigateToDetail = (id) => {
+        navigate(`${location.pathname}/${id}`);
+    }
 
     return (
         <div className={!isAlgoliaTable ? 'table-wrapper' : ''}>
@@ -67,7 +78,7 @@ const Table = ({
                     ) : (
                         currentData.length > 0 ? (
                             currentData.map((item) => (
-                                <tr key={item.id || item.objectID} onClick={() => onclick(item.id)}>
+                                <tr key={item.id || item.objectID} onClick={() => isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)}>
                                     {enableCheckbox && (
                                         <td>
                                             <input
