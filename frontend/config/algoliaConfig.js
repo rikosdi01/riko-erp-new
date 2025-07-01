@@ -26,6 +26,8 @@ const productIndex = clientItems.initIndex(ALGOLIA_INDEX_ITEMS);
 const categoryIndex = clientCategories.initIndex(ALGOLIA_INDEX_CATEGORIES);
 
 
+// =========================================================================================================================
+
 
 // Sales
 // Algolia Customers
@@ -33,11 +35,18 @@ const ALGOLIA_APP_ID_CUSTOMERS = import.meta.env.VITE_APP_ALGOLIA_APP_ID_CUSTOME
 const ALGOLIA_SEARCH_KEY_CUSTOMERS = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_CUSTOMERS;
 const ALGOLIA_INDEX_CUSTOMERS = import.meta.env.VITE_APP_ALGOLIA_INDEX_CUSTOMERS;
 
+// Algolia Sales Order
+const ALGOLIA_APP_ID_SO = import.meta.env.VITE_APP_ALGOLIA_APP_ID_SO;
+const ALGOLIA_SEARCH_KEY_SO = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_SO;
+const ALGOLIA_INDEX_SO = import.meta.env.VITE_APP_ALGOLIA_INDEX_SO;
+
 // Client Sales
 const clientCustomers = algoliasearch(ALGOLIA_APP_ID_CUSTOMERS, ALGOLIA_SEARCH_KEY_CUSTOMERS);
+const clientSO = algoliasearch(ALGOLIA_APP_ID_SO, ALGOLIA_SEARCH_KEY_SO);
 
 // Initialize indices for Sales
 const customerIndex = clientCustomers.initIndex(ALGOLIA_INDEX_CUSTOMERS);
+const soIndex = clientSO.initIndex(ALGOLIA_INDEX_SO);
 
 export {
     // Warehouse
@@ -50,8 +59,12 @@ export {
     ALGOLIA_INDEX_CATEGORIES,
     ALGOLIA_INDEX_INVENTORY,
 
+
     // Sales
     customerIndex,
+    soIndex,
     clientCustomers,
-    ALGOLIA_INDEX_CUSTOMERS
+    clientSO,
+    ALGOLIA_INDEX_CUSTOMERS,
+    ALGOLIA_INDEX_SO,
 };

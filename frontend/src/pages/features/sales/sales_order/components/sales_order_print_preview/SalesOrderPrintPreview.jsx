@@ -1,8 +1,10 @@
+import { useParams } from 'react-router-dom';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
 import './SalesOrderPrintPreview.css'
 import { useEffect, useRef } from "react";
 
 const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
+  const { id } = useParams();
   const printRef = useRef();
 
   const handlePrint = () => {
@@ -12,12 +14,15 @@ const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
     document.body.innerHTML = printContent;
     window.print();
     document.body.innerHTML = originalContent;
-    window.location.reload(); // Reload untuk kembalikan React state
+    window.location.reload(); // HAPUS dari sini
   };
 
   useEffect(() => {
+    console.log('Functions Run...');
     const handleAfterPrint = async () => {
-      await SalesOrderRepository.updateValueAfterPrint(data.id); // pastikan ada data.id
+      console.log('Is Print...');
+      await SalesOrderRepository.updateValueAfterPrint(id);
+      // window.location.reload(); // pindahkan reload ke sini
     };
 
     window.addEventListener("afterprint", handleAfterPrint);
@@ -26,6 +31,7 @@ const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
       window.removeEventListener("afterprint", handleAfterPrint);
     };
   }, [data.id]);
+
 
   if (!isOpen) return null;
 
@@ -39,10 +45,10 @@ const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
 
         <div ref={printRef} className="print-content">
           <h3>Data Kurir</h3>
-          <p>Nama: {data.name}</p>
+          <p>Nama: {data.customer}</p>
           <p>No. Telpon: {data.phone}</p>
           <p>Status: {data.isActive ? "Aktif" : "Tidak Aktif"}</p>
-          <p>Tanggal Dibuat: {data.createdAt?.toDate().toLocaleString()}</p>
+          {/* <p>Tanggal Dibuat: {data.createdAt?.toDate().toLocaleString()}</p> */}
         </div>
 
         <div className="modal-footer">

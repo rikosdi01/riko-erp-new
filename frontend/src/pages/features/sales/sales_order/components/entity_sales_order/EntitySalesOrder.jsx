@@ -13,7 +13,7 @@ import TransferRepository from '../../../../../../repository/warehouse/TransferR
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
-import PrintPreview from '../../../../../../components/print/print_preview/PrintPreview';
+import SalesOrderPrintPreview from '../sales_order_print_preview/SalesOrderPrintPreview';
 
 const EntitySalesOrder = ({
     mode,
@@ -36,6 +36,7 @@ const EntitySalesOrder = ({
     const [items, setItems] = useState(initialData.items || emptyData);
     const [warehouse, setWarehouse] = useState(initialData.warehouse?.id || '');
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
+    const [isPrint, setIsPrint] = useState(initialData.isPrint || '');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
     const [warehouseError, setWarehouseError] = useState("");
@@ -110,6 +111,7 @@ const EntitySalesOrder = ({
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
         setWarehouse(initialData.warehouse?.id || '');
+        setIsPrint(initialData.isPrint || '');
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -268,16 +270,16 @@ const EntitySalesOrder = ({
                 setShowPreview={setShowPreview}
             />
 
-            <PrintPreview
+            <SalesOrderPrintPreview
                 isOpen={showPreview}
                 onClose={() => setShowPreview(false)}
                 data={{
-                    customer: customer.name,
+                    customer,
                     code,
                     description,
-                    warehouse: warehouse.name,
-                    createdAt,
                     items,
+                    warehouse,
+                    createdAt,
                 }}
             />
 

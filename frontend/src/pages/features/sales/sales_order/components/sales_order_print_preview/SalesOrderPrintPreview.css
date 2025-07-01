@@ -1,6 +1,5 @@
 .modal-print {
   background: white;
-  background-color: red;
   padding: 20px;
   width: 800px;
   max-height: 90vh;
@@ -8,7 +7,8 @@
   border-radius: 12px;
 }
 
-.modal-header, .modal-footer {
+.modal-header,
+.modal-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -18,9 +18,12 @@
   body * {
     visibility: hidden;
   }
-  .print-content, .print-content * {
+
+  .print-content,
+  .print-content * {
     visibility: visible;
   }
+
   .print-content {
     position: absolute;
     left: 0;
