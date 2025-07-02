@@ -81,6 +81,7 @@ import RackWarehouse from "./pages/features/warehouse/rack_warehouse/RackWarehou
 import { RackProvider } from "./context/warehouse/RackWarehouseContext";
 import AddRacks from "./pages/features/warehouse/rack_warehouse/children/add_racks/AddRacks";
 import DetailRacks from "./pages/features/warehouse/rack_warehouse/children/detail_racks/DetailRacks";
+import AddDeliveryOrder from "./pages/features/logistic/delivery_order/children/add_delivery_order/AddDeliveryOrder";
 
 function AppContent() {
   const location = useLocation();
@@ -145,6 +146,7 @@ function AppContent() {
 
           {/* DO */}
           <Route path="/logistic/delivery-order" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
+          <Route path="/logistic/delivery-order/new" element={<ProtectedRoute><AddDeliveryOrder /></ProtectedRoute>} />
           <Route path="/logistic/delivery-order/:id" element={<ProtectedRoute><DetailDeliveryOrder /></ProtectedRoute>} />
 
           {/* Invoice */}

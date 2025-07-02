@@ -2,20 +2,20 @@ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './EntitySalesOrder.css';
+import './EntityDeliveryOrder.css';
 import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, BadgeDollarSign, PercentCircle, Store } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { customerIndex, productIndex } from '../../../../../../../config/algoliaConfig';
+import { customerIndex, productIndex, soIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
-import SalesOrderPrintPreview from '../sales_order_print_preview/SalesOrderPrintPreview';
+import DeliveryOrderPrintPreview from '../delivery_order_print_preview/DeliveryOrderPrintPreview';
 
-const EntitySalesOrder = ({
+const EntityDeliveryOrder = ({
     mode,
     initialData = {},
     onSubmit,
@@ -31,7 +31,9 @@ const EntitySalesOrder = ({
         price: '',
         discount: '',
     }]
+
     const [customer, setCustomer] = useState(initialData.customer || []);
+    const [soCode, setSOCode] = useState(initialData.soCode || []);
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
@@ -107,6 +109,7 @@ const EntitySalesOrder = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
+        setSOCode(initialData.soCode || []);
         setCustomer(initialData.customer || []);
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
@@ -236,6 +239,18 @@ const EntitySalesOrder = ({
         }));
     };
 
+    const loadSOOptions = async (inputValue) => {
+        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
+        const { hits } = await soIndex.search(searchTerm, {
+            hitsPerPage: 10,
+        });
+
+        return hits.map(hit => ({
+            name: hit.code,
+            id: hit.objectID,
+        }));
+    };
+
     const loadCustomerOptions = async (inputValue) => {
         const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
         const { hits } = await customerIndex.search(searchTerm, {
@@ -266,12 +281,12 @@ const EntitySalesOrder = ({
     return (
         <div className="main-container">
             <ContentHeader
-                title={mode === "create" ? "Tambah Pesanan" : "Rincian Pesanan"}
+                title={mode === "create" ? "Tambah Pengiriman" : "Rincian Pengiriman"}
                 enablePrint={true}
                 setShowPreview={setShowPreview}
             />
 
-            <SalesOrderPrintPreview
+            <DeliveryOrderPrintPreview
                 isOpen={showPreview}
                 onClose={() => setShowPreview(false)}
                 data={{
@@ -285,6 +300,14 @@ const EntitySalesOrder = ({
             />
 
             <div className='add-container-input'>
+                <Dropdown
+                    isAlgoliaDropdown={true}
+                    values={loadSOOptions}
+                    selectedId={soCode}
+                    setSelectedId={setSOCode}
+                    label="Pilih SO"
+                    icon={<Store className="input-icon" />}
+                />
                 <Dropdown
                     isAlgoliaDropdown={true}
                     values={loadCustomerOptions}
@@ -411,4 +434,4 @@ const EntitySalesOrder = ({
     )
 }
 
-export default EntitySalesOrder;
+export default EntityDeliveryOrder;

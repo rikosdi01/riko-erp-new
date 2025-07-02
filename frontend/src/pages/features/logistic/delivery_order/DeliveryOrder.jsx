@@ -1,87 +1,52 @@
-import './DeliveryOrder.css';
-import { Download, Plus, Upload } from "lucide-react";
-import { Tooltip } from "react-tooltip";
-import { useNavigate } from "react-router-dom";
-import SearchValue from '../../../../components/input/search_value/SearchValue';
-import FilterValue from '../../../../components/filter/FilterValue/FilterValue';
-import IconButton from '../../../../components/button/icon_button/IconButton';
-import Table from '../../../../components/table/Table';
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ALGOLIA_INDEX_DO, clientDO } from '../../../../../config/algoliaConfig';
+import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
 import Formatting from '../../../../utils/format/Formatting';
-import { useDeliveryOrder } from '../../../../context/logistic/DeliveryOrderContext';
+import './DeliveryOrder.css';
+import DeliveryOrderRepository from '../../../../repository/logistic/DeliveryOrderRepository';
 
 const DeliveryOrder = () => {
+    // Hooks
     const navigate = useNavigate();
-    // const { deliveryOrder, isLoading } = useDeliveryOrder();
-    const [selectedItems, setSelectedItems] = useState([]);
-    const deliveryOrder = [];
-    const isLoading = false;
 
-    const handleCheckboxChange = (id) => {
-        setSelectedItems((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((itemId) => itemId !== id)
-                : [...prevSelected, id]
-        );
-    };
-
-    const handleSelectAllChange = () => {
-        if (selectedItems.length === deliveryOrder.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(deliveryOrder.map((emp) => emp.id));
-        }
-    };
-
-    const navigateToDetailMerk = (id) => {
-        navigate(`/logistic/delivery-order/${id}`);
-    }
 
     const columns = [
         { header: "No. Pengiriman", accessor: "code" },
-        { 
+        {
             header: "Tanggal",
             accessor: "createdAt",
-            renderCell: (value) => Formatting.formatDate(value),
-         },
-        { header: "Pelanggan", accessor: "customerName" },
+            renderCell: (value) => Formatting.formatDateByTimestamp(value),
+        },
+        { header: "Pelanggan", accessor: "customer.name" },
         { header: "Keterangan", accessor: "description" },
-        { header: "Status Pesanan", accessor: "statusDO"},
-        { header: "Status", accessor: "status"}
+        {
+            header: "Status Print",
+            accessor: "statusDO",
+            renderCell: (value) => value ? 'Sudah Print' : 'Belum Print',
+        },
+        { header: "Status", accessor: "status" }
     ]
 
+
+    // ================================================================================
+
+
+    // Navigation
+    // Navigation to Create
+    const navigateToCreateDO = () => {
+        navigate('/logistic/delivery-order/new');
+    }
+
     return (
-        <div className="main-container">
-            <div className="main-container-header">
-                <SearchValue label="pesanan" />
-
-                <FilterValue placeholder={"Semua Status Pesanan"} />
-                <FilterValue placeholder={"Semua Status"} />
-
-            </div>
-
-            <Table
-                columns={columns}
-                data={deliveryOrder}
-                isLoading={isLoading}
-                selectedItems={selectedItems}
-                onCheckboxChange={handleCheckboxChange}
-                onSelectAllChange={handleSelectAllChange}
-                handleDeleteItems={() => { }}
-                title="Merek"
-                onclick={(id) => navigateToDetailMerk(id)}
-            />
-
-            {/* Tooltip dengan efek fade-in dan muncul di bawah */}
-            <Tooltip
-                id="tooltip"
-                place="bottom"
-                effect="solid"
-                delayShow={200}
-                className="custom-tooltip"
-            />
-        </div>
-    );
+        <CustomAlgoliaContainer
+            pageLabel="DO"
+            searchClient={clientDO}
+            indexName={ALGOLIA_INDEX_DO}
+            columns={columns}
+            createOnclick={navigateToCreateDO}
+            subscribeFn={DeliveryOrderRepository.subscribeToDeliveryOrderChanges}
+        />
+    )
 }
 
 export default DeliveryOrder;

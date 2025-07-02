@@ -1,40 +1,22 @@
-import './SalesOrder.css';
-import MainContainer from '../../../../components/container/main_container/MainContainer';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useSalesOrder } from '../../../../context/sales/SalesOrderContext';
+import { ALGOLIA_INDEX_ITEMS, ALGOLIA_INDEX_SO, clientItems, clientSO } from '../../../../../config/algoliaConfig';
+import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
+import ItemsRepository from '../../../../repository/warehouse/ItemsRepository';
 import Formatting from '../../../../utils/format/Formatting';
+import './SalesOrder.css';
+import SalesOrderRepository from '../../../../repository/sales/SalesOrderRepository';
 
 const SalesOrder = () => {
     // Hooks
     const navigate = useNavigate();
 
 
-    // ================================================================================
-
-
-    // Context
-    const { salesOrder, isLoading } = useSalesOrder();
-
-
-    // ================================================================================
-
-
-    // Variables
-    const [searchTerm, setSearchTerm] = useState("");
-
-
-    // ================================================================================
-
-
-    // Data
-    // Columns Data
     const columns = [
         { header: "No. Pesanan", accessor: "code" },
         {
             header: "Tanggal",
             accessor: "createdAt",
-            renderCell: (value) => Formatting.formatDate(value),
+            renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
         { header: "Nama Pelanggan", accessor: "customer.name" },
         { header: "Keterangan", accessor: "description" },
@@ -44,20 +26,12 @@ const SalesOrder = () => {
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
         },
         {
-            header: "Status",
+            header: "Sudah Print?",
             accessor: "isPrint",
             renderCell: (value) => value ? 'Sudah Print' : 'Belum Print'
-        }
+        },
+        { header: "Status", accessor: "status" }
     ]
-
-    // Filter Data
-    const filteredSalesOrders = salesOrder.filter(order =>
-        order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        Formatting.formatDate(order.createdAt).toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
 
     // ================================================================================
@@ -65,31 +39,20 @@ const SalesOrder = () => {
 
     // Navigation
     // Navigation to Create
-    const navigateToCreateSalesOrder = () => {
+    const navigateToCreateItems = () => {
         navigate('/sales/sales-order/new');
     }
 
-
-    // ================================================================================
-
-
-    // Logic
-
-
-    // ================================================================================
-
-
-    // Page Container
     return (
-        <MainContainer
-            pageLabel="Pesanan"
-            setSearchValue={setSearchTerm}
-            createOnclick={navigateToCreateSalesOrder}
+        <CustomAlgoliaContainer
+            pageLabel="SO"
+            searchClient={clientSO}
+            indexName={ALGOLIA_INDEX_SO}
             columns={columns}
-            data={filteredSalesOrders}
-            isLoading={isLoading}
+            createOnclick={navigateToCreateItems}
+            subscribeFn={SalesOrderRepository.subscribeToSalesOrderChanges}
         />
-    );
+    )
 }
 
 export default SalesOrder;

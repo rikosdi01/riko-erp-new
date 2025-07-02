@@ -2,6 +2,14 @@ import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query,
 import { db } from "../../firebase";
 
 export default class DeliveryOrderRepository {
+    static subscribeToDeliveryOrderChanges(callback) {
+        const unsub = onSnapshot(collection(db, 'DeliveryOrder'), (snapshot) => {
+            callback(snapshot);
+        });
+
+        return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
+    }
+
     static async checkDeliveryOrderExists(soCode, excludeId = null) {
         try {
             const q = query(

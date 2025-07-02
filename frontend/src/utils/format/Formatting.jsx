@@ -3,7 +3,7 @@ import { differenceInDays, differenceInMonths, differenceInYears, addMonths, add
 import { Timestamp } from "firebase/firestore";
 
 export default class Formatting {
-        static formatDateForInput = (date) => {
+    static formatDateForInput = (date) => {
         const pad = (n) => n.toString().padStart(2, '0');
 
         const year = date.getFullYear();
@@ -21,7 +21,7 @@ export default class Formatting {
         const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000); // Koreksi ke waktu lokal
         return localDate.toISOString().slice(0, 16); // Format untuk input datetime-local
     };
-    
+
     static getCurrentDateTime = () => {
         const now = new Date();
         return now.toISOString().slice(0, 16); // Format sesuai datetime-local (YYYY-MM-DDTHH:MM)
@@ -34,12 +34,29 @@ export default class Formatting {
             date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
+    static formatDateByTimestamp = (value) => {
+        if (!value) return '-';
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return 'Invalid Date';
+
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }) + ' ' + date.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    };
+
     static formatTime = (timestamp) => {
         if (!timestamp) return "";
 
         const date = new Date(timestamp.seconds * 1000); // Convert Firestore Timestamp to JS Date
         return date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false });
     };
+
 
     static formatStatus = (status) => {
         switch (status) {

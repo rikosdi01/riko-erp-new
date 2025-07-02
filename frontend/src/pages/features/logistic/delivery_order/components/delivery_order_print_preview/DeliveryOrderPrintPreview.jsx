@@ -1,9 +1,9 @@
 import { useParams } from 'react-router-dom';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
-import './SalesOrderPrintPreview.css'
+import './DeliveryOrderPrintPreview.css'
 import { useEffect, useRef } from "react";
 
-const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
+const DeliveryOrderPrintPreview = ({ isOpen, onClose, data }) => {
   const { id } = useParams();
   const printRef = useRef();
 
@@ -60,4 +60,4 @@ const SalesOrderPrintPreview = ({ isOpen, onClose, data }) => {
 };
 
 
-export default SalesOrderPrintPreview;
+export default DeliveryOrderPrintPreview;
