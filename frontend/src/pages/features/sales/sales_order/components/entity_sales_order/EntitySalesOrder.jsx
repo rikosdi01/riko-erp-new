@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
@@ -188,7 +188,8 @@ const EntitySalesOrder = ({
                     const discountedPrice = item.price * (1 - item.discount); // Harga setelah diskon
                     return total + (discountedPrice * item.qty);
                 }, 0),
-                createdAt: Timestamp.now(),
+                status: 'Mengantri',
+                createdAt: Timestamp.fromDate(new Date(createdAt)),
                 updatedAt: Timestamp.now(),
             };
 

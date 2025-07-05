@@ -16,6 +16,7 @@ import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderR
 import DeliveryOrderPrintPreview from '../delivery_order_print_preview/DeliveryOrderPrintPreview';
 import { useCourier } from '../../../../../../context/logistic/CourierContext';
 import { useExpress } from '../../../../../../context/logistic/ExpressContext';
+import DeliveryOrderRepository from '../../../../../../repository/logistic/DeliveryOrderRepository';
 
 const EntityDeliveryOrder = ({
     mode,
@@ -38,6 +39,7 @@ const EntityDeliveryOrder = ({
 
     const [customer, setCustomer] = useState(initialData.customer || []);
     const [soCode, setSOCode] = useState(initialData.soCode || []);
+    const [soData, setSoData] = useState(initialData.soData || {});
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
@@ -47,9 +49,9 @@ const EntityDeliveryOrder = ({
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [doDate, setDODate] = useState(initialData.doDate || '');
     const [isPrint, setIsPrint] = useState(initialData.isPrint || '');
+    const [reloadSO, setReloadSO] = useState(0);
     const [codeError, setCodeError] = useState("");
-    const [itemError, setItemError] = useState("");
-    const [warehouseError, setWarehouseError] = useState("");
+    const [soCodeError, setSoCodeError] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
@@ -117,6 +119,7 @@ const EntityDeliveryOrder = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
+        setCode(initialData.code || '');
         setSOCode(initialData.soCode || []);
         setDODate(initialData.doDate
             ? Formatting.formatTimestampToISO(initialData.doDate)
@@ -126,17 +129,23 @@ const EntityDeliveryOrder = ({
     }, [initialData]);
 
     useEffect(() => {
-        if (!soCode || typeof soCode === 'string' && !soCode.trim()) return;
+        // Skip jika kosong, string kosong, atau array kosong
+        if (
+            !soCode ||
+            (Array.isArray(soCode) && soCode.length === 0) ||
+            (typeof soCode === 'string' && !soCode.trim())
+        ) return;
+
+        console.log('SO Code : ', soCode);
 
         const fetchSOData = async () => {
             try {
-                const data = await SalesOrderRepository.getSalesOrderById(soCode.id || soCode); // tergantung bentuk soCode
+                const data = await SalesOrderRepository.getSalesOrderById(soCode.id);
+                setSoData(data || {});
                 setCustomer(data.customer?.name || '');
                 setDescription(data.description || "");
                 setItems(data.items || emptyData);
                 setWarehouse(data.warehouse?.name || '');
-                setSelectedExpress(data.express?.id || '');
-                setSelectedCourier(data.courier?.id || '');
                 setIsPrint(data.isPrint || '');
                 setCreatedAt(
                     data.createdAt
@@ -151,9 +160,15 @@ const EntityDeliveryOrder = ({
         fetchSOData();
     }, [soCode]);
 
-    const handleSalesOrder = async (e) => { // Tambahkan 'e' di sini
+    useEffect(() => {
+        console.log('SO Data : ', soData);
+    }, [soData])
+
+
+    const handleDeliveryOrder = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
+        console.log('SO Code: ', soCode);
 
         let valid = true;
 
@@ -162,44 +177,20 @@ const EntityDeliveryOrder = ({
             valid = false;
         }
 
-        if (!warehouse.trim()) {
-            setWarehouseError('Gudang tidak boleh kosong!');
+        if (!soCode || typeof soCode !== 'object' || !soCode.id) {
+            setSoCodeError('Pesanan harus dipilih!');
             valid = false;
-        }
-
-        if (JSON.stringify(items) === JSON.stringify(emptyData)) {
-            valid = false;
-            setItemError('List Item Penyesuaian tidak boleh kosong!');
         }
 
         if (!valid) return setLoading(false);
 
         try {
-            const filteredItems = items.filter(item => item.item && item.qty);
-            const cleanedItems = filteredItems.map(item => ({
-                item: {
-                    id: item.item?.id,
-                    code: item.item?.code,
-                    name: item.item?.name,
-                },
-                qty: parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0,
-                price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
-                discount: parseFloat(
-                    (item.discount || "0").toString().replace(/[^0-9.]/g, "")
-                ) / 100 || 0,
-            }));
+            const filteredCourier = couriers.find(courier => courier.id === selectedCourier);
+            const FilteredExpress = express.find(express => express.id === selectedExpress);
 
-            console.log('cleanedItems: ', cleanedItems);
-
-            const wh = racks.find(wh => wh.id === warehouse);
-
-            const filteredWH = {
-                id: wh.id,
-                name: wh.name,
-                category: wh.category,
-            };
-
-            const exists = await SalesOrderRepository.checkSalesOrderExists(
+            console.log('Filtered Courier: ', filteredCourier);
+            console.log('Filtered Express: ', FilteredExpress);
+            const exists = await DeliveryOrderRepository.checkDeliveryOrderExists(
                 code.trim(),
                 mode === "detail" ? initialData.id : null
             );
@@ -209,25 +200,22 @@ const EntityDeliveryOrder = ({
                 return setLoading(false);
             }
 
-            const newSalesOrder = {
-                customer,
+            console.log('DO Date: ', doDate);
+
+            const newDeliveryOrder = {
                 code,
-                description,
-                items: cleanedItems,
-                warehouse: filteredWH,
-                isPrint,
-                totalPrice: cleanedItems.reduce((total, item) => {
-                    const discountedPrice = item.price * (1 - item.discount); // Harga setelah diskon
-                    return total + (discountedPrice * item.qty);
-                }, 0),
-                createdAt: Timestamp.now(),
-                updatedAt: Timestamp.now(),
+                soData,
+                soCode,
+                doDate: Timestamp.fromDate(new Date(doDate)),
+                express: FilteredExpress,
+                courier: filteredCourier,
             };
 
-            console.log('New Sales Order Data: ', newSalesOrder);
+
+            console.log('New Delivery Order Data: ', newDeliveryOrder);
 
             try {
-                await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
+                await onSubmit(newDeliveryOrder, handleReset); // Eksekusi yang berisiko error
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
                 showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
@@ -244,34 +232,22 @@ const EntityDeliveryOrder = ({
     };
 
     const handleReset = (e) => {
+        setSOCode([]);
         setCustomer([]);
         setCode("");
         setDescription("");
         setItems(emptyData);
         setWarehouse("");
         setCodeError("");
-        setItemError("");
-        setWarehouseError("");
+        setReloadSO(prev => prev + 1); // ⬅️ trigger ulang pencarian SO
     }
 
-    const loadItemOptions = async (inputValue) => {
-        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
-        const { hits } = await productIndex.search(searchTerm, {
-            hitsPerPage: 10,
-        });
-
-        return hits.map(hit => ({
-            name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
-            code: hit.category.code + '-' + hit.code,
-            price: hit.salePrice,
-            id: hit.objectID,
-        }));
-    };
-
     const loadSOOptions = async (inputValue) => {
-        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
+        const searchTerm = inputValue || "";
+
         const { hits } = await soIndex.search(searchTerm, {
             hitsPerPage: 10,
+            filters: 'status: "Mengantri"',
         });
 
         return hits.map(hit => ({
@@ -279,6 +255,7 @@ const EntityDeliveryOrder = ({
             id: hit.objectID,
         }));
     };
+
 
     // handler delete
     const handleDeleteTransfer = async () => {
@@ -322,6 +299,7 @@ const EntityDeliveryOrder = ({
                     onChange={(e) => setCode(e.target.value)}
                 />
                 <Dropdown
+                    key={reloadSO}
                     isAlgoliaDropdown={true}
                     values={loadSOOptions}
                     selectedId={soCode}
@@ -432,7 +410,6 @@ const EntityDeliveryOrder = ({
                         />
                     </div>
                 ))}
-                {itemError && <div className="error-message">{itemError}</div>}
             </div>
 
             {mode === "create" ? (
@@ -447,7 +424,7 @@ const EntityDeliveryOrder = ({
                     <ActionButton
                         title={loading ? "Menyimpan..." : "Simpan"}
                         disabled={loading}
-                        onclick={handleSalesOrder}
+                        onclick={handleDeliveryOrder}
                     />
                 </div>
             ) : (
@@ -460,9 +437,9 @@ const EntityDeliveryOrder = ({
                     />
 
                     <ActionButton
-                        title={loading ? "Memperbarui..." : "Perbarui"}
+                        title={loading ? "Menyelesaikan Pesanan..." : "Selesaikan Pesanan"}
                         disabled={loading}
-                        onclick={handleSalesOrder}
+                        onclick={handleDeliveryOrder}
                     />
                 </div>
             )}

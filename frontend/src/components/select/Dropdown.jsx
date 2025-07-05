@@ -54,6 +54,7 @@ function Dropdown({
     width,
     isRequired = false,
     isAlgoliaDropdown = false,
+    key,
 }) {
     // Konversi data ke format `react-select`
     let valuesOption = [];
@@ -84,6 +85,7 @@ function Dropdown({
                 {icon}
                 {isAlgoliaDropdown ? (
                     <AsyncSelect
+                        key={key}
                         getOptionLabel={(e) => e.name}
                         getOptionValue={(e) => e.id}
                         cacheOptions

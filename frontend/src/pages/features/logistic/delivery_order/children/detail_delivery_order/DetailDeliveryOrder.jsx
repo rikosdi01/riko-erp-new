@@ -14,16 +14,16 @@ const DetailDeliveryOrder = () => {
 
     // Fetch the deliveryOrder details using the id from the URL
     useEffect(() => {
-        const fetchSalesOrderDetails = async () => {
+        const fetchDeliveryOrderDetails = async () => {
             try {
-                const salesOrderDetails = await DeliveryOrderRepository.getDeliveryOrderById(id);
-                setDeliveryOrder(salesOrderDetails);
+                const deliverOrderDetails = await DeliveryOrderRepository.getDeliveryOrderById(id);
+                setDeliveryOrder(deliverOrderDetails);
             } catch (error) {
-                console.error("Error fetching sales order details: ", error);
+                console.error("Error fetching delivery order details: ", error);
             }
         };
 
-        fetchSalesOrderDetails();
+        fetchDeliveryOrderDetails();
     }, [id]);
 
     return (
@@ -32,7 +32,7 @@ const DetailDeliveryOrder = () => {
                 mode={'detail'}
                 initialData={deliveryOrder}
                 onSubmit={async (data) => {
-                    await SalesOrderRepository.updateSalesOrder(id, data);
+                    await DeliveryOrderRepository.updateDeliveryOrder(id, data);
                 }}
             />
         </div>

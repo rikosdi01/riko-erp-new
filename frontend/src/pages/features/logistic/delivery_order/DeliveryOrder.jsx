@@ -14,17 +14,18 @@ const DeliveryOrder = () => {
         { header: "No. Pengiriman", accessor: "code" },
         {
             header: "Tanggal",
-            accessor: "createdAt",
+            accessor: "doDate",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
-        { header: "Pelanggan", accessor: "customer.name" },
-        { header: "Keterangan", accessor: "description" },
+        { header: "Pelanggan", accessor: "soData.customer.name" },
+        { header: "Pengangkutan", accessor: "express.name" },
+        { header: "Kurir", accessor: "courier.name" },
+        { header: "Keterangan", accessor: "soData.description" },
         {
             header: "Status Print",
             accessor: "statusDO",
             renderCell: (value) => value ? 'Sudah Print' : 'Belum Print',
         },
-        { header: "Status", accessor: "status" }
     ]
 
 
