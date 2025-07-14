@@ -26,7 +26,6 @@ import Customers from "./pages/features/sales/customers/Customers";
 import { CSOProvider } from "./context/sales/CSOContext";
 import CSO from "./pages/features/sales/counter_sales_office/CSO";
 import DeliveryOrder from "./pages/features/logistic/delivery_order/DeliveryOrder";
-import Invoice from "./pages/features/logistic/invoice/Invoice";
 import { InvoiceProvider } from "./context/sales/InvoiceContext";
 import ReturnOrder from "./pages/features/sales/return_order/ReturnOrder";
 import { ReturnProvider } from "./context/sales/ReturnOrderContext";
@@ -82,6 +81,9 @@ import { RackProvider } from "./context/warehouse/RackWarehouseContext";
 import AddRacks from "./pages/features/warehouse/rack_warehouse/children/add_racks/AddRacks";
 import DetailRacks from "./pages/features/warehouse/rack_warehouse/children/detail_racks/DetailRacks";
 import AddDeliveryOrder from "./pages/features/logistic/delivery_order/children/add_delivery_order/AddDeliveryOrder";
+import InvoiceOrder from "./pages/features/logistic/invoice/InvoiceOrder";
+import { UsersProvider } from "./context/auth/UsersContext";
+import ManageRoles from "./pages/personalization/settings/children/manage_account/manage_roles/ManageRoles";
 
 function AppContent() {
   const location = useLocation();
@@ -150,7 +152,7 @@ function AppContent() {
           <Route path="/logistic/delivery-order/:id" element={<ProtectedRoute><DetailDeliveryOrder /></ProtectedRoute>} />
 
           {/* Invoice */}
-          <Route path="/logistic/invoice-order" element={<ProtectedRoute><Invoice /></ProtectedRoute>} />
+          <Route path="/logistic/invoice-order" element={<ProtectedRoute><InvoiceOrder /></ProtectedRoute>} />
           <Route path="/logistic/invoice-order/:id" element={<ProtectedRoute><DetailInvoice /></ProtectedRoute>} />
 
           {/* Tracking */}
@@ -220,6 +222,9 @@ function AppContent() {
           <Route path="/settings/activity" element={<ProtectedRoute><SettingActivity /></ProtectedRoute>} />
           <Route path="/settings/notification" element={<ProtectedRoute><SettingNotification /></ProtectedRoute>} />
           <Route path="/settings/help" element={<ProtectedRoute><SettingHelp /></ProtectedRoute>} />
+          
+          {/* Settings Manage Account */}
+          <Route path="/settings/manage-account/roles" element={<ProtectedRoute><ManageRoles /></ProtectedRoute>} />
 
 
           <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
@@ -235,12 +240,13 @@ function AppContent() {
 function App() {
   return (
     <ToastProvider>
-      <RackProvider>
-        <MerkProvider>
-          <CategoryProvider>
-            <ItemProvider>
-              <AdjustmentProvider>
-                <TransferProvider>
+      <UsersProvider>
+        <RackProvider>
+          <MerkProvider>
+            <CategoryProvider>
+              <ItemProvider>
+                <AdjustmentProvider>
+                  <TransferProvider>
                     <CustomersProvider>
                       <SalesmanProvider>
                         <CSOProvider>
@@ -262,12 +268,13 @@ function App() {
                         </CSOProvider>
                       </SalesmanProvider>
                     </CustomersProvider>
-                </TransferProvider>
-              </AdjustmentProvider>
-            </ItemProvider>
-          </CategoryProvider>
-        </MerkProvider>
-      </RackProvider>
+                  </TransferProvider>
+                </AdjustmentProvider>
+              </ItemProvider>
+            </CategoryProvider>
+          </MerkProvider>
+        </RackProvider>
+      </UsersProvider>
     </ToastProvider>
   );
 }

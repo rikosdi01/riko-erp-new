@@ -25,7 +25,15 @@
     align-items: center;
 }
 
-.register-button {
+.manage-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.manage-button {
     padding: 8px 16px;
     background-color: #007bff;
     border: none;
@@ -35,7 +43,7 @@
     font-size: 14px;
 }
 
-.register-button:hover {
+.manage-button:hover {
     background-color: #0056b3;
 }
 
@@ -44,7 +52,6 @@
     justify-content: space-between;
     align-items: center;
     margin: 16px 0;
-    flex-wrap: wrap;
 }
 
 .filter-options {
@@ -58,4 +65,32 @@
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  min-width: 160px;
+  z-index: 10;
+  padding: 4px 0;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-item.danger {
+  color: red;
 }

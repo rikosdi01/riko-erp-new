@@ -45,15 +45,22 @@ const ALGOLIA_APP_ID_DO = import.meta.env.VITE_APP_ALGOLIA_APP_ID_DO;
 const ALGOLIA_SEARCH_KEY_DO = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_DO;
 const ALGOLIA_INDEX_DO = import.meta.env.VITE_APP_ALGOLIA_INDEX_DO;
 
+// Algolia Invoice Order
+const ALGOLIA_APP_ID_IO = import.meta.env.VITE_APP_ALGOLIA_APP_ID_IO;
+const ALGOLIA_SEARCH_KEY_IO = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_IO;
+const ALGOLIA_INDEX_IO = import.meta.env.VITE_APP_ALGOLIA_INDEX_IO;
+
 // Client Sales
 const clientCustomers = algoliasearch(ALGOLIA_APP_ID_CUSTOMERS, ALGOLIA_SEARCH_KEY_CUSTOMERS);
 const clientSO = algoliasearch(ALGOLIA_APP_ID_SO, ALGOLIA_SEARCH_KEY_SO);
 const clientDO = algoliasearch(ALGOLIA_APP_ID_DO, ALGOLIA_SEARCH_KEY_DO);
+const clientIO = algoliasearch(ALGOLIA_APP_ID_IO, ALGOLIA_SEARCH_KEY_IO);
 
 // Initialize indices for Sales
 const customerIndex = clientCustomers.initIndex(ALGOLIA_INDEX_CUSTOMERS);
 const soIndex = clientSO.initIndex(ALGOLIA_INDEX_SO);
 const doIndex = clientDO.initIndex(ALGOLIA_INDEX_DO);
+const ioIndex = clientIO.initIndex(ALGOLIA_INDEX_IO);
 
 export {
     // Warehouse
@@ -74,7 +81,9 @@ export {
     clientCustomers,
     clientSO,
     clientDO,
+    clientIO,
     ALGOLIA_INDEX_CUSTOMERS,
     ALGOLIA_INDEX_SO,
     ALGOLIA_INDEX_DO,
+    ALGOLIA_INDEX_IO,
 };

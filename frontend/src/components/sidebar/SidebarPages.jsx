@@ -1,8 +1,11 @@
 import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import React from "react";
+import { useUsers } from "../../context/auth/UsersContext";
 
 const SidebarPages = () => {
+    const { loginUser } = useUsers();
+    console.log("Login Users: ", loginUser);
     return (
         <Sidebar>
             <SidebarItem
@@ -126,11 +129,11 @@ const SidebarPages = () => {
                         to: "/logistic/invoice-order",
                         icon: <Receipt size={20}/>
                     },
-                    {
-                        text: "Pelacakan Pesanan",
-                        to: "/logistic/tracking-orders",
-                        icon: <Locate size={20}/>
-                    },
+                    // {
+                    //     text: "Pelacakan Pesanan",
+                    //     to: "/logistic/tracking-orders",
+                    //     icon: <Locate size={20}/>
+                    // },
                     { type: "divider" }, // Tambahkan divider di sini
                     {
                         text: "Kurir",

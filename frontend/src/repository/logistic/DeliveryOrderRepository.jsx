@@ -83,6 +83,16 @@ export default class DeliveryOrderRepository {
         }
     }
 
+    static async updateStatusDeliveryOrder(deliveryOrderId, newStatus) {
+        try {
+            const docRef = doc(db, "DeliveryOrder", deliveryOrderId);
+            await updateDoc(docRef, { status: newStatus });
+        } catch (error) {
+            console.error("Error updating delivery order: ", error);
+            throw error;
+        }
+    }
+
     static async deleteDeliveryOrder(deliveryOrderId) {
         try {
             const docRef = doc(db, "DeliveryOrder", deliveryOrderId);

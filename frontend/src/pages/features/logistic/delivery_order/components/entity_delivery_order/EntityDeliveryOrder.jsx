@@ -17,6 +17,8 @@ import DeliveryOrderPrintPreview from '../delivery_order_print_preview/DeliveryO
 import { useCourier } from '../../../../../../context/logistic/CourierContext';
 import { useExpress } from '../../../../../../context/logistic/ExpressContext';
 import DeliveryOrderRepository from '../../../../../../repository/logistic/DeliveryOrderRepository';
+import InvoiceOrderRepository from '../../../../../../repository/logistic/InvoiceOrderRepository';
+import { useNavigate } from 'react-router-dom';
 
 const EntityDeliveryOrder = ({
     mode,
@@ -25,6 +27,7 @@ const EntityDeliveryOrder = ({
 }) => {
     console.log('Initial Data: ', initialData);
     // Context
+    const navigate = useNavigate();
     const { showToast } = useToast();
     const { racks } = useRacks();
     const { couriers } = useCourier();
@@ -231,6 +234,57 @@ const EntityDeliveryOrder = ({
         }
     };
 
+    const processDeliveryOrder = async () => {
+        try {
+            const filteredItems = items.filter(item => item.item && item.qty);
+            const cleanedItems = filteredItems.map(item => ({
+                item: {
+                    id: item.item?.id,
+                    code: item.item?.code,
+                    name: item.item?.name,
+                },
+                qty: parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                discount: parseFloat(
+                    (item.discount || "0").toString().replace(/[^0-9.]/g, "")
+                ) / 100 || 0,
+            }));
+            const filteredCourier = couriers.find(courier => courier.id === selectedCourier);
+            const FilteredExpress = express.find(express => express.id === selectedExpress);
+
+            const baseDate = new Date(doDate); // pastikan doDate adalah Date atau ISO string
+            const dueDate = new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 hari
+
+            const deliveryOrderData = {
+                code,
+                soData,
+                soCode,
+                doDate: Timestamp.fromDate(baseDate),
+                express: FilteredExpress,
+                courier: filteredCourier,
+                totalPrice: cleanedItems.reduce((total, item) => total + item.price * item.qty, 0),
+                totalDiscount: cleanedItems.reduce((total, item) => total + item.price * item.discount * item.qty, 0),
+                totalPayment: cleanedItems.reduce((total, item) => {
+                    const discountedPrice = item.price * (1 - item.discount);
+                    return total + discountedPrice * item.qty;
+                }, 0),
+                statusPayment: 'Belum Dibayar',
+                dueData: Timestamp.fromDate(dueDate),
+            };
+
+
+            console.log('Delivery Order Data: ', deliveryOrderData);
+
+            await DeliveryOrderRepository.updateStatusDeliveryOrder(initialData.id, 'Selesai');
+            await InvoiceOrderRepository.createInvoiceOrder(deliveryOrderData);
+            showToast("berhasil", "Pesanan berhasil diselesaikan!");
+            navigate("/delivery-order");
+        } catch (error) {
+            console.error("Error finish the order: ", error);
+            showToast("gagal", "Gagal menyelesaikan pesanan!");
+        }
+    };
+
     const handleReset = (e) => {
         setSOCode([]);
         setCustomer([]);
@@ -394,20 +448,6 @@ const EntityDeliveryOrder = ({
                             onChange={(e) => handleItemChange(index, "qty", e.target.value)}
                             isDisabled={true}
                         />
-                        <InputLabel
-                            label="Harga"
-                            icon={<BadgeDollarSign className='input-icon' />}
-                            value={item.price}
-                            onChange={(e) => handleItemChange(index, "price", e.target.value)}
-                            isDisabled={true}
-                        />
-                        <InputLabel
-                            label="Diskon"
-                            icon={<PercentCircle className='input-icon' />}
-                            value={item.discount}
-                            onChange={(e) => handleItemChange(index, "discount", e.target.value)}
-                            isDisabled={true}
-                        />
                     </div>
                 ))}
             </div>
@@ -436,11 +476,18 @@ const EntityDeliveryOrder = ({
                         onclick={() => setOpenDeleteModal(true)}
                     />
 
-                    <ActionButton
-                        title={loading ? "Menyelesaikan Pesanan..." : "Selesaikan Pesanan"}
-                        disabled={loading}
-                        onclick={handleDeliveryOrder}
-                    />
+                    <div className='action-button-group'>
+                        <ActionButton
+                            title={loading ? "Menyelesaikan Pesanan..." : "Selesaikan Pesanan"}
+                            onclick={processDeliveryOrder}
+                        />
+
+                        <ActionButton
+                            title={loading ? "Memperbarui..." : "Perbarui"}
+                            disabled={loading}
+                            onclick={handleDeliveryOrder}
+                        />
+                    </div>
                 </div>
             )}
 

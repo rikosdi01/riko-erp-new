@@ -107,6 +107,11 @@
     gap: 20px;
 }
 
+.action-button-group {
+  display: flex;
+  gap: 10px;
+}
+
 .empty-table {
   display: flex;
   background-color: red;

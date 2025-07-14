@@ -1,11 +1,43 @@
+import { useNavigate } from 'react-router-dom';
 import ContentHeader from '../../../../../components/content_header/ContentHeader';
 import './ManageAccount.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useUsers } from '../../../../../context/auth/UsersContext';
+import { MoreVertical } from 'lucide-react';
+import UserRepository from '../../../../../repository/authentication/UserRepository';
 
 const roles = ['Admin', 'CSO', 'Stok Controller', 'Logistic', 'Terakhir Aktif'];
 
 const ManageAccount = () => {
+    const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
     const [filter, setFilter] = useState('all');
+    const [selectedUserId, setSelectedUserId] = useState(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest(".dropdown-container")) {
+                setSelectedUserId(null);
+            }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        const unsubscribe = UserRepository.getUsers((fetchedUsers) => {
+            setUsers(fetchedUsers);
+        });
+
+        return () => unsubscribe(); // Unsubscribe saat komponen unmount
+    }, []); // dependency array wajib untuk mencegah infinite loop
+
+    // Filter user aktif / tidak aktif
+    const filteredUsers = users.filter((user) => {
+        if (filter === 'all') return true;
+        return filter === 'active' ? user.status === 'active' : user.status !== 'active';
+    });
 
     return (
         <div className="main-container">
@@ -43,7 +75,10 @@ const ManageAccount = () => {
                         </label>
                     </div>
 
-                    <button className="register-button">Registrasi Akun</button>
+                    <div className='manage-buttons'>
+                        <button className="manage-button" onClick={() => navigate('/signup')}>Registrasi Akun</button>
+                        <button className="manage-button" onClick={() => navigate('/settings/manage-account/roles')}>Kelola Role</button>
+                    </div>
                 </div>
 
                 <table className="user-role-table">
@@ -56,11 +91,47 @@ const ManageAccount = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td colSpan={roles.length + 1} style={{ textAlign: 'center', padding: '20px' }}>
-                                Belum ada data pengguna.
-                            </td>
-                        </tr>
+                        {filteredUsers.length > 0 ? (
+                            filteredUsers.map((user) => (
+                                <tr key={user.id}>
+                                    <td>{user.username}</td>
+                                    {roles.map(role => (
+                                        <td key={role} style={{ textAlign: "center" }}>
+                                            {role === "Terakhir Aktif"
+                                                ? new Date(user.createdAt?.seconds * 1000).toLocaleDateString()
+                                                : user.role === role
+                                                    ? "✅"
+                                                    : ""}
+                                        </td>
+                                    ))}
+                                    <td style={{ textAlign: "center", position: "relative" }} className="dropdown-container">
+                                        <MoreVertical
+                                            size={18}
+                                            style={{ cursor: "pointer" }}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // cegah bubbling
+                                                setSelectedUserId(user.id === selectedUserId ? null : user.id);
+                                            }}
+                                        />
+
+                                        {selectedUserId === user.id && (
+                                            <div className="dropdown-menu">
+                                                <div onClick={() => handleChangePassword(user)} className="dropdown-item">Ganti Password</div>
+                                                <div onClick={() => handleDeactivate(user)} className="dropdown-item">Nonaktifkan Akun</div>
+                                                <div onClick={() => handleDelete(user)} className="dropdown-item danger">Hapus Akun</div>
+                                            </div>
+                                        )}
+                                    </td>
+
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={roles.length + 2} style={{ textAlign: 'center', padding: '20px' }}>
+                                    Belum ada data pengguna.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
