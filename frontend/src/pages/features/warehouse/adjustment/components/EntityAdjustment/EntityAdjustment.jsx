@@ -13,6 +13,8 @@ import TransferRepository from '../../../../../../repository/warehouse/TransferR
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import AdjustmentRepository from '../../../../../../repository/warehouse/AdjustmentRepository';
+import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
+import { useNavigate } from 'react-router-dom';
 
 const EntityAdjustment = ({
     mode,
@@ -21,6 +23,7 @@ const EntityAdjustment = ({
 }) => {
     console.log('Initial Data: ', initialData);
     // Context
+    const navigate = useNavigate();
     const { showToast } = useToast();
     const { racks } = useRacks();
 
@@ -28,7 +31,8 @@ const EntityAdjustment = ({
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
-    const [warehouse, setWarehouse] = useState(initialData.warehouse?.id || '');
+    const [warehouse, setWarehouse] = useState([]);
+    const [selectedWarehouse, setSelectedWarehouse] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
@@ -71,6 +75,18 @@ const EntityAdjustment = ({
         setItems(cleanedItems);
     };
 
+    useEffect(() => {
+        if (racks.length > 0) {
+            const racksDropdown = racks.map(rack => ({
+                id: rack.id,
+                name: rack.name,
+                category: rack.category,
+            }));
+            setWarehouse(racksDropdown);
+            setSelectedWarehouse(initialData.warehouse?.id || racks[0]?.id || 1);
+        }
+    }, [racks]);
+
     // Hanya jalan sekali saat komponen pertama kali dimount
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) {
@@ -86,7 +102,8 @@ const EntityAdjustment = ({
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
-        setWarehouse(initialData.warehouse?.id || '');
+        setWarehouse(racks);
+        setSelectedWarehouse(initialData.warehouse?.id || warehouse[0]?.id);
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -104,10 +121,11 @@ const EntityAdjustment = ({
             valid = false;
         }
 
-        if (!warehouse.trim()) {
+        if (!warehouse.length) {
             setWarehouseError('Gudang tidak boleh kosong!');
             valid = false;
         }
+
 
         if (JSON.stringify(items) === JSON.stringify(emptyData)) {
             valid = false;
@@ -118,7 +136,9 @@ const EntityAdjustment = ({
 
         try {
             const filteredItems = items.filter(item => item.item && item.qty);
-            const wh = racks.find(wh => wh.id === warehouse);
+            console.log('Warehouse: ', warehouse);
+            console.log('Racks: ', racks);
+            const wh = racks.find(wh => wh.id === selectedWarehouse);
 
             const filteredWH = {
                 id: wh.id,
@@ -147,6 +167,28 @@ const EntityAdjustment = ({
 
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
+
+                const rackName = filteredWH?.name ?? 'Unknown Rack';
+                for (const adjItem of filteredItems) {
+                    const itemId = adjItem.item.id;
+                    const newQty = parseInt(adjItem.qty);
+                    let oldQty = 0;
+                    console.log('Item ID: ', itemId);
+                    console.log('New Qty: ', newQty);
+
+                    if (!isNaN(newQty)) {
+                        if (mode === "detail" && Array.isArray(initialData.items)) {
+                            const existingItem = initialData.items.find(
+                                item => item.item?.id === itemId
+                            );
+                            oldQty = parseInt(existingItem?.qty ?? 0);
+                        }
+
+                        await ItemsRepository.overwriteItemStock(itemId, newQty, rackName);
+                    }
+                }
+
+
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
                 showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
@@ -187,18 +229,30 @@ const EntityAdjustment = ({
 
 
     // handler delete
-    const handleDeleteTransfer = async () => {
+    const handleDeleteAdjustment = async () => {
         try {
-            await TransferRepository.deleteTransfer(initialData.id);
-            showToast("berhasil", "Transferan berhasil dihapus!");
-            navigate("/inventory/transfer");
+            const rackName = initialData.warehouse?.name ?? 'Unknown Rack';
+            const itemsToRollback = initialData.items || [];
+
+            for (const adjItem of itemsToRollback) {
+                const itemId = adjItem.item.id;
+                const qty = parseInt(adjItem.qty);
+
+                if (!isNaN(qty) && qty > 0) {
+                    // Rollback qty
+                    await ItemsRepository.adjustItemStock(itemId, -qty, rackName);
+                }
+            }
+
+            // Setelah semua stok dikurangi, hapus dokumen adjustment
+            await AdjustmentRepository.deleteAdj(initialData.id);
+            showToast("berhasil", "Penyesuaian berhasil dihapus!");
+            navigate("/inventory/adjustment");
         } catch (error) {
-            console.error("Error deleting transfer: ", error);
-            showToast("gagal", "Gagal menghapus transfer!");
+            console.error("Error deleting adjustment: ", error);
+            showToast("gagal", "Gagal menghapus Penyesuaian!");
         }
-    }
-
-
+    };
 
     return (
         <div className="main-container">
@@ -222,14 +276,14 @@ const EntityAdjustment = ({
                     onChange={(e) => setDescription(e.target.value)}
                 />
                 <div>
-                <Dropdown
-                    values={racks}
-                    selectedId={warehouse}
-                    setSelectedId={setWarehouse}
-                    label="Gudang"
-                    icon={<Warehouse className="input-icon" />}
-                />
-                {warehouseError && <div className="error-message">{warehouseError}</div>}
+                    <Dropdown
+                        values={racks}
+                        selectedId={selectedWarehouse}
+                        setSelectedId={setSelectedWarehouse}
+                        label="Gudang"
+                        icon={<Warehouse className="input-icon" />}
+                    />
+                    {warehouseError && <div className="error-message">{warehouseError}</div>}
                 </div>
                 <InputLabel
                     label="Tanggal"
@@ -302,7 +356,7 @@ const EntityAdjustment = ({
                 <ConfirmationModal
                     isOpen={openDeleteModal}
                     onClose={() => setOpenDeleteModal(false)}
-                    onClick={handleDeleteTransfer}
+                    onClick={handleDeleteAdjustment}
                     title="Transfer"
                     itemDelete={initialData?.code}
                 />

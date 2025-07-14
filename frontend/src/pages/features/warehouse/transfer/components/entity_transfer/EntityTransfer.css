@@ -11,3 +11,8 @@
   background-color: rgba(0,0,0,0.2);
   border-radius: 4px;
 }
+
+.add-container-search-products {
+  background-color: red;
+  flex: 1;
+}

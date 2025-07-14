@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, limit, onSnapshot, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore"
 import { db } from "../../firebase";
 
 export default class ItemsRepository {
@@ -83,6 +83,134 @@ export default class ItemsRepository {
             throw error;
         }
     }
+
+    static async overwriteItemStock(itemId, newQty, rackName) {
+        try {
+            const itemRef = doc(db, "Items", itemId);
+            const itemSnap = await getDoc(itemRef);
+
+            if (!itemSnap.exists()) {
+                throw new Error(`Item ${itemId} not found`);
+            }
+
+            const data = itemSnap.data();
+            const racks = data.racks || [];
+
+            // Update atau tambah rack
+            const updatedRacks = racks.map(r => {
+                if (r.rack === rackName) {
+                    return { rack: r.rack, stock: newQty };
+                }
+                return r;
+            });
+
+            const rackExists = racks.some(r => r.rack === rackName);
+            if (!rackExists) {
+                updatedRacks.push({ rack: rackName, stock: newQty });
+            }
+
+            const totalStock = updatedRacks.reduce((sum, r) => sum + r.stock, 0);
+
+            await updateDoc(itemRef, {
+                stock: totalStock,
+                racks: updatedRacks
+            });
+
+        } catch (error) {
+            console.error(`Error overwriting stock for item ${itemId}:`, error);
+            throw error;
+        }
+    }
+
+    static async adjustItemStock(itemId, qtyToAdjust, rackName) {
+        try {
+            const itemRef = doc(db, "Items", itemId);
+            const itemSnap = await getDoc(itemRef);
+
+            if (!itemSnap.exists()) {
+                throw new Error(`Item ${itemId} not found`);
+            }
+
+            const data = itemSnap.data();
+            const racks = data.racks || [];
+
+            // Cari rack
+            const existingRackIndex = racks.findIndex(r => r.rack === rackName);
+
+            if (existingRackIndex !== -1) {
+                // Update stok rack yang sudah ada
+                racks[existingRackIndex].stock += qtyToAdjust;
+
+                // Jika hasilnya 0 atau negatif, bisa dihapus atau dibiarkan (opsional)
+                if (racks[existingRackIndex].stock <= 0) {
+                    racks.splice(existingRackIndex, 1); // hapus rack tersebut
+                }
+            } else if (qtyToAdjust > 0) {
+                // Jika rack belum ada dan qty positif, tambahkan
+                racks.push({ rack: rackName, stock: qtyToAdjust });
+            } else {
+                // Tidak mungkin mengurangi stok dari rack yang belum ada
+                console.warn(`Cannot reduce stock from non-existent rack: ${rackName}`);
+            }
+
+            // Hitung ulang total stok dari semua rack
+            const totalStock = racks.reduce((sum, r) => sum + r.stock, 0);
+
+            await updateDoc(itemRef, {
+                stock: totalStock,
+                racks: racks
+            });
+
+        } catch (error) {
+            console.error(`Error adjusting stock for item ${itemId}:`, error);
+            throw error;
+        }
+    }
+
+    // ItemsRepository.js
+    static async transferItemStock(itemId, fromRackName, toRackName, qty) {
+        const itemRef = doc(db, "Items", itemId);
+        const itemSnap = await getDoc(itemRef);
+        if (!itemSnap.exists()) throw new Error(`Item ${itemId} tidak ditemukan`);
+
+        const data = itemSnap.data();
+        const racks = data.racks || [];
+
+        // Update stok di rak asal
+        const updatedRacks = [...racks];
+        let totalStock = 0;
+        let fromFound = false;
+        let toFound = false;
+
+        for (let rack of updatedRacks) {
+            if (rack.rack === fromRackName) {
+                rack.stock = Math.max(0, (rack.stock || 0) - qty);
+                fromFound = true;
+            }
+            if (rack.rack === toRackName) {
+                rack.stock = (rack.stock || 0) + qty;
+                toFound = true;
+            }
+        }
+
+        if (!fromFound) {
+            updatedRacks.push({ rack: fromRackName, stock: 0 }); // tetap tampilkan rak asal meskipun 0
+        }
+
+        if (!toFound) {
+            updatedRacks.push({ rack: toRackName, stock: qty });
+        }
+
+        // Hitung ulang total stock
+        totalStock = updatedRacks.reduce((sum, r) => sum + (r.stock || 0), 0);
+
+        await updateDoc(itemRef, {
+            racks: updatedRacks,
+            stock: totalStock,
+            updatedAt: Timestamp.now(),
+        });
+    }
+
 
     static async deleteItem(itemId) {
         try {

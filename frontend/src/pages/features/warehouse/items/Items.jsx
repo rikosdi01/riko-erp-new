@@ -23,7 +23,15 @@ const Items = () => {
         { header: "Nama Item", accessor: "name" },
         { header: "Kategori", accessor: "category.name" },
         { header: "Motor", accessor: "brand" },
-        { header: "Kuantitas", accessor: "qty" },
+        {
+            header: "Stok",
+            accessor: "stock",
+            renderCell: (_, value) => {
+                const totalStock = value.stock ? value.stock : 0
+                const set = value.set
+                return `${totalStock} ${set}`
+            }
+         },
         {
             header: "Harga Jual",
             accessor: "salePrice",

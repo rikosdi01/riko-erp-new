@@ -1,4 +1,4 @@
- import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
@@ -46,14 +46,33 @@ const EntitySalesOrder = ({
     const [showPreview, setShowPreview] = useState(false);
 
     const handleItemChange = (index, field, value) => {
+        console.log('index: ', index);
+        console.log('field: ', field);
+        console.log('value: ', value);
         const updatedItems = [...items];
+        const selectedWarehouseName = racks.find(r => r.id === warehouse)?.name;
+        console.log('selectedWarehouseName : ', selectedWarehouseName);
         console.log('Items: ', items);
 
         if (field === "item") {
+            const racksArray = value?.rack || []; // atau ganti nama jadi value?.racks untuk lebih benar secara grammar
+        console.log('racksArray : ', racksArray);
+
+            // Fix: pakai `rack.rack`, bukan `rack.name`
+            const matchedRack = racksArray.find(rack => rack.rack === selectedWarehouseName);
+            const stockFromThisWarehouse = matchedRack?.stock ?? 0;
+
             updatedItems[index] = {
                 ...updatedItems[index],
                 item: value,
+                stock: stockFromThisWarehouse,
                 price: value?.price ? Formatting.formatCurrencyIDR(value?.price) : "",
+            };
+        } else if (field === "stock") {
+            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
+            updatedItems[index] = {
+                ...updatedItems[index],
+                stock: raw ? parseInt(raw) : "",
             };
         } else if (field === "price") {
             const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
@@ -232,6 +251,7 @@ const EntitySalesOrder = ({
         return hits.map(hit => ({
             name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
             code: hit.category.code + '-' + hit.code,
+            rack: hit.racks,
             price: hit.salePrice,
             id: hit.objectID,
         }));
@@ -343,6 +363,13 @@ const EntitySalesOrder = ({
                             setSelectedId={(selectedItem) => handleItemChange(index, "item", selectedItem)}
                             label="Pilih Item"
                             icon={<Computer className="input-icon" />}
+                        />
+                        <InputLabel
+                            label="Stok"
+                            icon={<Sheet className='input-icon' />}
+                            value={item.stock}
+                            isDisabled={true}
+                            onChange={(e) => handleItemChange(index, "stock", e.target.value)}
                         />
                         <InputLabel
                             label="Kuantitas"

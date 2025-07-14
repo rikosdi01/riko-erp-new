@@ -3,7 +3,7 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityTransfer.css';
-import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, PackageOpen } from "lucide-react";
+import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, PackageOpen, Search } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
@@ -12,6 +12,7 @@ import { productIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
+import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
 
 const EntityTransfer = ({
     mode,
@@ -72,15 +73,39 @@ const EntityTransfer = ({
     }, [typeList]);
 
     const handleItemChange = (index, field, value) => {
+
         const updatedItems = [...items];
+        const selectedWarehouseName = racks.find(r => r.id === warehouseFrom)?.name;
+        console.log('Racks: ', racks);
 
-        // Update field yang diubah
-        updatedItems[index] = {
-            ...updatedItems[index],
-            [field]: value ?? "",
-        };
 
-        // Row dianggap lengkap jika 'item' dan 'qty' terisi
+        if (field === "item") {
+            const racksArray = value?.rack || []; // atau ganti nama jadi value?.racks untuk lebih benar secara grammar
+
+            // Fix: pakai `rack.rack`, bukan `rack.name`
+            const matchedRack = racksArray.find(rack => rack.rack === selectedWarehouseName);
+            const stockFromThisWarehouse = matchedRack?.stock ?? 0;
+
+            updatedItems[index] = {
+                ...updatedItems[index],
+                item: value,
+                stock: stockFromThisWarehouse,
+            };
+
+        } else if (field === "stock") {
+            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
+            updatedItems[index] = {
+                ...updatedItems[index],
+                stock: raw ? parseInt(raw) : "",
+            };
+        } else {
+            updatedItems[index] = {
+                ...updatedItems[index],
+                [field]: value ?? "",
+            };
+        }
+
+        // Row dianggap lengkap jika 'item' dan 'qty' dan 'rack' terisi
         const isRowComplete = (row) =>
             row.item && row.qty && row.rack;
 
@@ -88,12 +113,12 @@ const EntityTransfer = ({
         const isRowFilled = (row) =>
             row.item || row.qty || row.packingStatus || row.rack || row.rackLines || row.boxNumber || row.trip;
 
-        // Tambahkan row kosong baru jika row terakhir lengkap
         if (isRowComplete(updatedItems[updatedItems.length - 1])) {
-            updatedItems.push({ item: "", qty: "", packingStatus: "", rack: "", rackLines: "", boxNumber: "", trip: "" });
+            updatedItems.push({
+                item: "", qty: "", stock: "", packingStatus: "", rack: "", rackLines: "", boxNumber: "", trip: ""
+            });
         }
 
-        // Temukan index terakhir yang masih berisi data
         let lastFilledIndex = -1;
         for (let i = 0; i < updatedItems.length; i++) {
             if (isRowFilled(updatedItems[i])) {
@@ -101,7 +126,6 @@ const EntityTransfer = ({
             }
         }
 
-        // Sisakan 1 row kosong setelah baris terakhir yang berisi
         const cleanedItems = updatedItems.slice(0, lastFilledIndex + 2);
         setItems(cleanedItems);
     };
@@ -236,16 +260,31 @@ const EntityTransfer = ({
 
             try {
                 await onSubmit(newTransfers, resetForm); // Eksekusi yang berisiko error
+                for (const item of filteredItems) {
+                    const itemId = item.item.id;
+                    const fromRack = filteredWHFrom.name;
+                    const toRack = filteredWHTo.name; // nama rak tujuan di input user
+                    const qty = parseInt(item.qty);
+
+                    if (!isNaN(qty) && qty > 0) {
+                        try {
+                            await ItemsRepository.transferItemStock(itemId, fromRack, toRack, qty);
+                        } catch (err) {
+                            console.error(`Gagal mentransfer stok untuk item ${itemId}:`, err);
+                        }
+                    }
+                }
+
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
                 showToast("gagal", mode === "create" ? "Gagal menyimpan transfer!" : "Gagal memperbarui transfer!");
                 return;
             }
 
-            showToast('berhasil', 'Merek berhasil ditambahkan!');
+            showToast('berhasil', 'Transferan berhasil ditambahkan!');
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
-            showToast('gagal', 'Gagal menambahkan merek baru!');
+            showToast('gagal', 'Gagal menambahkan transferan baru!');
         } finally {
             setLoading(false);
         }
@@ -275,6 +314,7 @@ const EntityTransfer = ({
         return hits.map(hit => ({
             name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
             code: hit.category.code + '-' + hit.code,
+            rack: hit.racks,
             id: hit.objectID,
         }));
     };
@@ -296,7 +336,10 @@ const EntityTransfer = ({
 
     return (
         <div className="main-container">
-            <ContentHeader title={mode === "create" ? "Tambah Pemindahan Stok" : "Rincian Pemindahan Stok"} />
+            <ContentHeader
+                title={mode === "create" ? "Tambah Pemindahan Stok" : "Rincian Pemindahan Stok"}
+                enablePrint={true}
+            />
 
             <div className='add-container-input'>
                 <InputLabel
@@ -361,6 +404,13 @@ const EntityTransfer = ({
                                     icon={<Computer className="input-icon" />}
                                 />
                                 <InputLabel
+                                    label="Total Stok"
+                                    icon={<Computer className='input-icon' />}
+                                    value={item.stock}
+                                    isDisabled={true}
+                                    onChange={(e) => handleItemChange(index, "stock", e.target.value)}
+                                />
+                                <InputLabel
                                     label="Kuantitas"
                                     icon={<Sheet className='input-icon' />}
                                     value={item.qty}
@@ -401,7 +451,62 @@ const EntityTransfer = ({
                             </div>
                         ))
                     ) : (
-                        <div>a</div>
+                        items.map((item, index) => (
+                            <div key={index} className="add-container-input-area-horizontal">
+                                <InputLabel
+                                    label="Cari Item"
+                                    icon={<Computer className='input-icon' />}
+                                    value={item.stock}
+                                    isDisabled={true}
+                                    onChange={(e) => handleItemChange(index, "stock", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Total Stok"
+                                    icon={<Computer className='input-icon' />}
+                                    value={item.stock}
+                                    isDisabled={true}
+                                    onChange={(e) => handleItemChange(index, "stock", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Kuantitas"
+                                    icon={<Sheet className='input-icon' />}
+                                    value={item.qty}
+                                    onChange={(e) => handleItemChange(index, "qty", e.target.value)}
+                                />
+                                <Dropdown
+                                    values={packingStatusOptions}
+                                    selectedId={item.packingStatus}
+                                    setSelectedId={(value) => handleItemChange(index, "packingStatus", value)}
+                                    label="Status Paking"
+                                    icon={<PackageOpen className="input-icon" />}
+                                />
+                                <InputLabel
+                                    label="Rak"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.rack}
+                                    onChange={(e) => handleItemChange(index, "rack", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Baris Rak"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.rackLines}
+                                    onChange={(e) => handleItemChange(index, "rackLines", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Nomor Kotak"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.boxNumber}
+                                    onChange={(e) => handleItemChange(index, "boxNumber", e.target.value)}
+                                />
+                                <InputLabel
+                                    label="Partai"
+                                    icon={<ClipboardPen className='input-icon' />}
+                                    value={item.trip}
+                                    onChange={(e) => handleItemChange(index, "trip", e.target.value)}
+                                />
+                                {/* {itemError && <div className="error-message">{itemError}</div>} */}
+                            </div>
+                        ))
                     )}
                 </div>
             </div>
