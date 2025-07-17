@@ -22,6 +22,7 @@ const CustomAlgoliaContainer = ({
     enableCreate = true,
     filters,
     isSecondary = false,
+    canEdit,
 }) => {
     const [itemsPerPage, setItemsPerPage] = useState(8);
     useEffect(() => {
@@ -42,6 +43,7 @@ const CustomAlgoliaContainer = ({
                 onSelectAllChange={handleSelectAllChange}
                 handleDeleteItems={() => { }}
                 title={pageLabel}
+                canEdit={canEdit}
                 onclick={(id) => navigateToDetail(id)}
                 itemsPerPage={itemsPerPage}
                 setItemsPerPage={setItemsPerPage}

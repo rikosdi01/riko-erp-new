@@ -7,7 +7,8 @@ const UsersContext = createContext();
 export const UsersProvider = ({ children }) => {
     const { currentUser } = useContext(AuthContext);
 
-    const [loginUser, setLoginUser] = useState(null); // bisa null daripada []
+    const [loginUser, setLoginUser] = useState(null);
+    const [accessList, setAccessList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -16,21 +17,31 @@ export const UsersProvider = ({ children }) => {
                 try {
                     const user = await UserRepository.getUserByUID(currentUser.uid);
                     setLoginUser(user);
+
+                    // 🔑 Ambil data role-nya
+                    const roleSnap = await UserRepository.getRoleAccess(user.role); // kamu perlu method ini
+                    console.log('roleSnap :', roleSnap);
+                    if (roleSnap.exists()) {
+                        const data = roleSnap.data();
+                        console.log('Data: ', data);
+                        setAccessList(data.accessData || []);
+                    }
                 } catch (error) {
-                    console.error("Error fetching login user: ", error);
+                    console.error("Error fetching login user/access: ", error);
                 }
             }
-            setIsLoading(false); // ✅ letakkan di luar if agar tetap false meski currentUser tidak ada
+            setIsLoading(false);
         };
 
         fetchLoginUser();
     }, [currentUser]);
 
     return (
-        <UsersContext.Provider value={{ loginUser, isLoading }}>
+        <UsersContext.Provider value={{ loginUser, accessList, isLoading }}>
             {children}
         </UsersContext.Provider>
     );
 };
+
 
 export const useUsers = () => useContext(UsersContext);

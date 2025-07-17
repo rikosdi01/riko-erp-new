@@ -14,12 +14,15 @@ import ConfirmationModal from '../../../../../../components/modal/confirmation_m
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
 import SalesOrderPrintPreview from '../sales_order_print_preview/SalesOrderPrintPreview';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
 
 const EntitySalesOrder = ({
     mode,
     initialData = {},
     onSubmit,
 }) => {
+    const { accessList } = useUsers();
     console.log('Initial Data: ', initialData);
     // Context
     const { showToast } = useToast();
@@ -272,14 +275,14 @@ const EntitySalesOrder = ({
 
 
     // handler delete
-    const handleDeleteTransfer = async () => {
+    const handleDeleteSalesOrder = async () => {
         try {
-            await TransferRepository.deleteTransfer(initialData.id);
-            showToast("berhasil", "Transferan berhasil dihapus!");
-            navigate("/inventory/transfer");
+            await SalesOrderRepository.deleteSalesOrder(initialData.id);
+            showToast("berhasil", "Pesanan berhasil dihapus!");
+            navigate("/inventory/sales-order");
         } catch (error) {
-            console.error("Error deleting transfer: ", error);
-            showToast("gagal", "Gagal menghapus transfer!");
+            console.error("Error deleting order: ", error);
+            showToast("gagal", "Gagal menghapus pesanan!");
         }
     }
 
@@ -415,7 +418,7 @@ const EntitySalesOrder = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-sales-order') ? setOpenDeleteModal(true) : null}
                     />
 
                     <ActionButton
@@ -430,8 +433,8 @@ const EntitySalesOrder = ({
                 <ConfirmationModal
                     isOpen={openDeleteModal}
                     onClose={() => setOpenDeleteModal(false)}
-                    onClick={handleDeleteTransfer}
-                    title="Transfer"
+                    onClick={handleDeleteSalesOrder}
+                    title="Pesanan"
                     itemDelete={initialData?.code}
                 />
             )}

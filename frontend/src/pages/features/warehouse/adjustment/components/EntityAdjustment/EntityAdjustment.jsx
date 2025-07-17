@@ -9,26 +9,33 @@ import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
 import { productIndex } from '../../../../../../../config/algoliaConfig';
-import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import AdjustmentRepository from '../../../../../../repository/warehouse/AdjustmentRepository';
 import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
 import { useNavigate } from 'react-router-dom';
+import { useFormats } from '../../../../../../context/personalization/FormatContext';
+import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
 
 const EntityAdjustment = ({
     mode,
     initialData = {},
     onSubmit,
 }) => {
-    console.log('Initial Data: ', initialData);
     // Context
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { racks } = useRacks();
+    const { formats } = useFormats();
+    console.log('Formats: ', formats);
+    const formatCode = formats.presets?.adjustments;
+    const yearFormat = formats.yearFormat;
+    const monthFormat = formats.monthFormat;
+    const uniqueFormat = formats.uniqueFormat;
 
     const emptyData = [{ item: '', qty: '' }]
     const [code, setCode] = useState(initialData.code || "");
+    const [previewCode, setPreviewCode] = useState("");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
     const [warehouse, setWarehouse] = useState([]);
@@ -109,6 +116,26 @@ const EntityAdjustment = ({
             : Formatting.formatDateForInput(new Date()));
     }, [initialData]);
 
+    useEffect(() => {
+        const generateCode = async () => {
+            if (mode === "create" && !code && formatCode) {
+                const newCode = await CounterRepository.previewNextCode(formatCode, uniqueFormat, monthFormat, yearFormat); // formatCode = "ADJ"
+                console.log(newCode);
+                setCode(newCode);
+                setPreviewCode(newCode);
+            }
+        };
+
+        generateCode();
+    }, [mode, code, formatCode]);
+
+    const confirmAutoCode = async (nextCode) => {
+        return new Promise((resolve) => {
+            const confirmed = window.confirm(`Kode sudah digunakan. Gunakan kode otomatis: ${nextCode}?`);
+            resolve(confirmed);
+        });
+    };
+
 
     const handleAdjustment = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
@@ -152,8 +179,26 @@ const EntityAdjustment = ({
             );
 
             if (exists) {
-                showToast("gagal", "Kode Penyesuaian sudah digunakan!");
-                return setLoading(false);
+                try {
+                    const nextCode = await CounterRepository.getAvailableNextCode(
+                        formatCode,
+                        uniqueFormat,
+                        monthFormat,
+                        yearFormat
+                    );
+
+                    const confirmed = await confirmAutoCode(nextCode);
+                    if (confirmed) {
+                        setCode(nextCode);
+                    } else {
+                        showToast("gagal", "Silakan ubah kode penyesuaian secara manual.");
+                        return setLoading(false);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast("gagal", "Gagal mendapatkan kode baru. Silakan ubah manual.");
+                    return setLoading(false);
+                }
             }
 
             const newAdj = {
@@ -165,8 +210,14 @@ const EntityAdjustment = ({
                 updatedAt: Timestamp.now(),
             };
 
+            console.log('New ADJ: ', newAdj);
+
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
+                if (code === previewCode) {
+                    const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+                    setCode(newCode);
+                }
 
                 const rackName = filteredWH?.name ?? 'Unknown Rack';
                 for (const adjItem of filteredItems) {

@@ -32,20 +32,6 @@ export default function Sidebar({ children }) {
                 <SidebarContext.Provider value={{ expanded }}>
                     <ul className="sidebar-items">{children}</ul>
                 </SidebarContext.Provider>
-
-                {/* <div className="user-profile">
-                    <img
-                        src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
-                        alt="Profile"
-                        className="user-profile-image"
-                    />
-                    <div className={`user-details ${expanded ? "expanded" : "collapsed"}`}>
-                        <div className="user-information">
-                            <h4 className="user-name">Junior Chen</h4>
-                            <span className="user-email">ct.junior7@gmail.com</span>
-                        </div>
-                    </div>
-                </div> */}
             </nav>
         </aside>
     );

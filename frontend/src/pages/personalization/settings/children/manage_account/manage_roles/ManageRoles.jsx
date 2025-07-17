@@ -22,6 +22,12 @@ const ManageRoles = () => {
             section: "CSO",
             data: [
                 {
+                    title: 'Dashboard Order',
+                    items: [
+                        "Melihat dashboard Order"
+                    ],
+                },
+                {
                     title: 'Sales Order',
                     items: [
                         "Melihat data Sales Order",
@@ -62,6 +68,12 @@ const ManageRoles = () => {
         {
             section: "Warehouse",
             data: [
+                {
+                    title: 'Dashoboard Inventaris',
+                    items: [
+                        "Melihat dashboard inventaris"
+                    ],
+                },
                 {
                     title: 'Penyesuaian Pesanan',
                     items: [
@@ -130,6 +142,12 @@ const ManageRoles = () => {
         {
             section: "Logistik",
             data: [
+                {
+                    title: 'Dashoboard Logistic',
+                    items: [
+                        "Melihat dashboard logistic"
+                    ],
+                },
                 {
                     title: 'Pengiriman Pesanan',
                     items: [
@@ -239,7 +257,7 @@ const ManageRoles = () => {
             <div className="manage-account-container">
                 <ContentHeader title={"Kelola Akun"} />
 
-                <div className="top-controls" style={{ justifyContent: 'end'}}>
+                <div className="top-controls" style={{ justifyContent: 'end' }}>
                     <div className='manage-buttons'>
                         <input
                             type="text"

@@ -16,15 +16,26 @@ import {
     Eye,
     Settings as SettingsIcon,
     Palette,
-    UserCog
+    UserCog,
+    Edit
 } from "lucide-react";
 import { useUsers } from "../../../context/auth/UsersContext";
+import { useContext } from "react";
+import { AuthContext } from "../../../context/AuthContext";
 
 const Settings = () => {
-    const { loginUser } = useUsers();
+    const { dispatch } = useContext(AuthContext);
+    const { loginUser, isLoading } = useUsers();
     const { showToast } = useToast();
-
     const navigate = useNavigate();
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!loginUser) {
+        return <div>User tidak ditemukan atau belum login.</div>;
+    }
 
     const handleLogOut = () => {
         // Dispatch action "LOGOUT" untuk memperbarui state currentUser ke null
@@ -47,9 +58,9 @@ const Settings = () => {
                 <section className="profile-section">
                     <h3><User size={18} style={{ marginRight: 8 }} /> Informasi Profil</h3>
                     <div className="profile-card">
-                        <p><strong>Nama: </strong> {loginUser.username || 'Guest'}</p>
-                        <p><strong>Email: </strong> {loginUser.email || 'Guest@rikoerp.com'}</p>
-                        <p><strong>Role: </strong>{loginUser.role || 'Unknown'}</p>
+                        <p><strong>Nama: </strong> {loginUser.username}</p>
+                        <p><strong>Email: </strong> {loginUser.email}</p>
+                        <p><strong>Role: </strong> {loginUser.role}</p>
                     </div>
                 </section>
 
@@ -80,6 +91,7 @@ const Settings = () => {
                         <li className="settings-tile-item" onClick={() => navigate('/settings/mutation-logistic')}><Truck size={18} /> Mutasi Pengiriman</li>
                         <li className="settings-tile-item" onClick={() => navigate('/settings/manage-account')}><UserCog size={18} /> Kelola Akun</li>
                         <li className="settings-tile-item" onClick={() => navigate('/settings/activity')}><History size={18} /> Riwayat Aktivitas</li>
+                        <li className="settings-tile-item" onClick={() => navigate('/settings/formatting')}><Edit size={18} /> Format</li>
                     </ul>
                 </div>
 

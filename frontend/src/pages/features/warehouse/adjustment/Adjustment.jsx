@@ -2,13 +2,15 @@ import './Adjustment.css';
 import MainContainer from '../../../../components/container/main_container/MainContainer';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useTransfer } from '../../../../context/warehouse/TransferContext';
 import Formatting from '../../../../utils/format/Formatting';
 import { useAdjustment } from '../../../../context/warehouse/AdjustmentContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Adjustment = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -79,6 +81,7 @@ const Adjustment = () => {
             columns={columns}
             data={filteredAdjustment}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-penyesuaian-pesanan')}
         />
     );
 }

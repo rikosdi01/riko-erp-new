@@ -14,6 +14,7 @@ const MainContainer = ({
     columns,
     data,
     isLoading,
+    canEdit,
 }) => {
     // Hooks
     const navigate = useNavigate();
@@ -100,6 +101,7 @@ const MainContainer = ({
                 handleDeleteItems={() => { }}
                 title={pageLabel}
                 onclick={(id) => navigateToDetail(id)}
+                canEdit={canEdit}
             />
 
             {/* Tooltip dengan efek fade-in dan muncul di bawah */}

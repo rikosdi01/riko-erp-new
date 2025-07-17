@@ -54,6 +54,18 @@ export default class UserRepository {
         }
     }
 
+    // ✅ Jadikan method ini static
+    static async getRoleAccess(roleName) {
+        try {
+            const formattedName = roleName.toLowerCase().replace(/\s+/g, '-');
+            console.log('formattedName: ', formattedName);
+            return await getDoc(doc(db, "Roles", formattedName));
+        } catch (error) {
+            console.error("Error fetching role access: ", error);
+            throw error;
+        }
+    }
+
     static async updateAccessData(userId, accessData) {
         try {
             const userRef = doc(db, "Users", userId);

@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import { ALGOLIA_INDEX_ITEMS, ALGOLIA_INDEX_SO, clientItems, clientSO } from '../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_SO, clientSO } from '../../../../../config/algoliaConfig';
 import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
-import ItemsRepository from '../../../../repository/warehouse/ItemsRepository';
 import Formatting from '../../../../utils/format/Formatting';
 import './SalesOrder.css';
 import SalesOrderRepository from '../../../../repository/sales/SalesOrderRepository';
+import { useUsers } from '../../../../context/auth/UsersContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
 
 const SalesOrder = () => {
     // Hooks
     const navigate = useNavigate();
-
+    const { accessList } = useUsers();
 
     const columns = [
         { header: "No. Pesanan", accessor: "code" },
@@ -51,6 +52,10 @@ const SalesOrder = () => {
             columns={columns}
             createOnclick={navigateToCreateItems}
             subscribeFn={SalesOrderRepository.subscribeToSalesOrderChanges}
+            enableExport={false}
+            enableImport={false}
+            enableCreate={roleAccess(accessList, 'menambah-data-sales-order')}
+            canEdit={roleAccess(accessList, 'mengedit-data-sales-order')}
         />
     )
 }

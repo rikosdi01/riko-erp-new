@@ -399,4 +399,51 @@ export default class Formatting {
         });
     };
 
+    static getFormattedYear = (year, yearFormat) => {
+        const currentYear = year || new Date().getFullYear();
+        const yearStr = currentYear.toString();
+
+        if (yearFormat === 'fourletter') {
+            return yearStr; // 2025 => 25
+        }
+
+        // Default: 4 digit
+        return yearStr.slice(-2);
+    };
+
+    static getFormattedMonth = (month, monthFormat) => {
+        const currentMonth = month || new Date().getMonth() + 1;
+        if (monthFormat === 'letter') {
+            const letters = 'ABCDEFGHIJKL';
+            return letters[currentMonth - 1] || '';
+        }
+        return currentMonth.toString();
+    };
+
+    static toRoman = (num) => {
+        const romanNumerals = [
+            ["M", 1000],
+            ["CM", 900],
+            ["D", 500],
+            ["CD", 400],
+            ["C", 100],
+            ["XC", 90],
+            ["L", 50],
+            ["XL", 40],
+            ["X", 10],
+            ["IX", 9],
+            ["V", 5],
+            ["IV", 4],
+            ["I", 1],
+        ];
+
+        let result = '';
+        for (const [roman, value] of romanNumerals) {
+            while (num >= value) {
+                result += roman;
+                num -= value;
+            }
+        }
+        return result;
+    };
 }

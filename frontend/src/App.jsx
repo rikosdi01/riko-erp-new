@@ -84,6 +84,8 @@ import AddDeliveryOrder from "./pages/features/logistic/delivery_order/children/
 import InvoiceOrder from "./pages/features/logistic/invoice/InvoiceOrder";
 import { UsersProvider } from "./context/auth/UsersContext";
 import ManageRoles from "./pages/personalization/settings/children/manage_account/manage_roles/ManageRoles";
+import FormatSettings from "./pages/personalization/settings/children/format_settings/FormatSettings";
+import { FormatProvider } from "./context/personalization/FormatContext";
 
 function AppContent() {
   const location = useLocation();
@@ -220,9 +222,10 @@ function AppContent() {
           <Route path="/settings/mutation-logistic" element={<ProtectedRoute><MutationLogistic /></ProtectedRoute>} />
           <Route path="/settings/manage-account" element={<ProtectedRoute><ManageAccount /></ProtectedRoute>} />
           <Route path="/settings/activity" element={<ProtectedRoute><SettingActivity /></ProtectedRoute>} />
+          <Route path="/settings/formatting" element={<ProtectedRoute><FormatSettings /></ProtectedRoute>} />
           <Route path="/settings/notification" element={<ProtectedRoute><SettingNotification /></ProtectedRoute>} />
           <Route path="/settings/help" element={<ProtectedRoute><SettingHelp /></ProtectedRoute>} />
-          
+
           {/* Settings Manage Account */}
           <Route path="/settings/manage-account/roles" element={<ProtectedRoute><ManageRoles /></ProtectedRoute>} />
 
@@ -241,39 +244,41 @@ function App() {
   return (
     <ToastProvider>
       <UsersProvider>
-        <RackProvider>
-          <MerkProvider>
-            <CategoryProvider>
-              <ItemProvider>
-                <AdjustmentProvider>
-                  <TransferProvider>
-                    <CustomersProvider>
-                      <SalesmanProvider>
-                        <CSOProvider>
-                          <SalesOrderProvider>
-                            <CourierProvider>
-                              <ExpressProvider>
-                                <DeliveryOrderProvider>
-                                  <InvoiceProvider>
-                                    <ReturnProvider>
-                                      <Router>
-                                        <AppContent />
-                                      </Router>
-                                    </ReturnProvider>
-                                  </InvoiceProvider>
-                                </DeliveryOrderProvider>
-                              </ExpressProvider>
-                            </CourierProvider>
-                          </SalesOrderProvider>
-                        </CSOProvider>
-                      </SalesmanProvider>
-                    </CustomersProvider>
-                  </TransferProvider>
-                </AdjustmentProvider>
-              </ItemProvider>
-            </CategoryProvider>
-          </MerkProvider>
-        </RackProvider>
+        <FormatProvider>
+          <RackProvider>
+            <MerkProvider>
+              <CategoryProvider>
+                <ItemProvider>
+                  <AdjustmentProvider>
+                    <TransferProvider>
+                      <CustomersProvider>
+                        <SalesmanProvider>
+                          <CSOProvider>
+                            <SalesOrderProvider>
+                              <CourierProvider>
+                                <ExpressProvider>
+                                  <DeliveryOrderProvider>
+                                    <InvoiceProvider>
+                                      <ReturnProvider>
+                                        <Router>
+                                          <AppContent />
+                                        </Router>
+                                      </ReturnProvider>
+                                    </InvoiceProvider>
+                                  </DeliveryOrderProvider>
+                                </ExpressProvider>
+                              </CourierProvider>
+                            </SalesOrderProvider>
+                          </CSOProvider>
+                        </SalesmanProvider>
+                      </CustomersProvider>
+                    </TransferProvider>
+                  </AdjustmentProvider>
+                </ItemProvider>
+              </CategoryProvider>
+            </MerkProvider>
+          </RackProvider>
+        </FormatProvider>
       </UsersProvider>
     </ToastProvider>
   );

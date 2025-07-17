@@ -1,0 +1,91 @@
+.settings-format {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 1px solid rgb(222, 222, 222);
+    /* margin-bottom: 40px; */
+}
+
+.settings-format-sub-header {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.settings-format-sub-header-container {
+    margin-bottom: 20px;
+}
+
+.settings-format-subtitle {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.settings-format-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+    gap: 6px;
+}
+
+.settings-format-field label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+}
+
+.settings-format-code {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.settings-input,
+.settings-format-code select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 150px;
+    transition: border-color 0.2s ease;
+}
+
+.settings-input:focus,
+.settings-format-code select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.settings-format-preview {
+    font-size: 14px;
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.settings-format-ex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-format-field-preview {
+    display: flex;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.format-settings-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}

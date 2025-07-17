@@ -18,6 +18,7 @@ const Table = ({
     enableCheckbox = true,
     onFilterClick, // Tambahkan fungsi untuk menangani filter
     isSecondary,
+    canEdit,
 }) => {
     // Hooks
     const location = useLocation();
@@ -78,7 +79,15 @@ const Table = ({
                     ) : (
                         currentData.length > 0 ? (
                             currentData.map((item) => (
-                                <tr key={item.id || item.objectID} onClick={() => isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)}>
+                                <tr
+                                    key={item.id || item.objectID}
+                                    onClick={() => {
+                                        if (canEdit) {
+                                            isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)
+                                        }
+                                    }
+                                    }
+                                >
                                     {enableCheckbox && (
                                         <td>
                                             <input
