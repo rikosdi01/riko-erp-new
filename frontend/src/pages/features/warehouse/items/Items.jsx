@@ -4,14 +4,17 @@ import CustomAlgoliaContainer from '../../../../components/customize/custom_algo
 import ItemsRepository from '../../../../repository/warehouse/ItemsRepository';
 import Formatting from '../../../../utils/format/Formatting';
 import './Items.css';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Items = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     const columns = [
-        { 
+        {
             header: "Kode Item",
             accessor: "codeItemCategory",
             renderCell: (_, item) => {
@@ -31,7 +34,7 @@ const Items = () => {
                 const set = value.set
                 return `${totalStock} ${set}`
             }
-         },
+        },
         {
             header: "Harga Jual",
             accessor: "salePrice",
@@ -48,7 +51,7 @@ const Items = () => {
     const navigateToCreateItems = () => {
         navigate('/inventory/items/new');
     }
-    
+
     return (
         <CustomAlgoliaContainer
             pageLabel="Item"
@@ -57,6 +60,8 @@ const Items = () => {
             columns={columns}
             createOnclick={navigateToCreateItems}
             subscribeFn={ItemsRepository.subscribeToItemsChanges}
+            canEdit={roleAccess(accessList, 'mengedit-data-item')}
+            canAdd={roleAccess(accessList, 'menambah-data-item')}
         />
     )
 }

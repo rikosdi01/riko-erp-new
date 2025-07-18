@@ -1,13 +1,15 @@
 import './RackWarehouse.css';
 import MainContainer from '../../../../components/container/main_container/MainContainer';
 import { useNavigate } from 'react-router-dom';
-import { useMerks } from '../../../../context/warehouse/MerkContext';
 import { useState } from 'react';
 import { useRacks } from '../../../../context/warehouse/RackWarehouseContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const RackWarehouse = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -70,6 +72,8 @@ const RackWarehouse = () => {
             columns={columns}
             data={filteredMerks}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-gudang')}
+            canAdd={roleAccess(accessList, 'menambah-data-gudang')}
         />
     );
 }

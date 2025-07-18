@@ -10,6 +10,9 @@ import ConfirmationModal from '../../../../../../components/modal/confirmation_m
 import MerksRepository from '../../../../../../repository/warehouse/MerksRepository';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../../../context/AuthContext';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
 
 const EntityMerk = ({
     mode,
@@ -17,6 +20,7 @@ const EntityMerk = ({
     onSubmit
 }) => {
     // Context
+    const { accessList } = useUsers();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
@@ -36,6 +40,7 @@ const EntityMerk = ({
     const [nameError, setNameError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [accessDenied, setAccessDenied] = useState(false);
 
 
     // ================================================================================
@@ -141,6 +146,10 @@ const EntityMerk = ({
         }
     }
 
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
+
     return (
         <div className="main-container">
             <ContentHeader title={mode === "create" ? "Tambah Merek" : "Rincian Merek"} />
@@ -187,7 +196,7 @@ const EntityMerk = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-merek') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -207,6 +216,11 @@ const EntityMerk = ({
                     itemDelete={name}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div >
     )
 }

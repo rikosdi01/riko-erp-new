@@ -4,6 +4,7 @@ import ConfirmationModal from "../modal/confirmation_modal/ConfirmationModal";
 import { Trash2 } from "lucide-react"; // Import ikon Filter
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./Table.css";
+import AccessAlertModal from "../modal/access_alert_modal/AccessAlertModal";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -26,6 +27,7 @@ const Table = ({
     console.log('Data: ', data);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [accessDenied, setAccessDenied] = useState(false);
 
     const [itemsPerPage, setItemsPerPage] = useState(8);
 
@@ -38,6 +40,10 @@ const Table = ({
     // Navigation to Detail
     const navigateToDetail = (id) => {
         navigate(`${location.pathname}/${id}`);
+    }
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
     }
 
     return (
@@ -84,6 +90,8 @@ const Table = ({
                                     onClick={() => {
                                         if (canEdit) {
                                             isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)
+                                        } else {
+                                            handleRestricedAction();
                                         }
                                     }
                                     }
@@ -185,6 +193,11 @@ const Table = ({
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onclick={handleDeleteItems}
+            />
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
             />
         </div>
     );

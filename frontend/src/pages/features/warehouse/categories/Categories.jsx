@@ -4,10 +4,13 @@ import CustomAlgoliaContainer from '../../../../components/customize/custom_algo
 import CategoriesRepository from '../../../../repository/warehouse/CategoriesRepository';
 import './Categories.css';
 import { useNavigate } from 'react-router-dom';
+import { useUsers } from '../../../../context/auth/UsersContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
 
 const Categories = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -16,7 +19,7 @@ const Categories = () => {
     // Variables
     // Columns for the table
     const columns = [
-        { 
+        {
             header: "Kode Kategori",
             accessor: "codeCategoryMerk",
             renderCell: (_, category) => {
@@ -24,7 +27,7 @@ const Categories = () => {
                 const merkCode = category?.merks?.code ?? "";
                 return merkCode + '-' + code;
             }
-         },
+        },
         { header: "Nama Kategori", accessor: "name" },
         { header: "Bagian Kategori", accessor: "part" },
         { header: "Merek", accessor: "merks.name" },
@@ -49,6 +52,8 @@ const Categories = () => {
             createOnclick={navigateToCreateCategories}
             subscribeFn={CategoriesRepository.subscribeToCategoriesChanges}
             enableDropdown={true}
+            canEdit={roleAccess(accessList, 'mengedit-data-kategori')}
+            canAdd={roleAccess(accessList, 'menambah-data-kategori')}
         />
     )
 }

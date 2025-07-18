@@ -11,6 +11,9 @@ import CategoriesRepository from '../../../../../repository/warehouse/Categories
 import ConfirmationModal from '../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useMerks } from '../../../../../context/warehouse/MerkContext';
 import { useNavigate } from 'react-router-dom';
+import { useUsers } from '../../../../../context/auth/UsersContext';
+import AccessAlertModal from '../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import roleAccess from '../../../../../utils/helper/roleAccess';
 
 const EntityCategory = ({
     mode,
@@ -18,6 +21,7 @@ const EntityCategory = ({
     onSubmit
 }) => {
     // Context
+    const { accessList } = useUsers();
     const { showToast } = useToast();
     const merksData = useMerks();
     const navigate = useNavigate();
@@ -36,6 +40,7 @@ const EntityCategory = ({
     const [nameError, setNameError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [accessDenied, setAccessDenied] = useState(false);
 
 
     const categoryPart = ([
@@ -174,6 +179,9 @@ const EntityCategory = ({
         }
     }
 
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     return (
         <div className="main-container">
@@ -238,7 +246,7 @@ const EntityCategory = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-merek') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -258,6 +266,11 @@ const EntityCategory = ({
                     itemDelete={name + ' ' + initialData.merks?.name}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

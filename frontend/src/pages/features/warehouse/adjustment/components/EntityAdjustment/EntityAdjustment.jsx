@@ -16,6 +16,9 @@ import ItemsRepository from '../../../../../../repository/warehouse/ItemsReposit
 import { useNavigate } from 'react-router-dom';
 import { useFormats } from '../../../../../../context/personalization/FormatContext';
 import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 
 const EntityAdjustment = ({
     mode,
@@ -24,10 +27,10 @@ const EntityAdjustment = ({
 }) => {
     // Context
     const navigate = useNavigate();
+    const { accessList } = useUsers();
     const { showToast } = useToast();
     const { racks } = useRacks();
     const { formats } = useFormats();
-    console.log('Formats: ', formats);
     const formatCode = formats.presets?.adjustments;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
@@ -46,6 +49,12 @@ const EntityAdjustment = ({
     const [warehouseError, setWarehouseError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
@@ -117,17 +126,20 @@ const EntityAdjustment = ({
     }, [initialData]);
 
     useEffect(() => {
-        const generateCode = async () => {
-            if (mode === "create" && !code && formatCode) {
-                const newCode = await CounterRepository.previewNextCode(formatCode, uniqueFormat, monthFormat, yearFormat); // formatCode = "ADJ"
-                console.log(newCode);
+        if (mode === "create" && formatCode) {
+            const generate = async () => {
+                const newCode = await CounterRepository.previewNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
                 setCode(newCode);
                 setPreviewCode(newCode);
-            }
-        };
+            };
 
-        generateCode();
-    }, [mode, code, formatCode]);
+            generate();
+        }
+    }, []); // ⛔️ Hilangkan dependensi `code` agar tidak dipanggil ulang
+
+    useEffect(() => {
+        console.log('Updated Code: ', code);
+    }, [code])
 
     const confirmAutoCode = async (nextCode) => {
         return new Promise((resolve) => {
@@ -163,8 +175,6 @@ const EntityAdjustment = ({
 
         try {
             const filteredItems = items.filter(item => item.item && item.qty);
-            console.log('Warehouse: ', warehouse);
-            console.log('Racks: ', racks);
             const wh = racks.find(wh => wh.id === selectedWarehouse);
 
             const filteredWH = {
@@ -178,18 +188,25 @@ const EntityAdjustment = ({
                 mode === "detail" ? initialData.id : null
             );
 
+            let finalCode = code;
+            let lastValue = 0;
+
             if (exists) {
                 try {
-                    const nextCode = await CounterRepository.getAvailableNextCode(
+                    const { candidate, nextCandidate, last, formattingCode } = await CounterRepository.getAvailableNextCode(
                         formatCode,
                         uniqueFormat,
                         monthFormat,
                         yearFormat
                     );
 
-                    const confirmed = await confirmAutoCode(nextCode);
+                    const confirmed = await confirmAutoCode(candidate);
                     if (confirmed) {
-                        setCode(nextCode);
+                        await CounterRepository.commitNextCode(formattingCode, last);
+                        finalCode = candidate; // simpan untuk langsung dipakai
+                        lastValue = last;
+                        setCode(nextCandidate); // tetap update state
+                        setPreviewCode(nextCandidate);
                     } else {
                         showToast("gagal", "Silakan ubah kode penyesuaian secara manual.");
                         return setLoading(false);
@@ -202,7 +219,7 @@ const EntityAdjustment = ({
             }
 
             const newAdj = {
-                code,
+                code: finalCode,
                 description,
                 items: filteredItems,
                 warehouse: filteredWH,
@@ -210,13 +227,13 @@ const EntityAdjustment = ({
                 updatedAt: Timestamp.now(),
             };
 
-            console.log('New ADJ: ', newAdj);
-
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
-                if (code === previewCode) {
+                if (finalCode === previewCode && !exists) {
                     const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+                    console.log('New Code: ', newCode);
                     setCode(newCode);
+                    setPreviewCode(newCode);
                 }
 
                 const rackName = filteredWH?.name ?? 'Unknown Rack';
@@ -224,8 +241,6 @@ const EntityAdjustment = ({
                     const itemId = adjItem.item.id;
                     const newQty = parseInt(adjItem.qty);
                     let oldQty = 0;
-                    console.log('Item ID: ', itemId);
-                    console.log('New Qty: ', newQty);
 
                     if (!isNaN(newQty)) {
                         if (mode === "detail" && Array.isArray(initialData.items)) {
@@ -238,7 +253,6 @@ const EntityAdjustment = ({
                         await ItemsRepository.overwriteItemStock(itemId, newQty, rackName);
                     }
                 }
-
 
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
@@ -256,10 +270,9 @@ const EntityAdjustment = ({
     };
 
     const handleReset = (e) => {
-        setCode("");
+        setCode(previewCode);
         setDescription("");
         setItems(emptyData);
-        setWarehouse("");
         setCodeError("");
         setItemError("");
         setWarehouseError("");
@@ -392,7 +405,7 @@ const EntityAdjustment = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-penyesuaian-pesanan') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -412,6 +425,11 @@ const EntityAdjustment = ({
                     itemDelete={initialData?.code}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

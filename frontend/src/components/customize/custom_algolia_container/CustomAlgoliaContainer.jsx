@@ -23,11 +23,18 @@ const CustomAlgoliaContainer = ({
     filters,
     isSecondary = false,
     canEdit,
+    canAdd,
 }) => {
     const [itemsPerPage, setItemsPerPage] = useState(8);
+    const [accessDenied, setAccessDenied] = useState(false);
+
     useEffect(() => {
         console.log('itemsPerPage:', itemsPerPage);
     }, [itemsPerPage]);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     const ItemsHit = () => {
         const { items } = useHits();
@@ -131,7 +138,7 @@ const CustomAlgoliaContainer = ({
                         <IconButton
                             tooltipLabel={`Tambah ${pageLabel}`}
                             icon={<Plus size={18} />}
-                            onclick={createOnclick}
+                            onclick={() => canAdd ? createOnclick() : handleRestricedAction()}
                             background='#0d82ff'
                             color='white'
                         />

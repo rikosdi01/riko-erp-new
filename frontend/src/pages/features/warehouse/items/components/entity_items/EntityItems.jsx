@@ -12,12 +12,16 @@ import Formatting from '../../../../../../utils/format/Formatting';
 import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 
 const EntityItems = ({
     mode,
     initialData = {},
     onSubmit,
 }) => {
+    const { accessList } = useUsers();
     const { showToast } = useToast();
     const navigate = useNavigate();
 
@@ -46,6 +50,7 @@ const EntityItems = ({
     const [nameError, setNameError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [accessDenied, setAccessDenied] = useState(false);
 
     // Fetch Initial Data
     useEffect(() => {
@@ -164,6 +169,9 @@ const EntityItems = ({
         }
     }
 
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     return (
         <div className="main-container">
@@ -254,7 +262,7 @@ const EntityItems = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-merek') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -274,6 +282,11 @@ const EntityItems = ({
                     itemDelete={initialData.category?.name + ' - ' + name}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

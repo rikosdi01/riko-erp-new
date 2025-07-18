@@ -5,7 +5,7 @@ const IconButton = ({
     icon,
     onclick,
     background = "#e4e4e4",
-    color = "black"
+    color = "black",
 }) => {
     return (
         <button

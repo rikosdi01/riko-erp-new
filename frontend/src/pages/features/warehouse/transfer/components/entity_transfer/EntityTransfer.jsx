@@ -13,6 +13,9 @@ import TransferRepository from '../../../../../../repository/warehouse/TransferR
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 
 const EntityTransfer = ({
     mode,
@@ -23,6 +26,7 @@ const EntityTransfer = ({
     // Context
     const { showToast } = useToast();
     const { racks } = useRacks();
+    const { accessList } = useUsers();
 
     const packingStatusOptions = [
         { id: 1, name: "Sudah Kemas" },
@@ -56,6 +60,12 @@ const EntityTransfer = ({
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [typeList, setTypeList] = useState('in');
+
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     useEffect(() => {
         if (warehouseTo) {
@@ -532,7 +542,7 @@ const EntityTransfer = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, "menghapus-data-pemindahan-stok") ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -552,6 +562,11 @@ const EntityTransfer = ({
                     itemDelete={initialData?.code}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

@@ -71,7 +71,6 @@ const Adjustment = () => {
 
     // ================================================================================
 
-
     // Page Container
     return (
         <MainContainer
@@ -82,6 +81,7 @@ const Adjustment = () => {
             data={filteredAdjustment}
             isLoading={isLoading}
             canEdit={roleAccess(accessList, 'mengedit-data-penyesuaian-pesanan')}
+            canAdd={roleAccess(accessList, 'menambah-data-penyesuaian-pesanan')}
         />
     );
 }

@@ -3,10 +3,13 @@ import MainContainer from '../../../../components/container/main_container/MainC
 import { useNavigate } from 'react-router-dom';
 import { useMerks } from '../../../../context/warehouse/MerkContext';
 import { useState } from 'react';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Merks = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -68,6 +71,8 @@ const Merks = () => {
             columns={columns}
             data={filteredMerks}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-merek')}
+            canAdd={roleAccess(accessList, 'menambah-data-merek')}
         />
     );
 }

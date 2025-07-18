@@ -1,4 +1,4 @@
-import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { doc, getDoc, runTransaction, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import Formatting from "../../utils/format/Formatting";
 
@@ -8,7 +8,10 @@ export default class CounterRepository {
     const counterRef = doc(db, "Counters", formattingCode);
     const counterSnap = await getDoc(counterRef);
 
+    console.log('Last From Preview Before: ', counterSnap.data().last);
+
     let last = counterSnap.exists() ? counterSnap.data().last + 1 : 1;
+    console.log('Last From Preview: ', last);
 
     return this.formatCode(prefix, last, uniqueType, monthFormat, yearFormat);
   }
@@ -26,6 +29,7 @@ export default class CounterRepository {
 
     const nextCode = await runTransaction(db, async (transaction) => {
       const counterDoc = await transaction.get(counterRef);
+      console.log('Counter Doc Last: ', counterDoc.data().last);
 
       let last = 0;
 
@@ -37,11 +41,17 @@ export default class CounterRepository {
         transaction.update(counterRef, { last });
       }
 
-      return this.formatCode(prefix, last, uniqueType, monthFormat, yearFormat);
+      return this.formatCode(prefix, last + 1, uniqueType, monthFormat, yearFormat);
     });
 
     return nextCode;
   }
+
+  static async commitNextCode(formattingCode, lastValue) {
+    const counterRef = doc(db, "Counters", formattingCode);
+    await setDoc(counterRef, { last: lastValue }, { merge: true });
+  }
+
 
   static async getAvailableNextCode(
     prefix,
@@ -52,36 +62,30 @@ export default class CounterRepository {
     maxAttempts = 10
   ) {
     const formattingCode = this.formatCode(prefix, null, uniqueType, monthFormat, yearFormat);
-    console.log('FormattingCode : ', formattingCode);
     const counterRef = doc(db, "Counters", formattingCode);
 
-    let finalCode = "";
-    let last = 0;
-    let found = false;
+    const counterSnap = await getDoc(counterRef);
+    let last = counterSnap.exists() ? counterSnap.data().last : 0;
 
-    await runTransaction(db, async (transaction) => {
-      const counterDoc = await transaction.get(counterRef);
-      last = counterDoc.exists() ? counterDoc.data().last : 0;
+    for (let i = 0; i < maxAttempts; i++) {
+      const candidate = this.formatCode(prefix, last + 1, uniqueType, monthFormat, yearFormat);
+      const nextCandidate = this.formatCode(prefix, last + 2, uniqueType, monthFormat, yearFormat);
+      const isDuplicate = await this.checkIfCodeExists(targetCollection, candidate);
 
-      for (let i = 0; i < maxAttempts; i++) {
-        last++;
-        const candidateCode = this.formatCode(prefix, last, uniqueType, monthFormat, yearFormat);
-        const isDuplicate = await this.checkIfCodeExists(targetCollection, candidateCode);
-
-        if (!isDuplicate) {
-          transaction.set(counterRef, { last }); // update last used
-          finalCode = candidateCode;
-          found = true;
-          break;
-        }
+      if (!isDuplicate) {
+        return {
+          candidate,
+          nextCandidate,
+          last: last + 1, // calon nilai yang akan disimpan nanti
+          formattingCode
+        };
       }
 
-      if (!found) throw new Error("Tidak ada kode tersedia setelah " + maxAttempts + " percobaan.");
-    });
+      last++;
+    }
 
-    return finalCode;
+    throw new Error("Tidak ada kode tersedia setelah " + maxAttempts + " percobaan.");
   }
-
 
   static formatCode(prefix, last, uniqueType = "number", monthFormat = "number", yearFormat = "twoletter") {
     let uniquePart = "";

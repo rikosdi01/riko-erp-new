@@ -7,11 +7,12 @@ import { PackagePlus, PackageOpen } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
-import MerksRepository from '../../../../../../repository/warehouse/MerksRepository';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../../../context/AuthContext';
 import RackWarehouseRepository from '../../../../../../repository/warehouse/RackWarehouseRepository';
-import { set } from 'date-fns';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
 
 const EntityRacks = ({
     mode,
@@ -19,9 +20,11 @@ const EntityRacks = ({
     onSubmit
 }) => {
     // Context
+    const { accessList } = useUsers();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
+    const [accessDenied, setAccessDenied] = useState(false);
 
 
     // ================================================================================
@@ -123,6 +126,10 @@ const EntityRacks = ({
         }
     }
 
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
+
     return (
         <div className="main-container">
             <ContentHeader title={mode === "create" ? "Tambah Gudang" : "Rincian Gudang"} />
@@ -172,7 +179,7 @@ const EntityRacks = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-gudang') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -192,6 +199,11 @@ const EntityRacks = ({
                     itemDelete={name}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div >
     )
 }

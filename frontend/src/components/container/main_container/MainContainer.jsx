@@ -6,6 +6,7 @@ import SearchValue from '../../input/search_value/SearchValue';
 import CustomTooltip from '../../customize/custom_tooltip/CustomTooltip';
 import IconButton from '../../button/icon_button/IconButton';
 import Table from '../../table/Table';
+import AccessAlertModal from '../../modal/access_alert_modal/AccessAlertModal';
 
 const MainContainer = ({
     pageLabel,
@@ -15,7 +16,9 @@ const MainContainer = ({
     data,
     isLoading,
     canEdit,
+    canAdd,
 }) => {
+    console.log('Can Add: ', canAdd);
     // Hooks
     const navigate = useNavigate();
     const location = useLocation();
@@ -26,6 +29,7 @@ const MainContainer = ({
 
     // Variables
     const [selectedItems, setSelectedItems] = useState([]);
+    const [accessDenied, setAccessDenied] = useState(false);
     
 
     // ================================================================================
@@ -60,6 +64,10 @@ const MainContainer = ({
         navigate(`${location.pathname}/${id}`);
     }
 
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
+
 
     return (
         <div className="main-container">
@@ -85,7 +93,7 @@ const MainContainer = ({
                 <IconButton
                     tooltipLabel={`Tambah ${pageLabel}`}
                     icon={<Plus size={18} />}
-                    onclick={createOnclick}
+                    onclick={() => canAdd ? createOnclick() : handleRestricedAction()}
                     background='#0d82ff'
                     color='white'
                 />
@@ -106,6 +114,11 @@ const MainContainer = ({
 
             {/* Tooltip dengan efek fade-in dan muncul di bawah */}
             <CustomTooltip />
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     );
 }

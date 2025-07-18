@@ -20,10 +20,8 @@ export const UsersProvider = ({ children }) => {
 
                     // 🔑 Ambil data role-nya
                     const roleSnap = await UserRepository.getRoleAccess(user.role); // kamu perlu method ini
-                    console.log('roleSnap :', roleSnap);
                     if (roleSnap.exists()) {
                         const data = roleSnap.data();
-                        console.log('Data: ', data);
                         setAccessList(data.accessData || []);
                     }
                 } catch (error) {

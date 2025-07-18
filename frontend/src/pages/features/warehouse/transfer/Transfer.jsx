@@ -4,10 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTransfer } from '../../../../context/warehouse/TransferContext';
 import Formatting from '../../../../utils/format/Formatting';
+import { useUsers } from '../../../../context/auth/UsersContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
 
 const Transfer = () => {
     // Hooks
     const navigate = useNavigate();
+        const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -80,6 +83,8 @@ const Transfer = () => {
             columns={columns}
             data={filteredMerks}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-pemindahan-stok')}
+            canAdd={roleAccess(accessList, 'menambah-data-pemindahan-stok')}
         />
     );
 }
