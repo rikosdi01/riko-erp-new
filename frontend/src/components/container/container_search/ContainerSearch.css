@@ -1,0 +1,64 @@
+.container-search{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.container-search-box {
+    position: relative;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 12px 12px 12px 40px;
+    /* Padding kiri lebih besar untuk ikon */
+    font-size: 14px;
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    color: grey;
+}
+
+.container-search-child {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%; /* ⬅️ buat setinggi container */
+    display: flex; /* ⬅️ biar isi bisa rata tengah */
+    align-items: center; /* vertikal center */
+    justify-content: center; /* horizontal center jika perlu */
+    padding: 0 12px; /* ubah jadi horizontal-only agar tidak menambah tinggi */
+    background-color: rgb(217, 217, 217);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    cursor: pointer;
+}
+
+.container-search-results {
+  position: relative; /* Tambahkan ini */
+  background: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  max-width: 85vw;
+  text-align: center;
+  animation: fadeInUp 0.3s ease;
+}
+
+
+.close-modal-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+.close-modal-button:hover {
+  color: #ff3333;
+}

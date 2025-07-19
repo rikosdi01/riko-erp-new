@@ -19,6 +19,8 @@ import { useExpress } from '../../../../../../context/logistic/ExpressContext';
 import DeliveryOrderRepository from '../../../../../../repository/logistic/DeliveryOrderRepository';
 import InvoiceOrderRepository from '../../../../../../repository/logistic/InvoiceOrderRepository';
 import { useNavigate } from 'react-router-dom';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 
 const EntityDeliveryOrder = ({
     mode,
@@ -27,6 +29,7 @@ const EntityDeliveryOrder = ({
 }) => {
     console.log('Initial Data: ', initialData);
     // Context
+                const { accessList } = useUsers();
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { racks } = useRacks();
@@ -58,6 +61,12 @@ const EntityDeliveryOrder = ({
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
@@ -473,7 +482,7 @@ const EntityDeliveryOrder = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-pengiriman-pesanan') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <div className='action-button-group'>
@@ -500,6 +509,11 @@ const EntityDeliveryOrder = ({
                     itemDelete={initialData?.code}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

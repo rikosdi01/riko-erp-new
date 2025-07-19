@@ -4,10 +4,13 @@ import CustomAlgoliaContainer from '../../../../components/customize/custom_algo
 import Formatting from '../../../../utils/format/Formatting';
 import './DeliveryOrder.css';
 import DeliveryOrderRepository from '../../../../repository/logistic/DeliveryOrderRepository';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const DeliveryOrder = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     const columns = [
@@ -46,6 +49,8 @@ const DeliveryOrder = () => {
             columns={columns}
             createOnclick={navigateToCreateDO}
             subscribeFn={DeliveryOrderRepository.subscribeToDeliveryOrderChanges}
+            canEdit={roleAccess(accessList, 'mengedit-data-pengiriman-pesanan')}
+            canAdd={roleAccess(accessList, 'menambah-data-pengiriman-pesanan')}
         />
     )
 }

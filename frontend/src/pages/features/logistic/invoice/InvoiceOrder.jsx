@@ -4,11 +4,13 @@ import CustomAlgoliaContainer from '../../../../components/customize/custom_algo
 import Formatting from '../../../../utils/format/Formatting';
 import './InvoiceOrder.css';
 import DeliveryOrderRepository from '../../../../repository/logistic/DeliveryOrderRepository';
+import { useUsers } from '../../../../context/auth/UsersContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
 
 const InvoiceOrder = () => {
     // Hooks
     const navigate = useNavigate();
-
+    const { accessList } = useUsers();
 
     const columns = [
         { header: "No. Pesanan", accessor: "soData.code" },
@@ -40,6 +42,8 @@ const InvoiceOrder = () => {
             columns={columns}
             createOnclick={navigateToCreateDO}
             subscribeFn={DeliveryOrderRepository.subscribeToDeliveryOrderChanges}
+            canEdit={roleAccess(accessList, 'mengedit-data-pengiriman-pesanan')}
+            canAdd={roleAccess(accessList, 'menambah-data-pengiriman-pesanan')}
         />
     )
 }

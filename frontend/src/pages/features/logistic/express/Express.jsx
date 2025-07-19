@@ -3,10 +3,13 @@ import MainContainer from '../../../../components/container/main_container/MainC
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useExpress } from '../../../../context/logistic/ExpressContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Express = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -73,6 +76,8 @@ const Express = () => {
             columns={columns}
             data={filteredExpress}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-pengangkutan')}
+            canAdd={roleAccess(accessList, 'menambah-data-pengangkutan')}
         />
     );
 }

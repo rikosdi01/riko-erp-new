@@ -3,7 +3,7 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntitySalesman.css';
-import { KeyRound, Users2 } from "lucide-react";
+import { Calendar1, FileUp, KeyRound, MessageSquareShare, MousePointerSquareDashed, Phone, Users2 } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,9 @@ import { useContext } from 'react';
 import { AuthContext } from '../../../../../../context/AuthContext';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import SalesmanRepository from '../../../../../../repository/sales/SalesmanRepository';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
 
 const EntitySalesman = ({
     mode,
@@ -18,19 +21,29 @@ const EntitySalesman = ({
     onSubmit
 }) => {
     const { showToast } = useToast();
+    const { accessList } = useUsers();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
 
     const [code, setCode] = useState(initialData.code || "");
     const [name, setName] = useState(initialData.name || "");
+    const [email, setEmail] = useState(initialData.email || "");
+    const [telp, setTelp] = useState(initialData.phone || "");
     const [codeError, setCodeError] = useState("");
     const [nameError, setNameError] = useState("");
+    const [emailError, setEmailError] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(
         initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`
     );
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     // UseEffect
     // Fetch Initial Data
@@ -39,6 +52,8 @@ const EntitySalesman = ({
 
         setCode(initialData.code || "");
         setName(initialData.name || "");
+        setEmail(initialData.email || "");
+        setTelp(initialData.phone || "");
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`)
     }, [initialData]);
@@ -48,6 +63,16 @@ const EntitySalesman = ({
         setLoading(true);
 
         let valid = true;
+
+        if (code.length > 5) {
+            setCodeError('Kode Sales tidak boleh lebih dari 5 karakter!');
+            valid = false;
+        }
+
+        if (email && !/\S+@\S+\.\S+/.test(email)) {
+            setEmailError('Format email tidak valid!');
+            valid = false;
+        }
 
         if (!code.trim()) {
             setCodeError('Kode Sales tidak boleh kosong!');
@@ -68,6 +93,8 @@ const EntitySalesman = ({
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
                 userId: userId,
+                email: email.trim(),
+                phone: telp.trim(),
             };
 
             console.log("Data Sales: ", salesmanData);
@@ -92,8 +119,12 @@ const EntitySalesman = ({
     const handleReset = (e) => {
         setCode("");
         setName("");
+        setEmail("");
+        setTelp("");
+        setDateEntry("");
         setCodeError("");
         setNameError("");
+        setEmailError("");
     }
     // handler delete
     const handleDeleteSalesman = async () => {
@@ -114,27 +145,59 @@ const EntitySalesman = ({
             />
 
             <div className='add-container-input'>
-                <InputLabel
-                    label="Kode Sales"
-                    icon={<KeyRound className='input-icon' />}
-                    value={code}
-                    onChange={(e) => {
-                        setCode(e.target.value);
-                    }}
-                />
-                {codeError && <div className="error-message">{codeError}</div>}
+                <div>
+                    <InputLabel
+                        label="Nama Sales"
+                        icon={<Users2 className='input-icon' />}
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value);
+                        }}
+                    />
+                    {nameError && <div className="error-message">{nameError}</div>}
+                </div>
+
+                <div>
+                    <InputLabel
+                        label="Kode Sales"
+                        icon={<KeyRound className='input-icon' />}
+                        value={code}
+                        onChange={(e) => {
+                            setCode(e.target.value);
+                        }}
+                    />
+                    {codeError && <div className="error-message">{codeError}</div>}
+                </div>
             </div>
 
             <div className='add-container-input'>
+            </div>
+
+            <div className='add-container-input-attribute'>
+                <div>
+                    <InputLabel
+                        type={'email'}
+                        label="Email Sales"
+                        icon={<MessageSquareShare className='input-icon' />}
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                        }}
+                    />
+                    {emailError && <div className="error-message">{emailError}</div>}
+                </div>
+
                 <InputLabel
-                    label="Nama Sales"
-                    icon={<Users2 className='input-icon' />}
-                    value={name}
+                    label="No. Telepon Sales"
+                    icon={<Phone className='input-icon' />}
+                    value={telp}
                     onChange={(e) => {
-                        setName(e.target.value);
+                        setTelp(e.target.value);
                     }}
                 />
-                {nameError && <div className="error-message">{nameError}</div>}
+            </div>
+
+            <div className='add-container-input'>
             </div>
 
             {mode === "create" ? (
@@ -158,7 +221,7 @@ const EntitySalesman = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-sales') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -178,6 +241,11 @@ const EntitySalesman = ({
                     itemDelete={name}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

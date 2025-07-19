@@ -3,18 +3,24 @@ import { db } from "../../firebase";
 import Formatting from "../../utils/format/Formatting";
 
 export default class CounterRepository {
-  static async previewNextCode(prefix, uniqueType = "number", monthFormat = "number", yearFormat = "twoletter") {
-    const formattingCode = this.formatCode(prefix, null, uniqueType, monthFormat, yearFormat)
-    const counterRef = doc(db, "Counters", formattingCode);
-    const counterSnap = await getDoc(counterRef);
+static async previewNextCode(prefix, uniqueType = "number", monthFormat = "number", yearFormat = "twoletter") {
+  const formattingCode = this.formatCode(prefix, null, uniqueType, monthFormat, yearFormat);
+  const counterRef = doc(db, "Counters", formattingCode);
+  const counterSnap = await getDoc(counterRef);
 
-    console.log('Last From Preview Before: ', counterSnap.data().last);
-
-    let last = counterSnap.exists() ? counterSnap.data().last + 1 : 1;
-    console.log('Last From Preview: ', last);
-
-    return this.formatCode(prefix, last, uniqueType, monthFormat, yearFormat);
+  let last = 1;
+  if (counterSnap.exists()) {
+    const data = counterSnap.data();
+    if (data && typeof data.last === 'number') {
+      last = data.last + 1;
+    }
   }
+
+  console.log('Last From Preview: ', last);
+
+  return this.formatCode(prefix, last, uniqueType, monthFormat, yearFormat);
+}
+
 
   static checkIfCodeExists = async (collection, code) => {
     const docRef = doc(db, collection, code);
@@ -29,8 +35,7 @@ export default class CounterRepository {
 
     const nextCode = await runTransaction(db, async (transaction) => {
       const counterDoc = await transaction.get(counterRef);
-      console.log('Counter Doc Last: ', counterDoc.data().last);
-
+      
       let last = 0;
 
       if (!counterDoc.exists()) {

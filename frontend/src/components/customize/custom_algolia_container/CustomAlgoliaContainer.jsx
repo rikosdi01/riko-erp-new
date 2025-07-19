@@ -8,6 +8,7 @@ import IconButton from '../../button/icon_button/IconButton';
 import { Download, Plus, Upload } from 'lucide-react';
 import AlgoliaListener from '../custom_listener/CustomListener';
 import CustomAlgoliaDropdown from '../custom_dropdown/CustomDropdown';
+import AccessAlertModal from '../../modal/access_alert_modal/AccessAlertModal';
 
 const CustomAlgoliaContainer = ({
     pageLabel,
@@ -156,6 +157,11 @@ const CustomAlgoliaContainer = ({
                 </div>
 
             </InstantSearch>
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

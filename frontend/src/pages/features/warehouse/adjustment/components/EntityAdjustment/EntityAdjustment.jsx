@@ -92,10 +92,11 @@ const EntityAdjustment = ({
     };
 
     useEffect(() => {
+        console.log('Racks: ', racks);
         if (racks.length > 0) {
             const racksDropdown = racks.map(rack => ({
                 id: rack.id,
-                name: rack.name,
+                name: rack.name + ' - ' + rack.location,
                 category: rack.category,
             }));
             setWarehouse(racksDropdown);
@@ -200,6 +201,11 @@ const EntityAdjustment = ({
                         yearFormat
                     );
 
+                    console.log('Candidate: ', candidate);
+                    console.log('Next Candidate: ', nextCandidate);
+                    console.log('Last: ', last);
+                    console.log('Formatting Code: ', formattingCode);
+
                     const confirmed = await confirmAutoCode(candidate);
                     if (confirmed) {
                         await CounterRepository.commitNextCode(formattingCode, last);
@@ -227,9 +233,13 @@ const EntityAdjustment = ({
                 updatedAt: Timestamp.now(),
             };
 
+            console.log('Final Code: ', finalCode);
+            console.log('Preview Code: ', previewCode);
+            console.log('Exists: ', exists);
+
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
-                if (finalCode === previewCode && !exists) {
+                if (mode === "create" && !exists) {
                     const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
                     console.log('New Code: ', newCode);
                     setCode(newCode);
@@ -270,7 +280,6 @@ const EntityAdjustment = ({
     };
 
     const handleReset = (e) => {
-        setCode(previewCode);
         setDescription("");
         setItems(emptyData);
         setCodeError("");

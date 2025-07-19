@@ -3,11 +3,11 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityItems.css';
-import { PackagePlus, KeyRound, LayoutGrid, CarFront, BadgeDollarSign, Scale } from "lucide-react";
+import { PackagePlus, KeyRound, LayoutGrid, CarFront, BadgeDollarSign, Scale, LayoutDashboard } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
-import { categoryIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_CATEGORIES, categoryIndex, clientCategories } from '../../../../../../../config/algoliaConfig';
 import Formatting from '../../../../../../utils/format/Formatting';
 import ItemsRepository from '../../../../../../repository/warehouse/ItemsRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUsers } from '../../../../../../context/auth/UsersContext';
 import roleAccess from '../../../../../../utils/helper/roleAccess';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
 
 const EntityItems = ({
     mode,
@@ -52,6 +53,31 @@ const EntityItems = ({
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
 
+    useEffect(() => {
+        console.log('Category:', category);
+    }, [category]);
+
+    const columns = [
+        {
+            header: "Kode Kategori",
+            accessor: "codeCategoryMerk",
+            renderCell: (_, category) => {
+                const code = category?.code ?? "";
+                const merkCode = category?.merks?.code ?? "";
+                return merkCode + '-' + code;
+            }
+        },
+        {
+            header: "Nama",
+            accessor: "nameMerk",
+            renderCell: (_, category) => {
+                const name = category?.name ?? "";
+                const merkName = category?.merks?.name ?? "";
+                return name + ' ' + merkName;
+            }
+        }
+    ]
+
     // Fetch Initial Data
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
@@ -65,19 +91,6 @@ const EntityItems = ({
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId || `guest-${Date.now()}`);
     }, [initialData]);
-
-    const loadCategoryOptions = async (inputValue) => {
-        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
-        const { hits } = await categoryIndex.search(searchTerm, {
-            hitsPerPage: 10,
-        });
-
-        return hits.map(hit => ({
-            name: hit.name + ' ' + hit.merks.name,
-            code: hit.merks.code + '-' + hit.code,
-            id: hit.objectID,
-        }));
-    };
 
     const handleItems = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
@@ -98,13 +111,18 @@ const EntityItems = ({
         if (!valid) return setLoading(false);
 
         try {
+            const filteredCategory = {
+                id: category.objectID || category.id,
+                name: category.name + ' ' + (category.merks?.name || ""),
+                code: category.merks?.code + '-' + category.code,
+            }
             const selectedBrand = brandsOptions.find(brandValue => brandValue.id === brand);
-            console.log(code.trim());
-            console.log(category.id);
+
+            console.log('Category:', category);
 
             const exists = await ItemsRepository.checkItemsExists(
                 code.trim(),
-                category.id,
+                category.objectID || category.id,
                 mode === "detail" ? initialData.id : null
             );
 
@@ -118,7 +136,7 @@ const EntityItems = ({
             const newItem = {
                 code,
                 name,
-                category,
+                category: filteredCategory,
                 brand: selectedBrand.name,
                 salePrice: parseInt(salePrice.replace(/\D/g, ""), 10) || 0,
                 set: setProduct,
@@ -127,6 +145,8 @@ const EntityItems = ({
                 updatedAt: Timestamp.now(),
                 userId
             };
+
+            console.log('New Item:', newItem);
 
             try {
                 await onSubmit(newItem, handleReset);
@@ -208,13 +228,13 @@ const EntityItems = ({
             </div>
 
             <div className='add-container-input'>
-                <Dropdown
-                    isAlgoliaDropdown={true}
-                    values={loadCategoryOptions}
-                    selectedId={category}
-                    setSelectedId={setCategory}
-                    label="Pilih Kategori"
-                    icon={<LayoutGrid className="input-icon" />}
+                <ContainerSearch
+                    label={`${category?.name ?? ""} ${category?.merks?.name ?? ""}`.trim() || "Kategori"}
+                    icon={<LayoutDashboard className='input-icon' />}
+                    searchClient={clientCategories}
+                    indexName={ALGOLIA_INDEX_CATEGORIES}
+                    columns={columns}
+                    setValues={setCategory}
                 />
             </div>
 
@@ -262,7 +282,7 @@ const EntityItems = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => roleAccess(accessList, 'menghapus-data-merek') ? setOpenDeleteModal(true) : handleRestricedAction()}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-item') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton

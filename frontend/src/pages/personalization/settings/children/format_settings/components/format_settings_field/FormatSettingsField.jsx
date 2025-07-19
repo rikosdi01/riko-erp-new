@@ -34,8 +34,13 @@ const FormatSettingsField = ({
     };
 
     const generateCode = () => {
-        return `${prefix}${getFormattedYear(year, yearFormat)}${Formatting.getFormattedMonth(month, monthFormat)}${getFormattedUnique()}`;
+        return `${prefix}${Formatting.getFormattedYear(year, yearFormat)}${Formatting.getFormattedMonth(month, monthFormat)}${getFormattedUnique()}`;
     };
+
+    useEffect(() => {
+        console.log('Format Year: ', year);
+        console.log('Format Year: ', yearFormat);
+    }, [year, yearFormat]);
 
     return (
         <div className="settings-format-field">

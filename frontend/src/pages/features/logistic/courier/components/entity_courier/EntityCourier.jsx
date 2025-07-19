@@ -11,6 +11,9 @@ import { useContext } from 'react';
 import { AuthContext } from '../../../../../../context/AuthContext';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import CourierRepository from '../../../../../../repository/logistic/CourierRepository';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../../../context/auth/UsersContext';
 
 const EntityCourier = ({
     mode,
@@ -19,6 +22,7 @@ const EntityCourier = ({
 }) => {
     console.log('Initial Data: ', initialData);
     const { showToast } = useToast();
+                const { accessList } = useUsers();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
 
@@ -32,6 +36,12 @@ const EntityCourier = ({
     );
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     // UseEffect
     // Fetch Initial Data
@@ -165,7 +175,7 @@ const EntityCourier = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => setOpenDeleteModal(true)}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-kurir') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -185,6 +195,11 @@ const EntityCourier = ({
                     itemDelete={name}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

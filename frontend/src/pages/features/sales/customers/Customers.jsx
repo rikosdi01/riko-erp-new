@@ -1,13 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { ALGOLIA_INDEX_CUSTOMERS, ALGOLIA_INDEX_ITEMS, clientCustomers, clientItems } from '../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_CUSTOMERS, clientCustomers } from '../../../../../config/algoliaConfig';
 import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
-import ItemsRepository from '../../../../repository/warehouse/ItemsRepository';
 import './Customers.css';
 import CustomersRepository from '../../../../repository/sales/CustomersRepository';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Customers = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     const columns = [
@@ -37,6 +39,8 @@ const Customers = () => {
             columns={columns}
             createOnclick={navigateToCreateCustomers}
             subscribeFn={CustomersRepository.subscribeToCustomersChanges}
+            canEdit={roleAccess(accessList, 'mengedit-data-pelanggan')}
+            canAdd={roleAccess(accessList, 'menambah-data-pelanggan')}
         />
     )
 }

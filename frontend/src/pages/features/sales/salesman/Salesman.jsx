@@ -3,10 +3,13 @@ import MainContainer from '../../../../components/container/main_container/MainC
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useSalesman } from '../../../../context/sales/SalesmanContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Salesman = () => {
     // Hooks
     const navigate = useNavigate();
+    const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -31,6 +34,8 @@ const Salesman = () => {
     const columns = [
         { header: "Kode Sales", accessor: "code" },
         { header: "Nama Sales", accessor: "name" },
+        { header: "Target Penjualan", accessor: "target" },
+        { header: "Total Penjualan", accessor: "total" },
     ]
 
     // Filter Data
@@ -68,6 +73,8 @@ const Salesman = () => {
             columns={columns}
             data={filteredSalesman}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-sales')}
+            canAdd={roleAccess(accessList, 'menambah-data-sales')}
         />
     );
 }

@@ -1,6 +1,6 @@
 import { usePagination } from "react-instantsearch";
 
-const CustomPagination = ({ itemsPerPage, setItemsPerPage }) => {
+const CustomPagination = ({ itemsPerPage, setItemsPerPage, enableItemsPerPage = true }) => {
     const {
         currentRefinement,
         nbPages,
@@ -27,6 +27,7 @@ const CustomPagination = ({ itemsPerPage, setItemsPerPage }) => {
                 Akhir &raquo;
             </button>
 
+            {enableItemsPerPage && (
             <div className="items-per-page">
                 <select value={itemsPerPage} onChange={(e) => {
                     setItemsPerPage(Number(e.target.value));
@@ -39,6 +40,7 @@ const CustomPagination = ({ itemsPerPage, setItemsPerPage }) => {
                 </select>
                 <span> per halaman</span>
             </div>
+            )}
         </div>
     );
 };

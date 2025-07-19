@@ -3,10 +3,13 @@ import MainContainer from '../../../../components/container/main_container/MainC
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useCourier } from '../../../../context/logistic/CourierContext';
+import roleAccess from '../../../../utils/helper/roleAccess';
+import { useUsers } from '../../../../context/auth/UsersContext';
 
 const Courier = () => {
     // Hooks
     const navigate = useNavigate();
+        const { accessList } = useUsers();
 
 
     // ================================================================================
@@ -73,6 +76,8 @@ const Courier = () => {
             columns={columns}
             data={filteredCourier}
             isLoading={isLoading}
+            canEdit={roleAccess(accessList, 'mengedit-data-kurir')}
+            canAdd={roleAccess(accessList, 'menambah-data-kurir')}
         />
     );
 }

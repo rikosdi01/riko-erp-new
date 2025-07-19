@@ -16,6 +16,7 @@ import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderR
 import SalesOrderPrintPreview from '../sales_order_print_preview/SalesOrderPrintPreview';
 import { useUsers } from '../../../../../../context/auth/UsersContext';
 import roleAccess from '../../../../../../utils/helper/roleAccess';
+import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 
 const EntitySalesOrder = ({
     mode,
@@ -47,6 +48,11 @@ const EntitySalesOrder = ({
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    const handleRestricedAction = () => {
+        setAccessDenied(true);
+    }
 
     const handleItemChange = (index, field, value) => {
         console.log('index: ', index);
@@ -418,7 +424,7 @@ const EntitySalesOrder = ({
                         title={"Hapus"}
                         background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                         color="white"
-                        onclick={() => roleAccess(accessList, 'menghapus-data-sales-order') ? setOpenDeleteModal(true) : null}
+                        onclick={() => roleAccess(accessList, 'menghapus-data-sales-order') ? setOpenDeleteModal(true) : handleRestricedAction()}
                     />
 
                     <ActionButton
@@ -438,6 +444,11 @@ const EntitySalesOrder = ({
                     itemDelete={initialData?.code}
                 />
             )}
+
+            <AccessAlertModal
+                isOpen={accessDenied}
+                onClose={() => setAccessDenied(false)}
+            />
         </div>
     )
 }

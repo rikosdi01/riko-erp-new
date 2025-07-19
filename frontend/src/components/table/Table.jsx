@@ -1,39 +1,30 @@
 import { useState } from "react";
-import ActionButton from "../button/actionbutton/ActionButton";
-import ConfirmationModal from "../modal/confirmation_modal/ConfirmationModal";
-import { Trash2 } from "lucide-react"; // Import ikon Filter
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./Table.css";
 import AccessAlertModal from "../modal/access_alert_modal/AccessAlertModal";
 
 const Table = ({
     isAlgoliaTable = false,
-    columns,
-    data,
+    columns = [],
+    data = [],
     isLoading,
-    selectedItems,
-    onCheckboxChange,
-    onSelectAllChange,
-    handleDeleteItems,
-    title,
-    enableCheckbox = true,
     onFilterClick, // Tambahkan fungsi untuk menangani filter
     isSecondary,
     canEdit,
+    onTableClick,
 }) => {
     // Hooks
     const location = useLocation();
     const navigate = useNavigate();
     console.log('Data: ', data);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [accessDenied, setAccessDenied] = useState(false);
 
     const [itemsPerPage, setItemsPerPage] = useState(8);
 
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const safeData = Array.isArray(data) ? data : [];
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = isAlgoliaTable ? data : data.slice(startIndex, startIndex + itemsPerPage);
+    const currentData = isAlgoliaTable ? data : safeData.slice(startIndex, startIndex + itemsPerPage);
 
 
     // Navigation
@@ -51,15 +42,6 @@ const Table = ({
             <table>
                 <thead>
                     <tr>
-                        {enableCheckbox && (
-                            <th style={{ width: "50px", textAlign: "center" }}>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedItems.length === data.length}
-                                    onChange={onSelectAllChange}
-                                />
-                            </th>
-                        )}
                         {columns.map((col, index) => (
                             <th key={index}>
                                 <div className="table-header">
@@ -88,27 +70,18 @@ const Table = ({
                                 <tr
                                     key={item.id || item.objectID}
                                     onClick={() => {
-                                        if (canEdit) {
-                                            isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)
+                                        if (onTableClick) {
+                                            onTableClick(item); // atau kirim item.id jika hanya ID yang diperlukan
                                         } else {
-                                            handleRestricedAction();
+                                            if (canEdit) {
+                                                isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)
+                                            } else {
+                                                handleRestricedAction();
+                                            }
                                         }
                                     }
                                     }
                                 >
-                                    {enableCheckbox && (
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedItems.includes(item.id)}
-                                                onClick={(e) => e.stopPropagation()}
-                                                onChange={(e) => {
-                                                    e.stopPropagation();
-                                                    onCheckboxChange(item.id);
-                                                }}
-                                            />
-                                        </td>
-                                    )}
                                     {columns.map((col) => (
                                         <td key={`${item.id}-${col.accessor}`}>
                                             {col.renderCell
@@ -154,7 +127,7 @@ const Table = ({
                     <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
                         Akhir &raquo;
                     </button>
-
+                    
                     <div className="items-per-page">
                         <select value={itemsPerPage} onChange={(e) => {
                             setItemsPerPage(Number(e.target.value));
@@ -169,31 +142,6 @@ const Table = ({
                     </div>
                 </div>
             )}
-
-            {selectedItems.length > 0 && (
-                <div className="selected-employee">
-                    <p>{selectedItems.length} {title} dipilih</p>
-                    <div className='selected-button-employee'>
-                        <ActionButton
-                            icon={<Trash2 size={16} />}
-                            title="Hapus"
-                            background="rgb(255, 35, 35)"
-                            color="#fff"
-                            padding="10px 18px"
-                            fontSize='14px'
-                            onclick={() => setIsModalOpen(true)}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {/* Modal Konfirmasi Hapus */}
-            <ConfirmationModal
-                title={title}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onclick={handleDeleteItems}
-            />
 
             <AccessAlertModal
                 isOpen={accessDenied}
