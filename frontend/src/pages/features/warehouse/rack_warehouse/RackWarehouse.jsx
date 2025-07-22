@@ -34,6 +34,8 @@ const RackWarehouse = () => {
     const columns = [
         { header: "Nama Gudang", accessor: "name" },
         { header: "Kategori Gudang", accessor: "category" },
+        { header: "Deskripsi Gudang", accessor: "description" },
+        { header: "Lokasi Gudang", accessor: "location" },
     ]
 
     // Filter Data

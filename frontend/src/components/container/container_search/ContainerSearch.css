@@ -62,3 +62,25 @@
 .close-modal-button:hover {
   color: #ff3333;
 }
+
+.container-search-stock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* background-color: red; */
+}
+
+.container-search-stock > div {
+  flex: none!important; /* Pastikan div ini tidak fleksibel */
+}
+
+.container-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.container-search-label {
+  font-weight: 600;
+}

@@ -125,6 +125,15 @@ tbody tr:last-child td {
     color: #007bff;
 }
 
+tr.hovered {
+  background-color: #f0f8ff;
+}
+
+tr.selected {
+  background-color: #d0eaff;
+}
+
+
 /* 
 tbody tr:nth-child(n + 3) {
     background-color: rgb(145, 255, 145);

@@ -214,6 +214,11 @@ function AppContent() {
           <Route path="/inventory/items/:id" element={<ProtectedRoute><DetailItem /></ProtectedRoute>} />
 
 
+          {/* Customers */}
+          <Route path="/customer/list-products" element={<ProtectedRoute><Items /></ProtectedRoute>} />
+          <Route path="/customer/orders" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
+
+
 
           {/* Settings */}
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

@@ -18,7 +18,6 @@ const MainContainer = ({
     canEdit,
     canAdd,
 }) => {
-    console.log('Can Add: ', canAdd);
     // Hooks
     const navigate = useNavigate();
     const location = useLocation();

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./Table.css";
 import AccessAlertModal from "../modal/access_alert_modal/AccessAlertModal";
@@ -12,11 +12,12 @@ const Table = ({
     isSecondary,
     canEdit,
     onTableClick,
+    selectedValue,
+    setSelectedValue
 }) => {
     // Hooks
     const location = useLocation();
     const navigate = useNavigate();
-    console.log('Data: ', data);
     const [currentPage, setCurrentPage] = useState(1);
     const [accessDenied, setAccessDenied] = useState(false);
 
@@ -25,6 +26,53 @@ const Table = ({
     const safeData = Array.isArray(data) ? data : [];
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentData = isAlgoliaTable ? data : safeData.slice(startIndex, startIndex + itemsPerPage);
+    const [hoveredIndex, setHoveredIndex] = useState(-1);
+    const tableRef = useRef(null);
+
+    useEffect(() => {
+        console.log('Horvered Row ID: ', selectedValue);
+    }, [selectedValue]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (!tableRef.current || document.activeElement.tagName === "INPUT") return;
+
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setHoveredIndex(prev => {
+                    const newIndex = Math.min(prev + 1, currentData.length - 1);
+                    setSelectedValue(currentData[newIndex] || currentData[newIndex]);
+                    return newIndex;
+                });
+            }
+
+            if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setHoveredIndex(prev => {
+                    const newIndex = Math.max(prev - 1, 0);
+                    setSelectedValue(currentData[newIndex] || currentData[newIndex]);
+                    return newIndex;
+                });
+            }
+
+            if (e.key === "Enter" && hoveredIndex >= 0) {
+                const selectedItem = currentData[hoveredIndex];
+                if (onTableClick) {
+                    onTableClick(selectedItem);
+                } else if (canEdit) {
+                    isSecondary
+                        ? navigateToDetail(selectedItem.id || selectedItem.objectID + ' - ' + selectedItem.secondaryId)
+                        : navigateToDetail(selectedItem.id || selectedItem.objectID);
+                } else {
+                    handleRestricedAction();
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [currentData, hoveredIndex]);
+
 
 
     // Navigation
@@ -38,7 +86,7 @@ const Table = ({
     }
 
     return (
-        <div className={!isAlgoliaTable ? 'table-wrapper' : ''}>
+        <div className={!isAlgoliaTable ? 'table-wrapper' : ''} ref={tableRef}>
             <table>
                 <thead>
                     <tr>
@@ -66,22 +114,43 @@ const Table = ({
                         </tr>
                     ) : (
                         currentData.length > 0 ? (
-                            currentData.map((item) => (
+                            currentData.map((item, index) => (
                                 <tr
                                     key={item.id || item.objectID}
                                     onClick={() => {
+                                        // Delay agar tidak bentrok dengan double click
+                                        setTimeout(() => {
+                                            setSelectedValue(item);
+                                            setHoveredIndex(index);
+                                        }, 200);
+                                    }}
+                                    onDoubleClick={() => {
+                                        // Hentikan timeout dari single click
+                                        clearTimeout();
+
                                         if (onTableClick) {
-                                            onTableClick(item); // atau kirim item.id jika hanya ID yang diperlukan
+                                            console.log('Double Clicked Item:', item);
+                                            onTableClick(item);
                                         } else {
                                             if (canEdit) {
-                                                isSecondary ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId) : navigateToDetail(item.id || item.objectID)
+                                                isSecondary
+                                                    ? navigateToDetail(item.id || item.objectID + ' - ' + item.secondaryId)
+                                                    : navigateToDetail(item.id || item.objectID);
                                             } else {
                                                 handleRestricedAction();
                                             }
                                         }
-                                    }
+                                    }}
+
+                                    className={
+                                        hoveredIndex === index
+                                            ? 'hovered'
+                                            : selectedValue?.id === (item.id || item.objectID)
+                                                ? 'selected'
+                                                : ''
                                     }
                                 >
+
                                     {columns.map((col) => (
                                         <td key={`${item.id}-${col.accessor}`}>
                                             {col.renderCell
@@ -127,7 +196,7 @@ const Table = ({
                     <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
                         Akhir &raquo;
                     </button>
-                    
+
                     <div className="items-per-page">
                         <select value={itemsPerPage} onChange={(e) => {
                             setItemsPerPage(Number(e.target.value));

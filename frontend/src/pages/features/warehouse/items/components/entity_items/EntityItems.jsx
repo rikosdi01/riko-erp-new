@@ -229,12 +229,19 @@ const EntityItems = ({
 
             <div className='add-container-input'>
                 <ContainerSearch
-                    label={`${category?.name ?? ""} ${category?.merks?.name ?? ""}`.trim() || "Kategori"}
+                    label={"Kategori"}
                     icon={<LayoutDashboard className='input-icon' />}
                     searchClient={clientCategories}
                     indexName={ALGOLIA_INDEX_CATEGORIES}
                     columns={columns}
+                    value={
+                        category?.name && category?.merks
+                            ? `${category.name} - ${category.merks}`
+                            : "Pilih Kategori"
+                    }
+
                     setValues={setCategory}
+                    mode="category"
                 />
             </div>
 

@@ -1,4 +1,4 @@
-import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
+import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import { useEffect } from "react";
 import { useUsers } from "../../context/auth/UsersContext";
@@ -35,6 +35,11 @@ const SidebarPages = () => {
                 item => item.type === "divider" || roleAccess(accessList, item.permission)
             )
         );
+
+    const customerSubItems = filterSubItems([
+        { text: "Daftar Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-dashboard-order" },
+        { text: "Pesanan", to: "/customer/orders", icon: <ListOrdered size={20} />, permission: "melihat-data-sales-order" },
+    ]);
 
     const salesSubItems = filterSubItems([
         { text: "Dashboard", to: "/sales/sales-dashboard", icon: <Activity size={20} />, permission: "melihat-dashboard-order" },
@@ -73,6 +78,15 @@ const SidebarPages = () => {
                 text="Dashboard"
                 to="/dashboard"
             />
+
+            {customerSubItems.length > 0 && (
+                <SidebarItem
+                    icon={<Store size={20} />}
+                    text="Pelanggan"
+                    to="/sales"
+                    subItems={customerSubItems}
+                />
+            )}
 
             {salesSubItems.length > 0 && (
                 <SidebarItem

@@ -8,7 +8,7 @@ import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { productIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_ITEMS, clientItems, productIndex } from '../../../../../../../config/algoliaConfig';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import AdjustmentRepository from '../../../../../../repository/warehouse/AdjustmentRepository';
@@ -19,6 +19,7 @@ import CounterRepository from '../../../../../../repository/personalization/Coun
 import roleAccess from '../../../../../../utils/helper/roleAccess';
 import { useUsers } from '../../../../../../context/auth/UsersContext';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
 
 const EntityAdjustment = ({
     mode,
@@ -30,6 +31,7 @@ const EntityAdjustment = ({
     const { accessList } = useUsers();
     const { showToast } = useToast();
     const { racks } = useRacks();
+    console.log('Racks: ', racks);
     const { formats } = useFormats();
     const formatCode = formats.presets?.adjustments;
     const yearFormat = formats.yearFormat;
@@ -41,8 +43,10 @@ const EntityAdjustment = ({
     const [previewCode, setPreviewCode] = useState("");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
+    // const [stock, setStock] = useState(initialData.description || "");
     const [warehouse, setWarehouse] = useState([]);
     const [selectedWarehouse, setSelectedWarehouse] = useState("");
+
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
@@ -149,6 +153,9 @@ const EntityAdjustment = ({
         });
     };
 
+    useEffect(() => {
+        console.log('Updated Items: ', items);
+    }, [items]);
 
     const handleAdjustment = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
@@ -287,20 +294,6 @@ const EntityAdjustment = ({
         setWarehouseError("");
     }
 
-    const loadItemOptions = async (inputValue) => {
-        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
-        const { hits } = await productIndex.search(searchTerm, {
-            hitsPerPage: 10,
-        });
-
-        return hits.map(hit => ({
-            name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
-            code: hit.category.code + '-' + hit.code,
-            id: hit.objectID,
-        }));
-    };
-
-
     // handler delete
     const handleDeleteAdjustment = async () => {
         try {
@@ -374,13 +367,42 @@ const EntityAdjustment = ({
 
                 {items.map((item, index) => (
                     <div key={index} className="add-container-input-area">
-                        <Dropdown
-                            isAlgoliaDropdown={true}
-                            values={loadItemOptions}
-                            selectedId={item.item}
-                            setSelectedId={(value) => handleItemChange(index, "item", value)}
-                            label="Pilih Item"
-                            icon={<Computer className="input-icon" />}
+                        <ContainerSearch
+                            label={"Item"}
+                            icon={<Computer className='input-icon' />}
+                            searchClient={clientItems}
+                            indexName={ALGOLIA_INDEX_ITEMS}
+                            columns={[
+                                {
+                                    header: 'Kode Item',
+                                    accessor: 'itemCode',
+                                    renderCell: (_, item) => {
+                                        const code = item?.code ?? "";
+                                        const categoryCode = item?.category?.code ?? "";
+                                        return categoryCode + '-' + code;
+                                    }
+                                },
+                                {
+                                    header: 'Nama Item',
+                                    accessor: 'category.name',
+                                    renderCell: (_, item) => {
+                                        const itemName = item?.name ?? "";
+                                        const categoryName = item?.category?.name ?? "";
+                                        return categoryName + ' - ' + itemName;
+                                    }
+                                },
+                            ]}
+                            value={
+                                item.item?.category?.name && item.item?.name && item.item?.brand
+                                    ? `${item.item.category.name} - ${item.item.name} (${item.item.brand})`
+                                    : "Pilih Item"
+                            }
+                            setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
+                            enableStock={true}
+                            stocks={racks || []}
+                            stockSelectedId={selectedWarehouse}
+                            mode="item"
+
                         />
                         <InputLabel
                             label="Kuantitas"
@@ -430,7 +452,7 @@ const EntityAdjustment = ({
                     isOpen={openDeleteModal}
                     onClose={() => setOpenDeleteModal(false)}
                     onClick={handleDeleteAdjustment}
-                    title="Transfer"
+                    title="Penyesuaian"
                     itemDelete={initialData?.code}
                 />
             )}

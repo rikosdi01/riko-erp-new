@@ -35,7 +35,7 @@ const customStyles = (hasIcon) => ({
                 : "white",    // warna default
         color: state.isSelected ? "white" : "#3c3c3c",
         cursor: "pointer",
-        // zIndex: 1000,
+        zIndex: 10000000,
     }),
     noOptionsMessage: (provided) => ({
         ...provided,
@@ -55,6 +55,7 @@ function Dropdown({
     isRequired = false,
     isAlgoliaDropdown = false,
     key,
+    marginBottom = "10px",
 }) {
     // Konversi data ke format `react-select`
     let valuesOption = [];
@@ -63,7 +64,7 @@ function Dropdown({
     if (!isAlgoliaDropdown) {
         valuesOption = values.map(value => ({
             value: value.id,
-            label: value.name,
+            label: value.label || value.name, // 🔁 Gunakan label jika sudah diproses sebelumnya
             code: value.code,
         }));
 
@@ -74,7 +75,7 @@ function Dropdown({
     const styles = customStyles(!!icon);
 
     return (
-        <div className="input-label">
+        <div className="input-label" style={{ marginBottom: marginBottom }}>
             {label && (
                 <div>
                     {isRequired && <label className="required-field">*</label>}
@@ -103,15 +104,15 @@ function Dropdown({
                 ) : (
                     <Select
                         options={valuesOption}
-                        value={selectedValue}
+                        value={valuesOption.find(opt => opt.value === selectedId) || null}
                         onChange={(selectedOption) => setSelectedId(selectedOption.value)}
                         placeholder={label}
                         isSearchable
                         className="react-select-container"
                         classNamePrefix="react-select"
                         styles={styles}
-                        // menuPosition="fixed"
-                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                    // menuPortalTarget={document.body}
                     />
                 )}
             </div>
