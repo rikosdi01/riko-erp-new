@@ -58,7 +58,7 @@ const ContainerSearch = ({
             id: item?.id || item?.objectID,
             code: item?.code ?? '',
             name: item?.name ?? '',
-            merks: item?.merks?.name ?? '',
+            merks: item?.merks ?? '',
         }),
         supplier: (item) => ({
             id: item?.id || item?.objectID,

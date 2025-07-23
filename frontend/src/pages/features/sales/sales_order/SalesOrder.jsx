@@ -11,6 +11,7 @@ const SalesOrder = () => {
     // Hooks
     const navigate = useNavigate();
     const { accessList } = useUsers();
+    console.log('Access List: ', accessList);
 
     const columns = [
         { header: "No. Pesanan", accessor: "code" },

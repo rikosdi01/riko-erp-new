@@ -111,6 +111,7 @@ const EntityItems = ({
         if (!valid) return setLoading(false);
 
         try {
+            console.log('Category: ', category);
             const filteredCategory = {
                 id: category.objectID || category.id,
                 name: category.name + ' ' + (category.merks?.name || ""),
@@ -236,7 +237,7 @@ const EntityItems = ({
                     columns={columns}
                     value={
                         category?.name && category?.merks
-                            ? `${category.name} - ${category.merks}`
+                            ? `${category.name} - ${category.merks?.name}`
                             : "Pilih Kategori"
                     }
 
