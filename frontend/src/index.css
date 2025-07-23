@@ -20,7 +20,7 @@ a:hover {
 }
 
 body {
-  position: fixed;
+  /* position: fixed; */
   margin: 0;
   width: 100%;
 }

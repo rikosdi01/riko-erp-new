@@ -43,7 +43,7 @@ const ManageAccount = () => {
         <div className="main-container">
             <div className="manage-account-container">
                 <ContentHeader title={"Kelola Akun"} />
-
+                <div className='user-title-section'>Akun Internal</div>
                 <div className="top-controls">
                     <div className="filter-options">
                         <label>
@@ -134,6 +134,8 @@ const ManageAccount = () => {
                         )}
                     </tbody>
                 </table>
+
+                <div className='user-title-section'>Akun Pelanggan</div>
             </div>
         </div>
     );

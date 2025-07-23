@@ -52,6 +52,11 @@ const Categories = () => {
             createOnclick={navigateToCreateCategories}
             subscribeFn={CategoriesRepository.subscribeToCategoriesChanges}
             enableDropdown={true}
+            dropdownAttribute={"merks.name"}
+            enableDropdown2={true}
+            dropdownAttribute2={"part"}
+            enableExport={false}
+            enableImport={false}
             canEdit={roleAccess(accessList, 'mengedit-data-kategori')}
             canAdd={roleAccess(accessList, 'menambah-data-kategori')}
         />

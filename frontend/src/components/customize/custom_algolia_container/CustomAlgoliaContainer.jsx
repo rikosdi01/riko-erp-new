@@ -18,6 +18,9 @@ const CustomAlgoliaContainer = ({
     subscribeFn,
     createOnclick,
     enableDropdown = false,
+    dropdownAttribute,
+    enableDropdown2 = false,
+    dropdownAttribute2,
     enableImport = true,
     enableExport = true,
     enableCreate = true,
@@ -114,7 +117,13 @@ const CustomAlgoliaContainer = ({
 
                     {enableDropdown && (
                         <CustomAlgoliaDropdown
-                            attribute="warehouse.name"
+                            attribute={dropdownAttribute}
+                        />
+                    )}
+
+                    {enableDropdown2 && (
+                        <CustomAlgoliaDropdown
+                            attribute={dropdownAttribute2}
                         />
                     )}
 

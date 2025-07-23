@@ -60,6 +60,12 @@ const Items = () => {
             columns={columns}
             createOnclick={navigateToCreateItems}
             subscribeFn={ItemsRepository.subscribeToItemsChanges}
+            enableExport={false}
+            enableImport={false}
+            enableDropdown={true}
+            dropdownAttribute={'brand'}
+            enableDropdown2={true}
+            dropdownAttribute2={'category.name'}
             canEdit={roleAccess(accessList, 'mengedit-data-item')}
             canAdd={roleAccess(accessList, 'menambah-data-item')}
         />
