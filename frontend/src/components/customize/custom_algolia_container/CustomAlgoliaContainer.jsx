@@ -20,6 +20,8 @@ const CustomAlgoliaContainer = ({
     enableDropdown = false,
     dropdownAttribute,
     enableDropdown2 = false,
+    dropdownAttribute3,
+    enableDropdown3 = false,
     dropdownAttribute2,
     enableImport = true,
     enableExport = true,
@@ -124,6 +126,12 @@ const CustomAlgoliaContainer = ({
                     {enableDropdown2 && (
                         <CustomAlgoliaDropdown
                             attribute={dropdownAttribute2}
+                        />
+                    )}
+
+                    {enableDropdown3 && (
+                        <CustomAlgoliaDropdown
+                            attribute={dropdownAttribute3}
                         />
                     )}
 

@@ -66,6 +66,8 @@ const Items = () => {
             dropdownAttribute={'brand'}
             enableDropdown2={true}
             dropdownAttribute2={'category.name'}
+            enableDropdown3={true}
+            dropdownAttribute3={'name'}
             canEdit={roleAccess(accessList, 'mengedit-data-item')}
             canAdd={roleAccess(accessList, 'menambah-data-item')}
         />
