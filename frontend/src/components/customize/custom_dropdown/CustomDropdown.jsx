@@ -72,6 +72,7 @@ const CustomAlgoliaDropdown = ({ attribute, hasIcon = false }) => {
       onChange={handleChange}
       placeholder="Semua"
       isSearchable
+      isClearable={true}
       styles={customStyles(hasIcon)}
       classNamePrefix="react-select"
     />
