@@ -87,12 +87,13 @@ import ManageRoles from "./pages/personalization/settings/children/manage_accoun
 import FormatSettings from "./pages/personalization/settings/children/format_settings/FormatSettings";
 import { FormatProvider } from "./context/personalization/FormatContext";
 import SignUpCustomer from "./pages/authentication/signup_customer/SignUpCustomer";
+import ListProducts from "./pages/features/customers/list_products/ListProducts";
 
 function AppContent() {
   const location = useLocation();
 
   // Daftar halaman yang tidak menampilkan sidebar
-  const hideSidebarRoutes = ["/signin", "/signup", "/404"];
+  const hideSidebarRoutes = ["/signin", "/signup", "/signup-customer", "/404"];
 
   return (
     <div className="app-container">
@@ -216,7 +217,7 @@ function AppContent() {
 
 
           {/* Customers */}
-          <Route path="/customer/list-products" element={<ProtectedRoute><Items /></ProtectedRoute>} />
+          <Route path="/customer/list-products" element={<ProtectedRoute><ListProducts /></ProtectedRoute>} />
           <Route path="/customer/orders" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
 
 

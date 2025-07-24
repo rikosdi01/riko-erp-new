@@ -40,13 +40,7 @@ export default class UserRepository {
     static async createUser(user) {
         try {
             const userRef = doc(db, "Users", user.uid);
-            await setDoc(userRef, {
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                createdAt: new Date(),
-                status: "active"
-            });
+            await setDoc(userRef, { ...user });
             return user.uid;
         } catch (error) {
             console.error("Error creating user: ", error);

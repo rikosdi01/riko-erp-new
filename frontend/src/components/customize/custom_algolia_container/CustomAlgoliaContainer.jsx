@@ -30,9 +30,16 @@ const CustomAlgoliaContainer = ({
     isSecondary = false,
     canEdit,
     canAdd,
+    onTableClick,
+    tableType = 'default',
 }) => {
     const [itemsPerPage, setItemsPerPage] = useState(8);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [selectedValue, setSelectedValue] = useState(null);
+
+    useEffect(() => {
+        console.log('Selected Value adasd:', selectedValue);
+    }, [selectedValue]);
 
     useEffect(() => {
         console.log('itemsPerPage:', itemsPerPage);
@@ -62,6 +69,10 @@ const CustomAlgoliaContainer = ({
                 setItemsPerPage={setItemsPerPage}
                 enableCheckbox={false}
                 isSecondary={isSecondary}
+                onTableClick={onTableClick}
+                selectedValue={selectedValue}
+                setSelectedValue={setSelectedValue}
+                tableType={tableType}
             />
         )
     }

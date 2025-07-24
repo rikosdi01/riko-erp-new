@@ -1,10 +1,12 @@
-.signup-customer-form {
-  max-width: 500px;
-  margin: 30px auto;
-  padding: 30px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+.signin-customer-content {
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e2e2;
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 1000px;
+    overflow: hidden;
 }
 
 .form-title {
@@ -52,4 +54,13 @@
 
 .form-group-input{
     box-sizing: border-box;
+}
+
+.signup-customer-form-flex {
+  display: flex;
+  gap: 20px;
+}
+
+.signup-customer-form-flex > div:nth-child(n+1){
+  flex: 1;
 }

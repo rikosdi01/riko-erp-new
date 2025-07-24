@@ -11,6 +11,7 @@
   margin: auto;
   overflow-y: auto;
   padding-bottom: 20px;
+  margin-top: 60px;
 }
 
 /* Header input dan tombol */
@@ -19,4 +20,8 @@
   gap: 10px;
   margin-bottom: 20px;
   align-items: center;
+}
+
+.main-container::-webkit-scrollbar {
+  display: none;
 }

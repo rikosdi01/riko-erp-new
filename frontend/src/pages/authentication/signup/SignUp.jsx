@@ -10,6 +10,7 @@ import { auth, db } from "../../../firebase";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../context/ToastContext";
 import UserRepository from "../../../repository/authentication/UserRepository";
+import InputGroup from "../../../components/input/input_group/InputGroup";
 
 const SignUp = () => {
     const navigate = useNavigate();
@@ -73,62 +74,37 @@ const SignUp = () => {
 
                     <form onSubmit={handleSubmit}>
                         {/* Username */}
-                        <div className="input-group">
-                            <label>Username:</label>
-                            <div className="input-wrapper">
-                                <User className="input-icon" />
-                                <input
-                                    type="text"
-                                    name="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    placeholder="Username"
-                                    className="signin-input"
-                                    style={{ padding: "0.75rem 2.8rem" }}
-                                    required
-                                />
-                            </div>
-                        </div>
+                        <InputGroup
+                            label={"Username"}
+                            icon={<User className="input-icon" />}
+                            value={formData.username}
+                            handleChange={handleChange}
+                            type={"text"}
+                            name={"username"}
+                        />
 
-                        {/* Email */}
-                        <div className="input-group">
-                            <label>Email:</label>
-                            <div className="input-wrapper">
-                                <Mail className="input-icon" />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="Email"
-                                    className="signin-input"
-                                    style={{ padding: "0.75rem 2.8rem" }}
-                                    required
-                                />
-                            </div>
-                        </div>
+                        <InputGroup
+                            label={"Email"}
+                            icon={<Mail className="input-icon" />}
+                            value={formData.email}
+                            handleChange={handleChange}
+                            type={"email"}
+                            name={"email"}
+                        />
 
                         {/* Password */}
-                        {/* Password */}
-                        <div className="input-group">
-                            <label>Password:</label>
-                            <div className="input-wrapper">
-                                <LockKeyhole className="input-icon" />
-                                <input
-                                    type={showPassword ? "text" : "password"} // ⬅️ Toggle logic here
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    placeholder="Password"
-                                    className="signin-input"
-                                    style={{ padding: "0.75rem 2.8rem" }}
-                                    required
-                                />
+                        <InputGroup
+                            label={"Password"}
+                            icon={<LockKeyhole className="input-icon" />}
+                            value={formData.password}
+                            handleChange={handleChange}
+                            type={showPassword ? "text" : "password"}
+                            name={"password"}
+                            leadingIcon={
                                 <span className="toggle-password" onClick={togglePasswordVisibility} style={{ cursor: "pointer" }}>
                                     {showPassword ? <Eye /> : <EyeOff />} {/* Bisa ganti jadi Eye/EyeOff */}
-                                </span>
-                            </div>
-                        </div>
+                                </span>}
+                        />
 
 
                         {/* Role */}

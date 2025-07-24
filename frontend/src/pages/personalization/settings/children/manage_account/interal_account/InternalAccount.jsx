@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -20,10 +20,17 @@ const UserAccountTable = ({
     const [selectedUserId, setSelectedUserId] = useState(null);
 
     const filteredUsers = users.filter((user) => {
-        if (filter === "active") return user.isActive;
-        if (filter === "inactive") return !user.isActive;
+        if (filter === "active") return user.status === "active";
+        if (filter === "inactive") return user.status !== "active";
         return true;
     });
+
+
+    useEffect(() => {
+        console.log('Filter applied:', filter);
+    }, [filter]);
+
+    console.log("Filtered Users: ", filteredUsers);
 
     return (
         <div>
@@ -62,12 +69,12 @@ const UserAccountTable = ({
 
                 <div className="manage-buttons">
                     {enableRegistration && (
-                    <button
-                        className="manage-button"
-                        onClick={() => navigate(registrationPath)}
-                    >
-                        Registrasi Akun
-                    </button>
+                        <button
+                            className="manage-button"
+                            onClick={() => navigate(registrationPath)}
+                        >
+                            Registrasi Akun
+                        </button>
                     )}
                     {enableRoleManagement && (
                         <button

@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./Table.css";
 import AccessAlertModal from "../modal/access_alert_modal/AccessAlertModal";
+import { useUsers } from "../../context/auth/UsersContext";
+import { useFormats } from "../../context/personalization/FormatContext";
+import CounterRepository from "../../repository/personalization/CounterRepository";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -13,9 +16,12 @@ const Table = ({
     canEdit,
     onTableClick,
     selectedValue,
-    setSelectedValue
+    setSelectedValue,
+    tableType,
 }) => {
     // Hooks
+    const { loginUser } = useUsers();
+    console.log('Login User: ', loginUser);
     const location = useLocation();
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +34,26 @@ const Table = ({
     const currentData = isAlgoliaTable ? data : safeData.slice(startIndex, startIndex + itemsPerPage);
     const [hoveredIndex, setHoveredIndex] = useState(-1);
     const tableRef = useRef(null);
+    const [qtyMap, setQtyMap] = useState({});
+    const [showOrderModal, setShowOrderModal] = useState(false);
+    const [orderConfirmationModal, setOrderConfirmationModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [description, setDescription] = useState('');
+
+    const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0);
+
+
+    const { formats } = useFormats();
+    const formatCode = formats.presets?.sales;
+    const yearFormat = formats.yearFormat;
+    const monthFormat = formats.monthFormat;
+    const uniqueFormat = formats.uniqueFormat;
+
+
+    useEffect(() => {
+        console.log('Qty Map: ', qtyMap);
+    }, [qtyMap]);
+
 
     useEffect(() => {
         console.log('Horvered Row ID: ', selectedValue);
@@ -85,6 +111,44 @@ const Table = ({
         setAccessDenied(true);
     }
 
+    const updateQty = (id, newQty) => {
+        setQtyMap((prev) => {
+            const clampedQty = Math.max(0, Number(newQty) || 0);
+            return {
+                ...prev,
+                [id]: {
+                    ...prev[id],
+                    qty: clampedQty,
+                },
+            };
+        });
+    };
+
+    const handleCreateOrder = async () => {
+        setLoading(true);
+
+        try {
+            const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+            const customerData = {
+                name: loginUser.username,
+                id: loginUser.id,
+            }
+
+            const orderData = {
+                code: newCode,
+                customer: customerData,
+
+            }
+
+            console.log('New Code: ', newCode);
+        } catch (e) {
+            console.error(e); // jangan kosongin catch, bantu debug
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
         <div className={!isAlgoliaTable ? 'table-wrapper' : ''} ref={tableRef}>
             <table>
@@ -94,15 +158,11 @@ const Table = ({
                             <th key={index}>
                                 <div className="table-header">
                                     {col.header}
-                                    <button
-                                        className="filter-btn"
-                                        onClick={() => onFilterClick(col.accessor)}
-                                    >
-                                        {/* <Filter size={16} /> */}
-                                    </button>
+                                    <button className="filter-btn" onClick={() => onFilterClick(col.accessor)}></button>
                                 </div>
                             </th>
                         ))}
+                        {tableType === "customers" && <th>Pesanan</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -119,10 +179,11 @@ const Table = ({
                                     key={item.id || item.objectID}
                                     onClick={() => {
                                         // Delay agar tidak bentrok dengan double click
-                                        setTimeout(() => {
-                                            setSelectedValue(item);
-                                            setHoveredIndex(index);
-                                        }, 200);
+                                        tableType !== "customers" &&
+                                            setTimeout(() => {
+                                                setSelectedValue(item);
+                                                setHoveredIndex(index);
+                                            }, 200);
                                     }}
                                     onDoubleClick={() => {
                                         // Hentikan timeout dari single click
@@ -165,6 +226,72 @@ const Table = ({
                                                     : item[col.accessor])}
                                         </td>
                                     ))}
+
+                                    {tableType === "customers" && (
+                                        <td>
+                                            <button onClick={(e) => {
+                                                e.stopPropagation();
+                                                setQtyMap((prev) => {
+                                                    const key = item.id || item.objectID;
+                                                    const prevEntry = prev[key] || { qty: 0, price: item.salePrice };
+                                                    return {
+                                                        ...prev,
+                                                        [key]: {
+                                                            name: item?.category.name + ' - ' + item.name + ' (' + item.brand + ')',
+                                                            code: item?.category.code + '-' + item.code,
+                                                            qty: Math.max(prevEntry.qty - 1, 0),
+                                                            price: item.salePrice
+                                                        }
+                                                    };
+                                                });
+                                            }}>-</button>
+
+                                            <input
+                                                value={qtyMap[item.id || item.objectID]?.qty || 0}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => {
+                                                    const value = Math.max(0, parseInt(e.target.value) || 0);
+                                                    const key = item.id || item.objectID;
+                                                    setQtyMap((prev) => ({
+                                                        ...prev,
+                                                        [key]: {
+                                                            name: item?.category.name + ' - ' + item.name + ' (' + item.brand + ')',
+                                                            code: item?.category.code + '-' + item.code,
+                                                            qty: value,
+                                                            price: item.salePrice
+                                                        }
+                                                    }));
+                                                }}
+                                                style={{
+                                                    width: "50px",
+                                                    textAlign: "center",
+                                                    margin: "0 8px",
+                                                    padding: "2px",
+                                                    borderRadius: "4px",
+                                                    border: "1px solid #ccc"
+                                                }}
+                                            />
+
+                                            <button onClick={(e) => {
+                                                e.stopPropagation();
+                                                setQtyMap((prev) => {
+                                                    const key = item.id || item.objectID;
+                                                    const prevEntry = prev[key] || { qty: 0, price: item.salePrice };
+                                                    return {
+                                                        ...prev,
+                                                        [key]: {
+                                                            name: item?.category.name + ' - ' + item.name + ' (' + item.brand + ')',
+                                                            code: item?.category.code + '-' + item.code,
+                                                            qty: prevEntry.qty + 1,
+                                                            price: item.salePrice  // selalu update agar konsisten
+                                                        }
+                                                    };
+                                                });
+                                            }}>+</button>
+
+                                        </td>
+                                    )}
+
                                 </tr>
                             ))
                         ) : (
@@ -178,45 +305,208 @@ const Table = ({
                 </tbody>
             </table>
 
-            {/* Pagination */}
-            {!isAlgoliaTable && (
-                <div className="pagination">
-                    <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
-                        &laquo; Awal
-                    </button>
-                    <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
-                        &lt; Prev
-                    </button>
-                    {/* <span>Hal. {currentPage} | {totalPages}</span> */}
-                    <span>Hal. {currentPage} | {1}</span>
-                    {/* <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}> */}
-                    <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
-                        Next &gt;
-                    </button>
-                    <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
-                        Akhir &raquo;
-                    </button>
+            {tableType === "customers" && (
+                <div className="order-details">
+                    <div>
+                        <div className="order-row">
+                            <span>Jumlah Pesanan:</span>
+                            <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0)} Produk</span>
+                        </div>
+                        <div className="order-row">
+                            <span>Total Pesanan:</span>
+                            <span>
+                                Rp{Object.values(qtyMap)
+                                    .reduce((total, entry) => total + (entry.qty * entry.price), 0)
+                                    .toLocaleString("id-ID")}
+                            </span>
+                        </div>
 
-                    <div className="items-per-page">
-                        <select value={itemsPerPage} onChange={(e) => {
-                            setItemsPerPage(Number(e.target.value));
-                            setCurrentPage(1);
-                        }}>
-                            <option value={8}>8</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
-                            <option value={100}>100</option>
-                        </select>
-                        <span> per halaman</span>
+                        <div
+                            className="order-details-stats"
+                            onClick={() => setShowOrderModal(true)}
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                        >
+                            Lihat Detail Pesanan
+                        </div>
+
+
+                        <div
+                            className={`order-details-button ${totalQty === 0 ? "disabled" : ""}`}
+                            onClick={() => {
+                                if (totalQty > 0) {
+                                    // lanjut ke proses pemesanan
+                                    setOrderConfirmationModal(true);
+                                }
+                            }}
+                        >
+                            Pesan Sekarang
+                        </div>
                     </div>
                 </div>
             )}
+
+            {orderConfirmationModal && (
+                <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Apakah pesanan anda sudah sesuai?</h3>
+                        {Object.entries(qtyMap).filter(([, entry]) => entry.qty > 0 || true).map(([id, entry]) => (
+                            <div key={id} className="confirmation-products">
+                                <div className="confirmation-sub-header-products">
+                                    <div>{entry.name || "-"}</div>
+                                    <div>X{entry.qty || 0}</div>
+                                    <div>Rp. {entry.price.toLocaleString("id-ID")}</div>
+                                </div>
+                                <div>Rp. {(entry.qty * entry.price).toLocaleString("id-ID")}</div>
+                            </div>
+                        ))
+                        }
+
+                        <div className="confirmation-foooter-products">
+                            <div className="confirmation-footer-sub-header">
+                                <div>
+                                    <label style={{ fontWeight: 500 }}>Alamat Saya:</label>
+                                    <div>
+                                        <div>{loginUser.address}</div>
+                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.city}</div>
+                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.province}</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="order-row">
+                                        <span>Jumlah Pesanan:</span>
+                                        <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0)} Produk</span>
+                                    </div>
+                                    <div className="order-row">
+                                        <span>Total Pesanan:</span>
+                                        <span>
+                                            Rp{Object.values(qtyMap)
+                                                .reduce((total, entry) => total + (entry.qty * entry.price), 0)
+                                                .toLocaleString("id-ID")}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="order-description">
+                                <label>Keterangan Tambahan:</label>
+                                <textarea
+                                    rows="4"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="form-input-area"
+                                    placeholder="Keterangan"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="order-modal-buttons">
+                            <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
+                            <button>Pesan</button>
+                        </div>
+                    </div>
+                </div>
+            )
+            }
+
+
+
+            {/* Pagination */}
+            {
+                !isAlgoliaTable && (
+                    <div className="pagination">
+                        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+                            &laquo; Awal
+                        </button>
+                        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+                            &lt; Prev
+                        </button>
+                        {/* <span>Hal. {currentPage} | {totalPages}</span> */}
+                        <span>Hal. {currentPage} | {1}</span>
+                        {/* <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}> */}
+                        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
+                            Next &gt;
+                        </button>
+                        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={true}>
+                            Akhir &raquo;
+                        </button>
+
+                        <div className="items-per-page">
+                            <select value={itemsPerPage} onChange={(e) => {
+                                setItemsPerPage(Number(e.target.value));
+                                setCurrentPage(1);
+                            }}>
+                                <option value={8}>8</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                            <span> per halaman</span>
+                        </div>
+                    </div>
+                )
+            }
 
             <AccessAlertModal
                 isOpen={accessDenied}
                 onClose={() => setAccessDenied(false)}
             />
-        </div>
+
+            {
+                showOrderModal && (
+                    <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <h3>Detail Pesanan</h3>
+                            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ textAlign: "left" }}>Produk</th>
+                                        <th>Qty</th>
+                                        <th>Harga</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(qtyMap)
+                                        .filter(([, entry]) => entry.qty > 0 || true) // tampilkan semua produk yang pernah dipilih
+                                        .map(([id, entry]) => (
+                                            <tr key={id}>
+                                                <td>{entry.name || "-"}</td>
+                                                <td style={{ textAlign: "center" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                                                        <button onClick={() => updateQty(id, entry.qty - 1)}>-</button>
+                                                        <input
+                                                            value={entry.qty}
+                                                            min={0}
+                                                            onChange={(e) => updateQty(id, e.target.value)}
+                                                            style={{
+                                                                width: "50px",
+                                                                textAlign: "center",
+                                                                margin: "0 8px",
+                                                                padding: "2px",
+                                                                borderRadius: "4px",
+                                                                border: "1px solid #ccc"
+                                                            }}
+                                                        />
+                                                        <button onClick={() => updateQty(id, entry.qty + 1)}>+</button>
+                                                    </div>
+                                                </td>
+                                                <td style={{ textAlign: "right" }}>Rp. {entry.price.toLocaleString("id-ID")}</td>
+                                                <td style={{ textAlign: "right" }}>Rp. {(entry.qty * entry.price).toLocaleString("id-ID")}</td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+
+                            </table>
+
+                            <div style={{ textAlign: "right", marginTop: "20px" }}>
+                                <button onClick={() => setShowOrderModal(false)}>Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+        </div >
     );
 };
 

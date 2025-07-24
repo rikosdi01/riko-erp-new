@@ -6,14 +6,8 @@
 .main-content {
   flex: 1;
   padding: 20px;
-  margin-top: 60px;
   scrollbar-width: none;
 }
-
-.main-container::-webkit-scrollbar {
-  display: none;
-}
-
 .add-container-input {
   display: flex;
   gap: 20px;
