@@ -86,6 +86,7 @@ import { UsersProvider } from "./context/auth/UsersContext";
 import ManageRoles from "./pages/personalization/settings/children/manage_account/manage_roles/ManageRoles";
 import FormatSettings from "./pages/personalization/settings/children/format_settings/FormatSettings";
 import { FormatProvider } from "./context/personalization/FormatContext";
+import SignUpCustomer from "./pages/authentication/signup_customer/SignUpCustomer";
 
 function AppContent() {
   const location = useLocation();
@@ -236,6 +237,7 @@ function AppContent() {
 
 
           <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
+          <Route path="/signup-customer" element={<ProtectedRoute><SignUpCustomer /></ProtectedRoute>} />
 
           {/* Not Found Page */}
           <Route path="*" element={<NotFound />} />

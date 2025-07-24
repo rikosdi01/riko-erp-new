@@ -66,16 +66,20 @@ const CustomAlgoliaDropdown = ({ attribute, hasIcon = false }) => {
   if (!canRefine) return null;
 
   return (
-    <Select
-      options={options}
-      value={selectedOption}
-      onChange={handleChange}
-      placeholder="Semua"
-      isSearchable
-      isClearable={true}
-      styles={customStyles(hasIcon)}
-      classNamePrefix="react-select"
-    />
+<Select
+  options={options}
+  value={selectedOption}
+  onChange={handleChange}
+  placeholder="Semua"
+  isSearchable
+  isClearable={true}
+  styles={customStyles(hasIcon)}
+  classNamePrefix="react-select"
+  filterOption={(option, inputValue) =>
+    option.label.toLowerCase().includes(inputValue.toLowerCase())
+  }
+/>
+
   );
 };
 

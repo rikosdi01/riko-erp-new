@@ -1,16 +1,18 @@
-import { useNavigate } from 'react-router-dom';
-import ContentHeader from '../../../../../components/content_header/ContentHeader';
 import './ManageAccount.css';
-import { useEffect, useState } from 'react';
-import { useUsers } from '../../../../../context/auth/UsersContext';
-import { MoreVertical } from 'lucide-react';
-import UserRepository from '../../../../../repository/authentication/UserRepository';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const roles = ['Admin', 'CSO', 'Stok Controller', 'Logistic', 'Terakhir Aktif'];
+
+import ContentHeader from "../../../../../components/content_header/ContentHeader";
+import UserAccountTable from "./interal_account/InternalAccount";
+import UserRepository from "../../../../../repository/authentication/UserRepository";
+
+const internalRoles = ['Admin', 'CSO', 'Stok Controller', 'Logistic', 'Terakhir Aktif'];
+const customerRoles = ['Terakhir Aktif'];
 
 const ManageAccount = () => {
-    const [users, setUsers] = useState([]);
     const navigate = useNavigate();
+    const [allUsers, setAllUsers] = useState([]);
     const [filter, setFilter] = useState('all');
     const [selectedUserId, setSelectedUserId] = useState(null);
 
@@ -27,117 +29,70 @@ const ManageAccount = () => {
 
     useEffect(() => {
         const unsubscribe = UserRepository.getUsers((fetchedUsers) => {
-            setUsers(fetchedUsers);
+            setAllUsers(fetchedUsers);
         });
 
-        return () => unsubscribe(); // Unsubscribe saat komponen unmount
-    }, []); // dependency array wajib untuk mencegah infinite loop
+        return () => unsubscribe();
+    }, []);
 
-    // Filter user aktif / tidak aktif
-    const filteredUsers = users.filter((user) => {
-        if (filter === 'all') return true;
-        return filter === 'active' ? user.status === 'active' : user.status !== 'active';
-    });
+    useEffect(() => {
+        console.log('All users fetched:', allUsers);
+    }, [allUsers]);
+
+    // Pisahkan berdasarkan tipe akun
+    const internalUsers = allUsers.filter(user => user.type === "internal");
+    const customerUsers = allUsers.filter(user => user.type === "customer");
+
+    // Bisa pakai filter global juga jika diperlukan
+    const filterByStatus = (users) => {
+        if (filter === 'all') return users;
+        return users.filter(user => (
+            filter === 'active' ? user.status === 'active' : user.status !== 'active'
+        ));
+    };
+
+    // Handler function
+    const handleChangePassword = (user) => {
+        console.log("Ganti password", user);
+    };
+    const handleDeactivate = (user) => {
+        console.log("Nonaktifkan", user);
+    };
+    const handleDelete = (user) => {
+        console.log("Hapus", user);
+    };
 
     return (
         <div className="main-container">
             <div className="manage-account-container">
-                <ContentHeader title={"Kelola Akun"} />
-                <div>
-                    <div className='user-title-section'>Akun Internal</div>
-                    <div className="top-controls">
-                        <div className="filter-options">
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="all"
-                                    checked={filter === 'all'}
-                                    onChange={() => setFilter('all')}
-                                />
-                                Semua
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="active"
-                                    checked={filter === 'active'}
-                                    onChange={() => setFilter('active')}
-                                />
-                                Tampilkan hanya user aktif
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="inactive"
-                                    checked={filter === 'inactive'}
-                                    onChange={() => setFilter('inactive')}
-                                />
-                                Tampilkan hanya user tidak aktif
-                            </label>
-                        </div>
+                <ContentHeader title="Kelola Akun" />
 
-                        <div className='manage-buttons'>
-                            <button className="manage-button" onClick={() => navigate('/signup')}>Registrasi Akun</button>
-                            <button className="manage-button" onClick={() => navigate('/settings/manage-account/roles')}>Kelola Role</button>
-                        </div>
-                    </div>
+                {/* Bagian Akun Internal */}
+                <UserAccountTable
+                    title="Akun Internal"
+                    users={filterByStatus(internalUsers)}
+                    roles={internalRoles}
+                    onChangePassword={handleChangePassword}
+                    onDeactivate={handleDeactivate}
+                    onDelete={handleDelete}
+                    registrationPath="/signup"
+                    roleManagementPath="/settings/manage-account/roles"
+                />
 
-                    <table className="user-role-table">
-                        <thead>
-                            <tr>
-                                <th>Nama Pengguna</th>
-                                {roles.map(role => (
-                                    <th key={role}>{role}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredUsers.length > 0 ? (
-                                filteredUsers.map((user) => (
-                                    <tr key={user.id}>
-                                        <td>{user.username}</td>
-                                        {roles.map(role => (
-                                            <td key={role} style={{ textAlign: "center" }}>
-                                                {role === "Terakhir Aktif"
-                                                    ? new Date(user.createdAt?.seconds * 1000).toLocaleDateString()
-                                                    : user.role === role
-                                                        ? "✅"
-                                                        : ""}
-                                            </td>
-                                        ))}
-                                        <td style={{ textAlign: "center", position: "relative" }} className="dropdown-container">
-                                            <MoreVertical
-                                                size={18}
-                                                style={{ cursor: "pointer" }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // cegah bubbling
-                                                    setSelectedUserId(user.id === selectedUserId ? null : user.id);
-                                                }}
-                                            />
+                {/* Spacer */}
+                <div style={{ height: "40px" }}></div>
 
-                                            {selectedUserId === user.id && (
-                                                <div className="dropdown-menu">
-                                                    <div onClick={() => handleChangePassword(user)} className="dropdown-item">Ganti Password</div>
-                                                    <div onClick={() => handleDeactivate(user)} className="dropdown-item">Nonaktifkan Akun</div>
-                                                    <div onClick={() => handleDelete(user)} className="dropdown-item danger">Hapus Akun</div>
-                                                </div>
-                                            )}
-                                        </td>
-
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={roles.length + 2} style={{ textAlign: 'center', padding: '20px' }}>
-                                        Belum ada data pengguna.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className='user-title-section'>Akun Pelanggan</div>
+                {/* Bagian Akun Pelanggan */}
+                <UserAccountTable
+                    title="Akun Pelanggan"
+                    users={filterByStatus(customerUsers)}
+                    roles={customerRoles}
+                    onChangePassword={handleChangePassword}
+                    onDeactivate={handleDeactivate}
+                    onDelete={handleDelete}
+                    enableRoleManagement={false}
+                    registrationPath="/signup-customer"
+                />
             </div>
         </div>
     );
