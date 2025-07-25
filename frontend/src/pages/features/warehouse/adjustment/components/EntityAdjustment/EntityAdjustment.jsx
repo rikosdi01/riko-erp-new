@@ -33,7 +33,7 @@ const EntityAdjustment = ({
     const { racks } = useRacks();
     console.log('Racks: ', racks);
     const { formats } = useFormats();
-    const formatCode = formats.presets?.adjustments;
+    const formatCode = formats.presets?.adjustments?.code;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
@@ -402,7 +402,6 @@ const EntityAdjustment = ({
                             stocks={racks || []}
                             stockSelectedId={selectedWarehouse}
                             mode="item"
-
                         />
                         <InputLabel
                             label="Kuantitas"

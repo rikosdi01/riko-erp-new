@@ -8,6 +8,7 @@ import Cookies from "js-cookie";  // Impor library js-cookie
 import { AuthContext } from "../../../context/AuthContext";
 import { useToast } from "../../../context/ToastContext";
 import React from "react";
+import UserRepository from "../../../repository/authentication/UserRepository";
 
 const SignIn = () => {
     const { showToast } = useToast();
@@ -40,7 +41,7 @@ const SignIn = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         let valid = true;
 
         // Validasi email
@@ -95,8 +96,18 @@ const SignIn = () => {
                 Cookies.remove("email"); // Hapus cookie jika Remember Me tidak dicentang
             }
 
+            const userData = await UserRepository.getUserByUID(user.uid);
+            console.log('User Data: ', userData);
+            console.log('User Data: ', userData);
+
+
             showToast("success", "Login Berhasil!");
-            navigate("/dashboard");
+
+            if (userData.role === 'Customer') {
+                navigate('/customer/list-products')
+            } else {
+                navigate("/dashboard");
+            }
         } catch (error) {
             setPasswordError("Login gagal. Periksa kembali email dan password Anda.");
             showToast("gagal", "Login Gagal!");

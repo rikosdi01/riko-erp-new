@@ -5,6 +5,10 @@ import AccessAlertModal from "../modal/access_alert_modal/AccessAlertModal";
 import { useUsers } from "../../context/auth/UsersContext";
 import { useFormats } from "../../context/personalization/FormatContext";
 import CounterRepository from "../../repository/personalization/CounterRepository";
+import { useRacks } from "../../context/warehouse/RackWarehouseContext";
+import { serverTimestamp } from "firebase/firestore";
+import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
+import { useToast } from "../../context/ToastContext";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -21,6 +25,10 @@ const Table = ({
 }) => {
     // Hooks
     const { loginUser } = useUsers();
+    const { racks } = useRacks();
+    const { showToast } = useToast();
+    console.log('Racks: ', racks);
+
     console.log('Login User: ', loginUser);
     const location = useLocation();
     const navigate = useNavigate();
@@ -44,7 +52,7 @@ const Table = ({
 
 
     const { formats } = useFormats();
-    const formatCode = formats.presets?.sales;
+    const formatCode = formats.presets?.sales?.code;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
@@ -53,6 +61,8 @@ const Table = ({
     useEffect(() => {
         console.log('Qty Map: ', qtyMap);
     }, [qtyMap]);
+
+    console.log('Formats: ', formats);
 
 
     useEffect(() => {
@@ -128,11 +138,36 @@ const Table = ({
         setLoading(true);
 
         try {
+            const formattedSO = formats?.presets?.sales?.rackMedan || '';
+            const rackData = racks.find((rack) => rack.id === formattedSO);
+
+            const selectedRackData = {
+                id: rackData.id,
+                name: rackData.name,
+                location: rackData.location,
+                category: rackData.category,
+            };
+
             const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
             const customerData = {
                 name: loginUser.username,
                 id: loginUser.id,
             }
+
+            const transformedItems = Object.entries(qtyMap).map(([id, data]) => ({
+                discount: 0,
+                item: {
+                    id,
+                    code: data.code,
+                    name: data.name,
+                },
+                price: data.price,
+                qty: data.qty,
+            }));
+
+            const totalPrice = transformedItems.reduce((total, item) => {
+                return total + item.qty * item.price;
+            }, 0);
 
             const orderData = {
                 code: newCode,
@@ -140,19 +175,38 @@ const Table = ({
                 description,
                 isPrint: false,
                 status: "mengantri",
-                // warehouse: {
-                //     category: "F7",
-                //     id: 
-                // }
+                warehouse: selectedRackData,
+                items: transformedItems,
+                totalPrice,
+                createdAt: serverTimestamp(),
+                udpatedAt: serverTimestamp(),
             }
 
             console.log('Order Data: ', orderData);
+
+            try {
+                await SalesOrderRepository.createSalesOrder(orderData);
+            } catch (submitError) {
+                console.error("Error during onSubmit: ", submitError);
+                showToast("gagal", "Gagal menyimpan pemesanan!");
+                return;
+            }
+
+            showToast('berhasil', 'Pemesanan berhasil dilakukan!');
+            resetForm();
+            setOrderConfirmationModal(false);
         } catch (e) {
             console.error(e); // jangan kosongin catch, bantu debug
+            showToast("gagal", "Gagal menyimpan pemesanan!");
         } finally {
             setLoading(false);
         }
     };
+
+    const resetForm = () => {
+        setQtyMap({});
+        setDescription('');
+    }
 
 
     return (

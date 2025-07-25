@@ -46,7 +46,7 @@ static async previewNextCode(prefix, uniqueType = "number", monthFormat = "numbe
         transaction.update(counterRef, { last });
       }
 
-      return this.formatCode(prefix, last + 1, uniqueType, monthFormat, yearFormat);
+      return this.formatCode(prefix, last, uniqueType, monthFormat, yearFormat);
     });
 
     return nextCode;

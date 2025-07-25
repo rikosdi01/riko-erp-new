@@ -1,11 +1,12 @@
-import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandCoins, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
+import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
-import { useEffect } from "react";
 import { useUsers } from "../../context/auth/UsersContext";
 import roleAccess from "../../utils/helper/roleAccess";
 
 const SidebarPages = () => {
-    const { accessList } = useUsers();
+    const { accessList, loginUser } = useUsers();
+    console.log('Access List: ', accessList);
+    console.log('Login User: ', loginUser);
     const cleanDividers = (items) => {
         const cleaned = [];
 
@@ -37,8 +38,8 @@ const SidebarPages = () => {
         );
 
     const customerSubItems = filterSubItems([
-        { text: "Daftar Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-dashboard-order" },
-        { text: "Pesanan", to: "/customer/orders", icon: <ListOrdered size={20} />, permission: "melihat-data-sales-order" },
+        { text: "Daftar Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-daftar-list-barang-pelanggan" },
+        { text: "Pesanan", to: "/customer/list-orders", icon: <ListOrdered size={20} />, permission: "melihat-daftar-pesanan-pelanggan" },
     ]);
 
     const salesSubItems = filterSubItems([
@@ -73,20 +74,45 @@ const SidebarPages = () => {
 
     return (
         <Sidebar>
-            <SidebarItem
-                icon={<LayoutDashboard size={20} />}
-                text="Dashboard"
-                to="/dashboard"
-            />
-
-            {customerSubItems.length > 0 && (
+            {loginUser && loginUser.role !== 'Customer' && (
                 <SidebarItem
-                    icon={<Store size={20} />}
-                    text="Pelanggan"
-                    to="/sales"
-                    subItems={customerSubItems}
+                    icon={<LayoutDashboard size={20} />}
+                    text="Dashboard"
+                    to="/dashboard"
+                    permission="melihat-dashboard-global"
                 />
+                )}
+
+            {loginUser && loginUser.role === 'Customer' ? (
+                <>
+                    {customerSubItems.length > 0 && (
+                        <SidebarItem
+                            icon={<Computer size={20} />}
+                            text="Daftar Barang"
+                            to="/customer/list-products"
+                        />
+                    )}
+
+                    {customerSubItems.length > 0 && (
+                        <SidebarItem
+                            icon={<ListOrdered size={20} />}
+                            text="Pesanan"
+                            to="/customer/list-orders"
+                        />
+                    )}
+                </>
+            ) : (
+                customerSubItems.length > 0 && (
+                    <SidebarItem
+                        icon={<ListOrdered size={20} />}
+                        text="Pelanggan"
+                        to="/customer"
+                        subItems={customerSubItems}
+                    />
+                )
             )}
+
+
 
             {salesSubItems.length > 0 && (
                 <SidebarItem

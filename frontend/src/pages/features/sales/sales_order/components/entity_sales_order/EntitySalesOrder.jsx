@@ -9,7 +9,6 @@ import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
 import { customerIndex, productIndex } from '../../../../../../../config/algoliaConfig';
-import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
@@ -17,6 +16,8 @@ import SalesOrderPrintPreview from '../sales_order_print_preview/SalesOrderPrint
 import { useUsers } from '../../../../../../context/auth/UsersContext';
 import roleAccess from '../../../../../../utils/helper/roleAccess';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import { useFormats } from '../../../../../../context/personalization/FormatContext';
+import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
 
 const EntitySalesOrder = ({
     mode,
@@ -28,6 +29,12 @@ const EntitySalesOrder = ({
     // Context
     const { showToast } = useToast();
     const { racks } = useRacks();
+    const { formats } = useFormats();
+    const formatCode = formats.presets?.sales?.code;
+    const rackFormat = formats.presets?.sales?.rackMedan;
+    const yearFormat = formats.yearFormat;
+    const monthFormat = formats.monthFormat;
+    const uniqueFormat = formats.uniqueFormat;
 
     const emptyData = [{
         item: '',
@@ -65,7 +72,7 @@ const EntitySalesOrder = ({
 
         if (field === "item") {
             const racksArray = value?.rack || []; // atau ganti nama jadi value?.racks untuk lebih benar secara grammar
-        console.log('racksArray : ', racksArray);
+            console.log('racksArray : ', racksArray);
 
             // Fix: pakai `rack.rack`, bukan `rack.name`
             const matchedRack = racksArray.find(rack => rack.rack === selectedWarehouseName);
@@ -122,6 +129,24 @@ const EntitySalesOrder = ({
     };
 
 
+
+    useEffect(() => {
+        if (mode === "create" && formatCode) {
+            const generate = async () => {
+                const newCode = await CounterRepository.previewNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+                setCode(newCode);
+                setPreviewCode(newCode);
+            };
+
+            generate();
+        }
+    }, []); // ⛔️ Hilangkan dependensi `code` agar tidak dipanggil ulang
+
+    useEffect(() => {
+        if (mode === "create" && rackFormat) {
+            setWarehouse(rackFormat);
+        }
+    }, [])
 
     // Hanya jalan sekali saat komponen pertama kali dimount
     useEffect(() => {

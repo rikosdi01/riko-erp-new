@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
+import { useRacks } from "../../../../../../../context/warehouse/RackWarehouseContext";
+
 const FormatSettingsSelectRack = ({
     title,
     defaultValue,
-    updatePrefix,
-    values
+    onChange,
 }) => {
     const [prefix, setPrefix] = useState('');
+    const { racks } = useRacks();
 
     useEffect(() => {
         if (defaultValue != null) {

@@ -10,9 +10,7 @@ const UserAccountTable = ({
     onDeactivate,
     onDelete,
     enableRegistration = true,
-    enableRoleManagement = true,
     registrationPath = "/signup",
-    roleManagementPath = "/settings/manage-account/roles",
 }) => {
     const navigate = useNavigate();
 
@@ -74,14 +72,6 @@ const UserAccountTable = ({
                             onClick={() => navigate(registrationPath)}
                         >
                             Registrasi Akun
-                        </button>
-                    )}
-                    {enableRoleManagement && (
-                        <button
-                            className="manage-button"
-                            onClick={() => navigate(roleManagementPath)}
-                        >
-                            Kelola Role
                         </button>
                     )}
                 </div>

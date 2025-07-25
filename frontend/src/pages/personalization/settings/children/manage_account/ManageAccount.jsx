@@ -67,6 +67,15 @@ const ManageAccount = () => {
             <div className="manage-account-container">
                 <ContentHeader title="Kelola Akun" />
 
+                <div className='manage-account-header'>
+                <button
+                    className="manage-button"
+                    onClick={() => navigate("/settings/manage-account/roles")}
+                >
+                    Kelola Akses Data
+                </button>
+                </div>
+
                 {/* Bagian Akun Internal */}
                 <UserAccountTable
                     title="Akun Internal"
@@ -76,7 +85,6 @@ const ManageAccount = () => {
                     onDeactivate={handleDeactivate}
                     onDelete={handleDelete}
                     registrationPath="/signup"
-                    roleManagementPath="/settings/manage-account/roles"
                 />
 
                 {/* Spacer */}
@@ -90,7 +98,6 @@ const ManageAccount = () => {
                     onChangePassword={handleChangePassword}
                     onDeactivate={handleDeactivate}
                     onDelete={handleDelete}
-                    enableRoleManagement={false}
                     registrationPath="/signup-customer"
                 />
             </div>

@@ -6,14 +6,11 @@ import FormatSettingsSelect from './components/format_settings_select/FormatSett
 import PersonalRepository from '../../../../../repository/personalization/FormatRepository';
 import { useToast } from '../../../../../context/ToastContext';
 import { useFormats } from '../../../../../context/personalization/FormatContext';
-import { useRacks } from '../../../../../context/warehouse/RackWarehouseContext';
+import FormatSettingsSelectRack from './components/format_settings_select_rack/FormatSettingsSelectRack';
 
 const FormatSettings = () => {
     const { showToast } = useToast();
     const { formats } = useFormats();
-    const { racks } = useRacks();
-
-    console.log('Racks: ', racks);
 
     const [yearFormat, setYearFormat] = useState(formats?.yearFormat || 'twoletter');
     const [monthFormat, setMonthFormat] = useState(formats?.monthFormat || 'number');
@@ -236,59 +233,128 @@ const FormatSettings = () => {
 
 
                 <div className='settings-format' style={{ marginTop: '40px' }}>
-                    <div className='settings-format-subtitle'>Format Gudang (Medan)</div>
+                    <div className='settings-format-subtitle'>Format Gudang Default (Medan)</div>
 
+                    {/* Penjualan */}
                     <div className='settings-format-sub-header-container'>
                         <div className='settings-format-sub-header'>
                             - Penjualan
                         </div>
 
-                        <div className='settings-format-field'>
-                            <label>Sales Order</label>
-                            <div className='settings-format-code'>
-                                <select
-                                    className='settings-select'
-                                    value={presets?.sales?.rackMedan || ''}
-                                    onChange={(e) => updatePrefix("sales", "rackMedan ", e.target.value)}
-                                >
-                                    {racks.map((rack) => (
-                                        <option key={rack.id} value={rack.id}>
-                                            {rack.name + ' - ' + rack.location}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.sales?.rackMedan || ''}
+                            title={'Gudang Pesanan'}
+                            onChange={(val) => updatePrefix("sales", "rackMedan", val)}
+                        />
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.returns?.rackMedan || ''}
+                            title={'Gudang Returan Pesanan'}
+                            onChange={(val) => updatePrefix("returns", "rackMedan", val)}
+                        />
+                    </div>
+
+                    {/* Inventaris */}
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
+                            - Inventaris
                         </div>
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.warehouse?.rackMedan || ''}
+                            title={'Gudang Penyimpanan Stok'}
+                            onChange={(val) => updatePrefix("warehouse", "rackMedan", val)}
+                        />
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.adjustments?.rackMedan || ''}
+                            title={'Gudang Penyesuaian Stok'}
+                            onChange={(val) => updatePrefix("adjustments", "rackMedan", val)}
+                        />
+                    </div>
+
+                    {/* Logistik */}
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
+                            - Logistik
+                        </div>
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.delivery?.rackMedan || ''}
+                            title={'Gudang Pengiriman Pesanan'}
+                            onChange={(val) => updatePrefix("delivery", "rackMedan", val)}
+                        />
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.invoice?.rackMedan || ''}
+                            title={'Gudang Faktur Pesanan'}
+                            onChange={(val) => updatePrefix("invoice", "rackMedan", val)}
+                        />
                     </div>
                 </div>
 
 
                 <div className='settings-format' style={{ marginTop: '40px' }}>
-                    <div className='settings-format-subtitle'>Format Gudang (Jakarta)</div>
+                    <div className='settings-format-subtitle'>Format Gudang Default (Jakarta)</div>
 
+                    {/* Penjualan */}
                     <div className='settings-format-sub-header-container'>
                         <div className='settings-format-sub-header'>
                             - Penjualan
                         </div>
 
-                        <div className='settings-format-field'>
-                            <label>Sales Order</label>
-                            <div className='settings-format-code'>
-                                <select
-                                    className='settings-select'
-                                    value={presets?.sales?.rackJakarta || ''}
-                                    onChange={(e) => updatePrefix("sales", "rackJakarta", e.target.value)}
-                                >
-                                    {racks.map((rack) => (
-                                        <option key={rack.id} value={rack.id}>
-                                            {rack.name + ' - ' + rack.location}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.sales?.rackJakarta || ''}
+                            title={'Gudang Pesanan'}
+                            onChange={(val) => updatePrefix("sales", "rackJakarta", val)}
+                        />
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.returns?.rackJakarta || ''}
+                            title={'Gudang Returan Pesanan'}
+                            onChange={(val) => updatePrefix("returns", "rackJakarta", val)}
+                        />
+                    </div>
+
+                    {/* Inventaris */}
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
+                            - Inventaris
                         </div>
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.warehouse?.rackJakarta || ''}
+                            title={'Gudang Penyimpanan Stok'}
+                            onChange={(val) => updatePrefix("warehouse", "rackJakarta", val)}
+                        />
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.adjustments?.rackJakarta || ''}
+                            title={'Gudang Penyesuaian Stok'}
+                            onChange={(val) => updatePrefix("adjustments", "rackJakarta", val)}
+                        />
+                    </div>
+
+                    {/* Logistik */}
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
+                            - Logistik
+                        </div>
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.delivery?.rackJakarta || ''}
+                            title={'Gudang Pengiriman Pesanan'}
+                            onChange={(val) => updatePrefix("delivery", "rackJakarta", val)}
+                        />
+
+                        <FormatSettingsSelectRack
+                            defaultValue={presets?.invoice?.rackJakarta || ''}
+                            title={'Gudang Faktur Pesanan'}
+                            onChange={(val) => updatePrefix("invoice", "rackJakarta", val)}
+                        />
                     </div>
                 </div>
+
             </div>
         </div>
     );

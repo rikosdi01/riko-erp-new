@@ -13,7 +13,7 @@ export const CourierProvider = ({ children }) => {
             setIsLoading(false); // Set loading false setelah data diambil
         });
 
-        return () => unsubsc/ribe();
+        return () => unsubscribe();
     }, []);
 
     return (

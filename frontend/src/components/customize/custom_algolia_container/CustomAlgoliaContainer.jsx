@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Table from '../../table/Table';
 import './CustomAlgoliaContainer.css';
 import { Configure, InstantSearch, useHits } from 'react-instantsearch';
@@ -32,10 +32,25 @@ const CustomAlgoliaContainer = ({
     canAdd,
     onTableClick,
     tableType = 'default',
+    enableDateRange = false,
 }) => {
     const [itemsPerPage, setItemsPerPage] = useState(8);
     const [accessDenied, setAccessDenied] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
+
+
+    const toLocalDateString = (date) =>
+        date.toLocaleDateString('sv-SE'); // menghasilkan 'YYYY-MM-DD'
+
+    const initialStartDate = toLocalDateString(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+    const initialEndDate = toLocalDateString(new Date());
+
+
+    const [startDate, setStartDate] = useState(initialStartDate);
+    const [endDate, setEndDate] = useState(initialEndDate);
+
+
+
 
     useEffect(() => {
         console.log('Selected Value adasd:', selectedValue);
@@ -107,6 +122,29 @@ const CustomAlgoliaContainer = ({
         }
     };
 
+    const formattedDateFilter = useMemo(() => {
+        if (!enableDateRange) return filters; // ⬅️ kunci solusi
+
+        if (!startDate && !endDate) return filters;
+
+        const start = startDate ? new Date(startDate).getTime() : null;
+        const end = endDate ? new Date(endDate + 'T23:59:59.999').getTime() : null;
+
+        let dateFilter = "";
+
+        if (start && end) {
+            dateFilter = `createdAt >= ${start} AND createdAt <= ${end}`;
+        } else if (start) {
+            dateFilter = `createdAt >= ${start}`;
+        } else if (end) {
+            dateFilter = `createdAt <= ${end}`;
+        }
+
+        return filters ? `${filters} AND ${dateFilter}` : dateFilter;
+    }, [enableDateRange, startDate, endDate, filters]);
+
+
+
 
     // ================================================================================
 
@@ -120,8 +158,9 @@ const CustomAlgoliaContainer = ({
                 <AlgoliaListener subscribeFn={subscribeFn} />
                 <Configure
                     hitsPerPage={itemsPerPage}
-                    filters={filters}
+                    filters={formattedDateFilter}
                 />
+
 
                 <div className="main-container-header">
                     <CustomSearchBox
@@ -145,6 +184,25 @@ const CustomAlgoliaContainer = ({
                             attribute={dropdownAttribute3}
                         />
                     )}
+
+                    {enableDateRange && (
+                        <div className="date-range-filter">
+                            <input
+                                type="date"
+                                value={startDate || ""}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className='date-range-filter-container'
+                            />
+                            <span> - </span>
+                            <input
+                                type="date"
+                                value={endDate || ""}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className='date-range-filter-container'
+                            />
+                        </div>
+                    )}
+
 
                     {/* Import */}
                     {enableImport && (

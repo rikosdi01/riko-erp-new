@@ -88,6 +88,8 @@ import FormatSettings from "./pages/personalization/settings/children/format_set
 import { FormatProvider } from "./context/personalization/FormatContext";
 import SignUpCustomer from "./pages/authentication/signup_customer/SignUpCustomer";
 import ListProducts from "./pages/features/customers/list_products/ListProducts";
+import ListOrders from "./pages/features/customers/list_orders/ListOrders";
+import DetailListOrder from "./pages/features/customers/list_orders/detail_list_orders/DetailListOrder";
 
 function AppContent() {
   const location = useLocation();
@@ -218,7 +220,8 @@ function AppContent() {
 
           {/* Customers */}
           <Route path="/customer/list-products" element={<ProtectedRoute><ListProducts /></ProtectedRoute>} />
-          <Route path="/customer/orders" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
+          <Route path="/customer/list-orders" element={<ProtectedRoute><ListOrders /></ProtectedRoute>} />
+          <Route path="/customer/list-orders/:id" element={<ProtectedRoute><DetailListOrder /></ProtectedRoute>} />
 
 
 

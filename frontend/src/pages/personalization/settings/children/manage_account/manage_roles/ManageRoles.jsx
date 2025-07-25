@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import './ManageRoles.css';
 import React, { useEffect, useState } from 'react';
@@ -6,8 +5,6 @@ import RolesRepository from '../../../../../../repository/authentication/RolesRe
 import { useToast } from '../../../../../../context/ToastContext';
 import { Settings } from 'lucide-react';
 import RoleSettingsModal from './components/role_settings_modal/RoleSettingsModal';
-
-const roles = ['Admin', 'CSO', 'Stok Controller', 'Logistic'];
 
 const ManageRoles = () => {
     const { showToast } = useToast();
@@ -18,6 +15,24 @@ const ManageRoles = () => {
     console.log('Roles: ', roles);
 
     const pages = [
+        {
+            section: "Customer",
+            data: [
+                {
+                    title: 'List Barang',
+                    items: [
+                        "Melihat daftar list barang pelanggan",
+                        "Melakukan pemesanan dari list barang",
+                    ],
+                },
+                {
+                    title: 'Pesanan Pelanggan',
+                    items: [
+                        "Melihat daftar pesanan pelanggan",
+                    ],
+                },
+            ],
+        },
         {
             section: "CSO",
             data: [
