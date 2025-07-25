@@ -6,31 +6,36 @@ import FormatSettingsSelect from './components/format_settings_select/FormatSett
 import PersonalRepository from '../../../../../repository/personalization/FormatRepository';
 import { useToast } from '../../../../../context/ToastContext';
 import { useFormats } from '../../../../../context/personalization/FormatContext';
+import { useRacks } from '../../../../../context/warehouse/RackWarehouseContext';
 
 const FormatSettings = () => {
     const { showToast } = useToast();
     const { formats } = useFormats();
+    const { racks } = useRacks();
 
-    const [yearFormat, setYearFormat] = useState(formats.yearFormat || 'twoletter');
-    const [monthFormat, setMonthFormat] = useState(formats.monthFormat || 'number');
-    const [uniqueFormat, setUniqueFormat] = useState(formats.uniqueFormat || 'number');
-    const [presets, setPresets] = useState(formats.presets || {});
+    console.log('Racks: ', racks);
+
+    const [yearFormat, setYearFormat] = useState(formats?.yearFormat || 'twoletter');
+    const [monthFormat, setMonthFormat] = useState(formats?.monthFormat || 'number');
+    const [uniqueFormat, setUniqueFormat] = useState(formats?.uniqueFormat || 'number');
+    const [presets, setPresets] = useState(formats?.presets || {});
+
 
     console.log('Formats: ', formats);
     useEffect(() => {
-    console.log('Formats - 16: ', formats);
+        console.log('Formats - 16: ', formats);
         if (formats) {
-            setYearFormat(formats.yearFormat || 'twoletter');
-            setMonthFormat(formats.monthFormat || 'number');
-            setUniqueFormat(formats.uniqueFormat || 'number');
-            setPresets(formats.presets || {});
+            setYearFormat(formats?.yearFormat || 'twoletter');
+            setMonthFormat(formats?.monthFormat || 'number');
+            setUniqueFormat(formats?.uniqueFormat || 'number');
+            setPresets(formats?.presets || {});
         }
     }, [formats]);
 
     useEffect(() => {
         console.log('Presets: ', presets);
-        console.log('Presets: ', presets.sales);
-        console.log('Presets: ', presets.adjustments);
+        console.log("Presets.sales:", presets?.sales);
+
     }, [presets])
 
 
@@ -54,9 +59,16 @@ const FormatSettings = () => {
         { value: 'roman', label: 'Romawi (I)' },
     ]
 
-    const updatePrefix = (key, newPrefix) => {
-        setPresets(prev => ({ ...prev, [key]: newPrefix }));
+    const updatePrefix = (key, field, newValue) => {
+        setPresets(prev => ({
+            ...prev,
+            [key]: {
+                ...prev[key],
+                [field]: newValue,
+            }
+        }));
     };
+
 
     useEffect(() => {
         console.log('Year Format: ', yearFormat)
@@ -80,10 +92,6 @@ const FormatSettings = () => {
             showToast('gagal', 'Format Kode gagal disimpan');
         }
     };
-
-    if (!formats) {
-        return <div>Loading format data...</div>;
-    }
 
     return (
         <div className="main-container">
@@ -130,7 +138,7 @@ const FormatSettings = () => {
                             - Penjualan
                         </div>
                         <FormatSettingsField
-                            defaultValue={presets.sales}
+                            defaultValue={presets?.sales?.code || ''}
                             title={'Pesanan'}
                             year={year}
                             month={month}
@@ -138,11 +146,11 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("sales", val)}
+                            onChange={(val) => updatePrefix("sales", "code", val)}
                         />
 
                         <FormatSettingsField
-                            defaultValue={presets.returns}
+                            defaultValue={presets?.returns?.code || ''}
                             title={'Returan Pesanan'}
                             year={year}
                             month={month}
@@ -150,7 +158,7 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("returns", val)}
+                            onChange={(val) => updatePrefix("returns", "code", val)}
                         />
                     </div>
 
@@ -160,7 +168,7 @@ const FormatSettings = () => {
                             - Inventaris
                         </div>
                         <FormatSettingsField
-                            defaultValue={presets.warehouse}
+                            defaultValue={presets?.warehouse?.code || ''}
                             title={'Penyimpanan Stok'}
                             year={year}
                             month={month}
@@ -168,11 +176,11 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("warehouse", val)}
+                            onChange={(val) => updatePrefix("warehouse", "code", val)}
                         />
 
                         <FormatSettingsField
-                            defaultValue={presets.adjustments}
+                            defaultValue={presets?.adjustments?.code || ''}
                             title={'Penyesuaian Stok'}
                             year={year}
                             month={month}
@@ -180,11 +188,11 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("adjustments", val)}
+                            onChange={(val) => updatePrefix("adjustments", "code", val)}
                         />
 
                         <FormatSettingsField
-                            defaultValue={presets.transfers}
+                            defaultValue={presets?.transfers?.code || ''}
                             title={'Pemindahan Stok'}
                             year={year}
                             month={month}
@@ -192,7 +200,7 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("transfers", val)}
+                            onChange={(val) => updatePrefix("transfers", "code", val)}
                         />
                     </div>
 
@@ -201,7 +209,7 @@ const FormatSettings = () => {
                             - Logistik
                         </div>
                         <FormatSettingsField
-                            defaultValue={presets.delivery}
+                            defaultValue={presets?.delivery?.code || ''}
                             title={'Pengiriman Pesanan'}
                             year={year}
                             month={month}
@@ -209,11 +217,11 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("delivery", val)}
+                            onChange={(val) => updatePrefix("delivery", "code", val)}
                         />
 
                         <FormatSettingsField
-                            defaultValue={presets.invoice}
+                            defaultValue={presets?.invoice?.code || ''}
                             title={'Faktur Pesanan'}
                             year={year}
                             month={month}
@@ -221,8 +229,64 @@ const FormatSettings = () => {
                             yearFormat={yearFormat}
                             monthFormat={monthFormat}
                             uniqueFormat={uniqueFormat}
-                            onChange={(val) => updatePrefix("invoice", val)}
+                            onChange={(val) => updatePrefix("invoice", "code", val)}
                         />
+                    </div>
+                </div>
+
+
+                <div className='settings-format' style={{ marginTop: '40px' }}>
+                    <div className='settings-format-subtitle'>Format Gudang (Medan)</div>
+
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
+                            - Penjualan
+                        </div>
+
+                        <div className='settings-format-field'>
+                            <label>Sales Order</label>
+                            <div className='settings-format-code'>
+                                <select
+                                    className='settings-select'
+                                    value={presets?.sales?.rackMedan || ''}
+                                    onChange={(e) => updatePrefix("sales", "rackMedan ", e.target.value)}
+                                >
+                                    {racks.map((rack) => (
+                                        <option key={rack.id} value={rack.id}>
+                                            {rack.name + ' - ' + rack.location}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div className='settings-format' style={{ marginTop: '40px' }}>
+                    <div className='settings-format-subtitle'>Format Gudang (Jakarta)</div>
+
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
+                            - Penjualan
+                        </div>
+
+                        <div className='settings-format-field'>
+                            <label>Sales Order</label>
+                            <div className='settings-format-code'>
+                                <select
+                                    className='settings-select'
+                                    value={presets?.sales?.rackJakarta || ''}
+                                    onChange={(e) => updatePrefix("sales", "rackJakarta", e.target.value)}
+                                >
+                                    {racks.map((rack) => (
+                                        <option key={rack.id} value={rack.id}>
+                                            {rack.name + ' - ' + rack.location}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

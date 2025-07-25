@@ -13,6 +13,7 @@ const FormatSettingsField = ({
     defaultValue,
     onChange,
 }) => {
+    console.log('Default Value: ', defaultValue);
     const [prefix, setPrefix] = useState('');
 
     useEffect(() => {

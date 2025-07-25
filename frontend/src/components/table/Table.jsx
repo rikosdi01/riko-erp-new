@@ -137,10 +137,16 @@ const Table = ({
             const orderData = {
                 code: newCode,
                 customer: customerData,
-
+                description,
+                isPrint: false,
+                status: "mengantri",
+                // warehouse: {
+                //     category: "F7",
+                //     id: 
+                // }
             }
 
-            console.log('New Code: ', newCode);
+            console.log('Order Data: ', orderData);
         } catch (e) {
             console.error(e); // jangan kosongin catch, bantu debug
         } finally {
@@ -401,7 +407,7 @@ const Table = ({
 
                         <div className="order-modal-buttons">
                             <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
-                            <button>Pesan</button>
+                            <button onClick={handleCreateOrder}>Pesan</button>
                         </div>
                     </div>
                 </div>
