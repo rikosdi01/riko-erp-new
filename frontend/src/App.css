@@ -30,6 +30,38 @@
   flex: 1;
 }
 
+.add-container-input-attribute {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-container-input-attribute > div:nth-child(n+1){
+  flex: 1;
+  width: 100%; 
+}
+
+.add-container-input-area-attribute {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-container-input-area-attribute > div:nth-child(n+1){
+  flex: 1;
+}
+
+
+.add-contianer-input-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
 .divider {
   width: 100%;
   height: 1px;

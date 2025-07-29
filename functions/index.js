@@ -1,53 +1,50 @@
-const { onDocumentWritten } = require("firebase-functions/v2/firestore");
-const { initializeApp } = require("firebase-admin/app");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
 
-initializeApp();
-const db = getFirestore();
+admin.initializeApp();
 
-exports.syncsAdjustment = onDocumentWritten(
-  {
-    region: "asia-southeast2",
-  },
-  "Adjustment/{adjId}",
-  async (event) => {
-    const beforeSnap = event.data.before;
-    const afterSnap = event.data.after;
+const db = admin.firestore();
 
-    const parseItems = (snap) => {
-      if (!snap) return [];
-      const data = snap.data();
-      if (!Array.isArray(data.items)) return [];
-      return data.items.map((item) => ({
-        itemId: item.item.id,
-        qty: item.qty,
-      }));
-    };
+exports.removeSetField = functions.https.onRequest(async (req, res) => {
+  try {
+    const batchSize = 300;
+    let lastDoc = null;
+    let totalUpdated = 0;
 
-    const beforeItems = parseItems(beforeSnap);
-    const afterItems = parseItems(afterSnap);
+    while (true) {
+      let query = db.collection("Items")
+        .orderBy(admin.firestore.FieldPath.documentId())
+        .limit(batchSize);
 
-    // Buat Map untuk qty
-    const beforeMap = new Map(beforeItems.map((i) => [i.itemId, i.qty]));
-    const afterMap = new Map(afterItems.map((i) => [i.itemId, i.qty]));
-
-    const allItemIds = new Set([...beforeMap.keys(), ...afterMap.keys()]);
-
-    const batch = db.batch();
-
-    for (const itemId of allItemIds) {
-      const beforeQty = beforeMap.get(itemId) || 0;
-      const afterQty = afterMap.get(itemId) || 0;
-      const delta = afterQty - beforeQty;
-
-      if (delta !== 0) {
-        const itemRef = db.collection("Items").doc(itemId);
-        batch.update(itemRef, {
-          qty: FieldValue.increment(delta),
-        });
+      if (lastDoc) {
+        query = query.startAfter(lastDoc);
       }
+
+      const snapshot = await query.get();
+      if (snapshot.empty) {
+        break;
+      }
+
+      const batch = db.batch();
+
+      snapshot.docs.forEach((doc) => {
+        const ref = doc.ref;
+        if (doc.get("set") !== undefined) {
+          batch.update(ref, { set: admin.firestore.FieldValue.delete() });
+        }
+      });
+
+      await batch.commit();
+      totalUpdated += snapshot.docs.length;
+      console.log(`${totalUpdated} documents updated...`);
+
+      lastDoc = snapshot.docs[snapshot.docs.length - 1];
     }
 
-    return batch.commit();
+    console.log("✅ Selesai menghapus field 'set' dari semua dokumen.");
+    res.status(200).send("Field 'set' berhasil dihapus dari semua dokumen.");
+  } catch (err) {
+    console.error("❌ Terjadi kesalahan:", err);
+    res.status(500).send("Terjadi kesalahan: " + err.message);
   }
-);
+});

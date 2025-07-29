@@ -31,8 +31,9 @@ const Items = () => {
             accessor: "stock",
             renderCell: (_, value) => {
                 const totalStock = value.stock ? value.stock : 0
-                const set = value?.set?.[0]?.set;
-                return `${totalStock} ${set}`
+                const sets = Array.isArray(value?.set) ? value.set : [];
+                const unit = sets.find((s) => s?.set)?.set ?? "";
+                return `${totalStock} ${unit}`;
             }
         },
         {

@@ -3,7 +3,7 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityItems.css';
-import { PackagePlus, KeyRound, LayoutGrid, CarFront, BadgeDollarSign, Scale, LayoutDashboard } from "lucide-react";
+import { PackagePlus, KeyRound, LayoutGrid, CarFront, BadgeDollarSign, Scale, LayoutDashboard, FileDigit } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
@@ -16,6 +16,7 @@ import { useUsers } from '../../../../../../context/auth/UsersContext';
 import roleAccess from '../../../../../../utils/helper/roleAccess';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
+import InputField from '../../../../../../components/input/input_field/InputField';
 
 const EntityItems = ({
     mode,
@@ -36,6 +37,9 @@ const EntityItems = ({
         { id: 7, name: "Yamaha" },
     ]
 
+
+    const emptyData = [{ set: "", qty: "" }];
+
     const filterBrand = brandsOptions.find((brand) => brand.name === initialData.brand);
     const defaultBrandId = filterBrand?.id || brandsOptions[0]?.id || 1;
 
@@ -44,7 +48,13 @@ const EntityItems = ({
     const [category, setCategory] = useState(initialData.category || []);
     const [brand, setBrand] = useState(defaultBrandId);
     const [salePrice, setSalePrice] = useState(initialData.salePrice || Formatting.formatCurrencyIDR(0));
-    const [setProduct, setSetProduct] = useState(initialData.set || "");
+    const [productSet, setProductSet] = useState(() => {
+        if (Array.isArray(initialData.set)) return initialData.set;
+        if (typeof initialData.set === 'object' && initialData.set !== null)
+            return [initialData.set];
+        return [];
+    });
+    const [items, setItems] = useState(initialData.items || emptyData);
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(initialData.userId || `guest-${Date.now()}`);
     const [codeError, setCodeError] = useState("");
@@ -56,6 +66,10 @@ const EntityItems = ({
     useEffect(() => {
         console.log('Category:', category);
     }, [category]);
+
+    useEffect(() => {
+        console.log('productSet: ', productSet)
+    }, [productSet]);
 
     const columns = [
         {
@@ -86,11 +100,47 @@ const EntityItems = ({
         setName(initialData.name || "");
         setCategory(initialData.category || []);
         setBrand(defaultBrandId);
-        setSalePrice(initialData.salePrice || Formatting.formatCurrencyIDR(0));
-        setSetProduct(initialData.set || "");
+        setSalePrice(
+            initialData.salePrice
+                ? Formatting.formatCurrencyIDR(
+                    typeof initialData.salePrice === "string"
+                        ? parseInt(initialData.salePrice.replace(/\D/g, ""))
+                        : initialData.salePrice
+                )
+                : Formatting.formatCurrencyIDR(0)
+        );
+        setProductSet(initialData.set || []);
+        setItems(initialData.items || emptyData);
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId || `guest-${Date.now()}`);
     }, [initialData]);
+
+    useEffect(() => {
+        console.log('Selected Category: ', category);
+    }, [category]);
+
+    const handleSetProductChange = (index, field, value) => {
+        const updated = [...productSet];
+        updated[index] = { ...updated[index], [field]: value };
+
+        const isRowFilled = (row) => row.set || row.qty;
+
+        // Tambah baris baru jika baris terakhir sudah terisi sebagian
+        if (isRowFilled(updated[updated.length - 1])) {
+            updated.push({ set: "", qty: "" });
+        }
+
+        // Bersihkan baris kosong di bawah baris terakhir yang terisi
+        let lastFilledIndex = -1;
+        for (let i = 0; i < updated.length; i++) {
+            if (isRowFilled(updated[i])) lastFilledIndex = i;
+        }
+
+        const cleaned = updated.slice(0, lastFilledIndex + 2);
+        setProductSet(cleaned);
+    };
+
+
 
     const handleItems = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
@@ -112,11 +162,30 @@ const EntityItems = ({
 
         try {
             console.log('Category: ', category);
-            const filteredCategory = {
-                id: category.objectID || category.id,
-                name: category.name + ' ' + (category.merks?.name || ""),
-                code: category.merks?.code + '-' + category.code,
+            let filteredCategory;
+            if (mode === 'create') {
+                filteredCategory = {
+                    id: category.objectID || category.id,
+                    name: category.name + ' ' + (category.merks?.name || ""),
+                    code: (category.merks?.code || '') + '-' + category.code,
+                };
+            } else {
+                filteredCategory = {
+                    id: category.objectID || category.id,
+                    name: category.name,
+                    code: category.code,
+                };
             }
+
+
+            const filteredItems = productSet
+                .filter((item) => item.set?.trim()) // pastikan hanya yang punya nama satuan
+                .map((item) => ({
+                    set: item.set.trim(),
+                    qty: item.qty?.toString().trim() || "1"
+                }));
+
+
             const selectedBrand = brandsOptions.find(brandValue => brandValue.id === brand);
 
             console.log('Category:', category);
@@ -140,7 +209,7 @@ const EntityItems = ({
                 category: filteredCategory,
                 brand: selectedBrand.name,
                 salePrice: parseInt(salePrice.replace(/\D/g, ""), 10) || 0,
-                set: setProduct,
+                set: filteredItems,
                 qty: 0,
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
@@ -171,9 +240,10 @@ const EntityItems = ({
         setCode("");
         setName("");
         setCategory([]);
-        setBrand([]);
+        setBrand(defaultBrandId);
         setSalePrice(Formatting.formatCurrencyIDR(0));
-        setSetProduct("");
+        setItems(emptyData);
+        setProductSet([]);
         setCodeError("");
         setNameError("");
     }
@@ -236,8 +306,8 @@ const EntityItems = ({
                     indexName={ALGOLIA_INDEX_CATEGORIES}
                     columns={columns}
                     value={
-                        category?.name && category?.merks
-                            ? `${category.name} - ${category.merks?.name}`
+                        category?.name
+                            ? category.name
                             : "Pilih Kategori"
                     }
 
@@ -247,26 +317,63 @@ const EntityItems = ({
             </div>
 
             <div className='add-container-input-attribute'>
-                <div>
+                <InputLabel
+                    label="Harga Jual"
+                    icon={<BadgeDollarSign className='input-icon' />}
+                    value={salePrice}
+                    onChange={(e) => {
+                        const rawValue = e.target.value.replace(/\D/g, ""); // Hanya angka
+                        setSalePrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
+                    }}
+                />
+            </div>
+
+            <div className='divider' style={{ marginTop: '20px' }}></div>
+            <div>
+                <div className='add-contianer-input-header'>Satuan</div>
+                <div className='add-container-input'>
                     <InputLabel
-                        label="Harga Jual"
-                        icon={<BadgeDollarSign className='input-icon' />}
-                        value={salePrice}
+                        label="Satuan Utama"
+                        icon={<Scale className='input-icon' />}
+                        value={productSet[0]?.set || ''}
                         onChange={(e) => {
-                            const rawValue = e.target.value.replace(/\D/g, ""); // Hanya angka
-                            setSalePrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
+                            const updated = [...productSet];
+                            updated[0] = { ...updated[0], set: e.target.value };
+
+                            if (updated.length === 1) {
+                                updated.push({ set: "", qty: "" });
+                            }
+
+                            setProductSet(updated);
                         }}
+
                     />
                 </div>
 
-                <div>
-                    <InputLabel
-                        label="Satuan"
-                        icon={<Scale className='input-icon' />}
-                        value={setProduct}
-                        onChange={(e) => setSetProduct(e.target.value)}
-                    />
+                <div className='add-container-input-attribute'>
+                    {productSet.slice(1).map((product, index) => (
+                        <div key={index + 1} className="add-container-input-area-attribute">
+                            <div>
+                                <InputField
+                                    label='Satuan Tambahan'
+                                    icon={<Scale className='input-icon' />}
+                                    value={product.set}
+                                    onChange={(e) => handleSetProductChange(index + 1, "set", e.target.value)}
+                                />
+                            </div>
+                            X
+                            <div>
+                                <InputField
+                                    label='Jumlah'
+                                    icon={<FileDigit className='input-icon' />}
+                                    value={product.qty}
+                                    onChange={(e) => handleSetProductChange(index + 1, "qty", e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    ))}
                 </div>
+
             </div>
 
             {mode === "create" ? (
