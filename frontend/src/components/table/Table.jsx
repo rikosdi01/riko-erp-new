@@ -11,6 +11,7 @@ import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
 import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import IconButton from "../button/icon_button/IconButton";
+import ActionButton from "../button/actionbutton/ActionButton";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -29,9 +30,7 @@ const Table = ({
     const { loginUser } = useUsers();
     const { racks } = useRacks();
     const { showToast } = useToast();
-    console.log('Racks: ', racks);
 
-    console.log('Login User: ', loginUser);
     const location = useLocation();
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
@@ -53,9 +52,11 @@ const Table = ({
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [unitQtyMap, setUnitQtyMap] = useState({}); // simpan jumlah per satuan
+    const [isEditingQty, setIsEditingQty] = useState(false);
 
 
-    const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0);
+
+    const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0);
 
 
     const { formats } = useFormats();
@@ -120,7 +121,6 @@ const Table = ({
     }, [currentData, hoveredIndex]);
 
 
-
     // Navigation
     // Navigation to Detail
     // const navigateToDetail = (id) => {
@@ -135,19 +135,6 @@ const Table = ({
     const handleRestricedAction = () => {
         setAccessDenied(true);
     }
-
-    const updateQty = (id, newQty) => {
-        setQtyMap((prev) => {
-            const clampedQty = Math.max(0, Number(newQty) || 0);
-            return {
-                ...prev,
-                [id]: {
-                    ...prev[id],
-                    qty: clampedQty,
-                },
-            };
-        });
-    };
 
     const handleCreateOrder = async () => {
         setLoading(true);
@@ -222,6 +209,60 @@ const Table = ({
         setQtyMap({});
         setDescription('');
     }
+
+    useEffect(() => {
+        console.log('Qty Map: ', qtyMap);
+    }, [qtyMap]);
+
+    const handleEditFromQtyMap = (productId) => {
+        const productEntry = qtyMap[productId];
+        console.log('Editing Product Entry: ', productEntry);
+        if (!productEntry) return;
+
+        setIsEditingQty(true); // ← menandakan sedang dalam mode edit qty
+        setShowOrderModal(false); // tutup sementara
+
+        const simulatedProduct = {
+            id: productId,
+            name: productEntry.name,
+            code: productEntry.code,
+            category: productEntry.category,
+            brand: productEntry.brand,
+            qty: productEntry.qty,
+            salePrice: productEntry.price,
+            set: Object.entries(productEntry.units).map(([setName, { content }]) => ({
+                set: setName,
+                qty: parseInt(content),
+            })),
+        };
+
+        const initialUnitQty = {};
+        for (const [unit, value] of Object.entries(productEntry.units)) {
+            initialUnitQty[unit] = value.qty;
+        }
+
+        setSelectedProduct(simulatedProduct);
+        setUnitQtyMap(initialUnitQty);
+        setModalOpen(true);
+    };
+
+    useEffect(() => {
+        if (selectedProduct && !isEditingQty) {
+            const initialUnitQty = {};
+            selectedProduct.set?.forEach((s) => {
+                initialUnitQty[s.set] = 0;
+            });
+            setUnitQtyMap(initialUnitQty);
+        }
+    }, [selectedProduct, isEditingQty]);
+
+const handleDeleteFromQtyMap = (productId) => {
+    setQtyMap((prev) => {
+        const newMap = { ...prev };
+        delete newMap[productId];
+        return newMap;
+    });
+};
 
 
     return (
@@ -304,21 +345,21 @@ const Table = ({
 
                                     {tableType === "customers" && (
                                         <td>
-                                            <IconButton
-                                                icon={<Plus size={20}/>}
-                                                onclick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedProduct(item); // simpan produk
-                                                    setModalOpen(true);       // buka modal
-                                                }}
-                                                background="#007bff"
-                                                color="#fff"
-                                                padding="5px"
-                                            />
+                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                <IconButton
+                                                    icon={<Plus size={20} />}
+                                                    onclick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedProduct(item);
+                                                        setModalOpen(true);
+                                                    }}
+                                                    background="#007bff"
+                                                    color="#fff"
+                                                    padding="5px"
+                                                />
+                                            </div>
                                         </td>
                                     )}
-
-
                                 </tr>
                             ))
                         ) : (
@@ -337,13 +378,13 @@ const Table = ({
                     <div>
                         <div className="order-row">
                             <span>Jumlah Pesanan:</span>
-                            <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0)} Produk</span>
+                            <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0)} Produk</span>
                         </div>
                         <div className="order-row">
                             <span>Total Pesanan:</span>
                             <span>
-                                Rp{Object.values(qtyMap)
-                                    .reduce((total, entry) => total + (entry.qty * entry.price), 0)
+                                Rp. {Object.values(qtyMap)
+                                    .reduce((total, entry) => total + (entry.totalQty * entry.price), 0)
                                     .toLocaleString("id-ID")}
                             </span>
                         </div>
@@ -375,7 +416,8 @@ const Table = ({
             {modalOpen && selectedProduct && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h2>{selectedProduct.name} ({selectedProduct.code})</h2>
+                        <h2>{selectedProduct.category.name} - {selectedProduct.name} ({selectedProduct.brand})
+                        </h2>
                         <p>Stok Tersedia: {selectedProduct.qty}</p>
 
                         <table>
@@ -392,18 +434,40 @@ const Table = ({
                                         <td>{satuan.set}</td>
                                         <td>{satuan.qty}</td>
                                         <td>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={unitQtyMap[satuan.set] || 0}
-                                                onChange={(e) => {
-                                                    const val = Math.max(0, parseInt(e.target.value) || 0);
-                                                    setUnitQtyMap((prev) => ({
-                                                        ...prev,
-                                                        [satuan.set]: val
-                                                    }));
-                                                }}
-                                            />
+                                            <div className="counter-wrapper">
+                                                <button
+                                                    className="counter-button"
+                                                    onClick={() => {
+                                                        setUnitQtyMap((prev) => ({
+                                                            ...prev,
+                                                            [satuan.set]: Math.max(0, (prev[satuan.set] || 0) - 1)
+                                                        }));
+                                                    }}
+                                                >-</button>
+
+                                                <input
+                                                    type="text"
+                                                    className="counter-input"
+                                                    value={unitQtyMap[satuan.set] || 0}
+                                                    onChange={(e) => {
+                                                        const val = Math.max(0, parseInt(e.target.value) || 0);
+                                                        setUnitQtyMap((prev) => ({
+                                                            ...prev,
+                                                            [satuan.set]: val
+                                                        }));
+                                                    }}
+                                                />
+
+                                                <button
+                                                    className="counter-button"
+                                                    onClick={() => {
+                                                        setUnitQtyMap((prev) => ({
+                                                            ...prev,
+                                                            [satuan.set]: (prev[satuan.set] || 0) + 1
+                                                        }));
+                                                    }}
+                                                >+</button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -419,31 +483,68 @@ const Table = ({
                         </p>
 
                         <div className="modal-actions">
-                            <button
-                                onClick={() => {
-                                    const key = selectedProduct.id || selectedProduct.objectID;
-                                    const totalQty = selectedProduct.set.reduce((sum, s) => {
-                                        return sum + ((unitQtyMap[s.set] || 0) * s.qty);
-                                    }, 0);
+                            <ActionButton
+                                title={"Batal"}
+                                onclick={() => {
+                                    setModalOpen(false);
+                                    if (isEditingQty) {
+                                        setShowOrderModal(true); // kembali ke modal pesanan
+                                        setIsEditingQty(false);
+                                    }
+                                }}
+                                color={"white"}
+                                background={"#dc3545"}
+                            />
 
-                                    setQtyMap((prev) => ({
-                                        ...prev,
-                                        [key]: {
-                                            name: selectedProduct?.category.name + ' - ' + selectedProduct.name + ' (' + selectedProduct.brand + ')',
-                                            code: selectedProduct?.category.code + '-' + selectedProduct.code,
-                                            qty: totalQty,
-                                            price: selectedProduct.salePrice
-                                        }
-                                    }));
+
+                            <ActionButton
+                                title={'Simpan'}
+                                onclick={() => {
+                                    setQtyMap((prev) => {
+                                        const key = selectedProduct.id || selectedProduct.objectID;
+
+                                        const satuanMap = {};
+
+                                        selectedProduct.set.forEach((s) => {
+                                            const qty = unitQtyMap[s.set] || 0;
+                                            satuanMap[s.set] = {
+                                                qty,
+                                                content: s.qty,
+                                            };
+                                        });
+
+                                        console.log('Selected Product: ', selectedProduct)
+
+                                        return {
+                                            ...prev,
+                                            [key]: {
+                                                name: selectedProduct.name,
+                                                brand: selectedProduct.brand,
+                                                category: selectedProduct.category,
+                                                code: selectedProduct.code,
+                                                qty: selectedProduct.qty,
+                                                totalQty: Object.values(satuanMap).reduce((sum, item) => sum + (item.qty * item.content), 0),
+                                                units: satuanMap,
+                                                price: selectedProduct.salePrice,
+                                            }
+                                        };
+                                    });
 
                                     setModalOpen(false);
                                     setSelectedProduct(null);
                                     setUnitQtyMap({});
+
+                                    if (isEditingQty) {
+                                        setShowOrderModal(true);  // hanya buka kembali kalau dari mode edit
+                                        setIsEditingQty(false);
+                                        showToast('berhasil', 'Jumlah produk berhasil diperbarui!');
+                                    } else {
+                                        // dari penambahan biasa, tidak membuka modal pesanan
+                                        showToast('berhasil', 'Produk berhasil ditambahkan ke pesanan!');
+                                    }
                                 }}
-                            >
-                                Simpan
-                            </button>
-                            <button onClick={() => setModalOpen(false)}>Batal</button>
+                            />
+
                         </div>
                     </div>
                 </div>
@@ -456,12 +557,12 @@ const Table = ({
                         <h3>Apakah pesanan anda sudah sesuai?</h3>
                         {Object.entries(qtyMap).filter(([, entry]) => entry.qty > 0 || true).map(([id, entry]) => (
                             <div key={id} className="confirmation-products">
-                                <div className="confirmation-sub-header-products">
+                                <div className="confirmation-sub-header-products" style={{ display: 'flex', justifyContent: 'center', alignItems: 'end' }}>
                                     <div>{entry.name || "-"}</div>
-                                    <div>X{entry.qty || 0}</div>
-                                    <div>Rp. {entry.price.toLocaleString("id-ID")}</div>
+                                    <div>X{entry.totalQty || 0}</div>
+                                    <div style={{ fontSize: '14px'}}>Rp. {entry.price.toLocaleString("id-ID")}</div>
                                 </div>
-                                <div>Rp. {(entry.qty * entry.price).toLocaleString("id-ID")}</div>
+                                <div>Rp. {(entry.totalQty * entry.price).toLocaleString("id-ID")}</div>
                             </div>
                         ))
                         }
@@ -479,13 +580,13 @@ const Table = ({
                                 <div>
                                     <div className="order-row">
                                         <span>Jumlah Pesanan:</span>
-                                        <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0)} Produk</span>
+                                        <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0)} Produk</span>
                                     </div>
                                     <div className="order-row">
                                         <span>Total Pesanan:</span>
                                         <span>
-                                            Rp{Object.values(qtyMap)
-                                                .reduce((total, entry) => total + (entry.qty * entry.price), 0)
+                                            Rp. {Object.values(qtyMap)
+                                                .reduce((total, entry) => total + (entry.totalQty * entry.price), 0)
                                                 .toLocaleString("id-ID")}
                                         </span>
                                     </div>
@@ -575,28 +676,29 @@ const Table = ({
                                         .filter(([, entry]) => entry.qty > 0 || true) // tampilkan semua produk yang pernah dipilih
                                         .map(([id, entry]) => (
                                             <tr key={id}>
-                                                <td>{entry.name || "-"}</td>
+                                                <td>{entry.category.name || '-'} - {entry.name || ''} ({entry.brand || ''})</td>
                                                 <td style={{ textAlign: "center" }}>
-                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
-                                                        <button onClick={() => updateQty(id, entry.qty - 1)}>-</button>
-                                                        <input
-                                                            value={entry.qty}
-                                                            min={0}
-                                                            onChange={(e) => updateQty(id, e.target.value)}
-                                                            style={{
-                                                                width: "50px",
-                                                                textAlign: "center",
-                                                                margin: "0 8px",
-                                                                padding: "2px",
-                                                                borderRadius: "4px",
-                                                                border: "1px solid #ccc"
-                                                            }}
-                                                        />
-                                                        <button onClick={() => updateQty(id, entry.qty + 1)}>+</button>
+                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                                                        <span>{entry.totalQty}</span>
+                                                        <button onClick={() => handleEditFromQtyMap(id)}>
+                                                            ✏️
+                                                        </button>
+
                                                     </div>
                                                 </td>
+
                                                 <td style={{ textAlign: "right" }}>Rp. {entry.price.toLocaleString("id-ID")}</td>
-                                                <td style={{ textAlign: "right" }}>Rp. {(entry.qty * entry.price).toLocaleString("id-ID")}</td>
+                                                <td style={{ textAlign: "right" }}>Rp. {(entry.totalQty * entry.price).toLocaleString("id-ID")}</td>
+                                                <td style={{ textAlign: "center" }}>
+                                                    <button
+                                                        style={{ backgroundColor: "transparent", border: "none", cursor: "pointer", color: "red" }}
+                                                        onClick={() => handleDeleteFromQtyMap(id)}
+                                                        title="Hapus Item"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </td>
+
                                             </tr>
                                         ))}
                                 </tbody>
@@ -610,7 +712,6 @@ const Table = ({
                     </div>
                 )
             }
-
         </div >
     );
 };

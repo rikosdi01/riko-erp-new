@@ -306,3 +306,32 @@ tbody tr:nth-child(n + 3) {
 .modal-actions button {
   margin-left: 8px;
 }
+
+.counter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter-button {
+  padding: 4px 10px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.counter-button:hover {
+  background-color: #0056b3;
+}
+
+.counter-input {
+  width: 60px;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
