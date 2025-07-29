@@ -9,6 +9,8 @@ import { useRacks } from "../../context/warehouse/RackWarehouseContext";
 import { serverTimestamp } from "firebase/firestore";
 import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
 import { useToast } from "../../context/ToastContext";
+import { Plus } from "lucide-react";
+import IconButton from "../button/icon_button/IconButton";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -48,6 +50,11 @@ const Table = ({
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState('');
 
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [unitQtyMap, setUnitQtyMap] = useState({}); // simpan jumlah per satuan
+
+
     const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.qty, 0);
 
 
@@ -57,6 +64,9 @@ const Table = ({
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
 
+    useEffect(() => {
+        console.log('Safe Data: ', safeData);
+    }, [safeData]);
 
     useEffect(() => {
         console.log('Qty Map: ', qtyMap);
@@ -113,9 +123,14 @@ const Table = ({
 
     // Navigation
     // Navigation to Detail
+    // const navigateToDetail = (id) => {
+    //     navigate(`${location.pathname}/${id}`);
+    // }
+
     const navigateToDetail = (id) => {
-        navigate(`${location.pathname}/${id}`);
+        window.open(`${location.pathname}/${id}`, '_blank');
     }
+
 
     const handleRestricedAction = () => {
         setAccessDenied(true);
@@ -289,68 +304,20 @@ const Table = ({
 
                                     {tableType === "customers" && (
                                         <td>
-                                            <button onClick={(e) => {
-                                                e.stopPropagation();
-                                                setQtyMap((prev) => {
-                                                    const key = item.id || item.objectID;
-                                                    const prevEntry = prev[key] || { qty: 0, price: item.salePrice };
-                                                    return {
-                                                        ...prev,
-                                                        [key]: {
-                                                            name: item?.category.name + ' - ' + item.name + ' (' + item.brand + ')',
-                                                            code: item?.category.code + '-' + item.code,
-                                                            qty: Math.max(prevEntry.qty - 1, 0),
-                                                            price: item.salePrice
-                                                        }
-                                                    };
-                                                });
-                                            }}>-</button>
-
-                                            <input
-                                                value={qtyMap[item.id || item.objectID]?.qty || 0}
-                                                onClick={(e) => e.stopPropagation()}
-                                                onChange={(e) => {
-                                                    const value = Math.max(0, parseInt(e.target.value) || 0);
-                                                    const key = item.id || item.objectID;
-                                                    setQtyMap((prev) => ({
-                                                        ...prev,
-                                                        [key]: {
-                                                            name: item?.category.name + ' - ' + item.name + ' (' + item.brand + ')',
-                                                            code: item?.category.code + '-' + item.code,
-                                                            qty: value,
-                                                            price: item.salePrice
-                                                        }
-                                                    }));
+                                            <IconButton
+                                                icon={<Plus size={20}/>}
+                                                onclick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedProduct(item); // simpan produk
+                                                    setModalOpen(true);       // buka modal
                                                 }}
-                                                style={{
-                                                    width: "50px",
-                                                    textAlign: "center",
-                                                    margin: "0 8px",
-                                                    padding: "2px",
-                                                    borderRadius: "4px",
-                                                    border: "1px solid #ccc"
-                                                }}
+                                                background="#007bff"
+                                                color="#fff"
+                                                padding="5px"
                                             />
-
-                                            <button onClick={(e) => {
-                                                e.stopPropagation();
-                                                setQtyMap((prev) => {
-                                                    const key = item.id || item.objectID;
-                                                    const prevEntry = prev[key] || { qty: 0, price: item.salePrice };
-                                                    return {
-                                                        ...prev,
-                                                        [key]: {
-                                                            name: item?.category.name + ' - ' + item.name + ' (' + item.brand + ')',
-                                                            code: item?.category.code + '-' + item.code,
-                                                            qty: prevEntry.qty + 1,
-                                                            price: item.salePrice  // selalu update agar konsisten
-                                                        }
-                                                    };
-                                                });
-                                            }}>+</button>
-
                                         </td>
                                     )}
+
 
                                 </tr>
                             ))
@@ -404,6 +371,84 @@ const Table = ({
                     </div>
                 </div>
             )}
+
+            {modalOpen && selectedProduct && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>{selectedProduct.name} ({selectedProduct.code})</h2>
+                        <p>Stok Tersedia: {selectedProduct.qty}</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Satuan</th>
+                                    <th>Isi per Satuan</th>
+                                    <th>Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {selectedProduct.set?.map((satuan, idx) => (
+                                    <tr key={idx}>
+                                        <td>{satuan.set}</td>
+                                        <td>{satuan.qty}</td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={unitQtyMap[satuan.set] || 0}
+                                                onChange={(e) => {
+                                                    const val = Math.max(0, parseInt(e.target.value) || 0);
+                                                    setUnitQtyMap((prev) => ({
+                                                        ...prev,
+                                                        [satuan.set]: val
+                                                    }));
+                                                }}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        <p>
+                            <strong>Total Qty:</strong>{" "}
+                            {selectedProduct.set?.reduce((total, s) => {
+                                const count = unitQtyMap[s.set] || 0;
+                                return total + (count * s.qty);
+                            }, 0)}
+                        </p>
+
+                        <div className="modal-actions">
+                            <button
+                                onClick={() => {
+                                    const key = selectedProduct.id || selectedProduct.objectID;
+                                    const totalQty = selectedProduct.set.reduce((sum, s) => {
+                                        return sum + ((unitQtyMap[s.set] || 0) * s.qty);
+                                    }, 0);
+
+                                    setQtyMap((prev) => ({
+                                        ...prev,
+                                        [key]: {
+                                            name: selectedProduct?.category.name + ' - ' + selectedProduct.name + ' (' + selectedProduct.brand + ')',
+                                            code: selectedProduct?.category.code + '-' + selectedProduct.code,
+                                            qty: totalQty,
+                                            price: selectedProduct.salePrice
+                                        }
+                                    }));
+
+                                    setModalOpen(false);
+                                    setSelectedProduct(null);
+                                    setUnitQtyMap({});
+                                }}
+                            >
+                                Simpan
+                            </button>
+                            <button onClick={() => setModalOpen(false)}>Batal</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {orderConfirmationModal && (
                 <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>

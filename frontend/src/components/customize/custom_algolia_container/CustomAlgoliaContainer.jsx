@@ -9,6 +9,8 @@ import { Download, Plus, Upload } from 'lucide-react';
 import AlgoliaListener from '../custom_listener/CustomListener';
 import CustomAlgoliaDropdown from '../custom_dropdown/CustomDropdown';
 import AccessAlertModal from '../../modal/access_alert_modal/AccessAlertModal';
+import { history } from 'instantsearch.js/es/lib/routers';
+import { singleIndex } from 'instantsearch.js/es/lib/stateMappings';
 
 const CustomAlgoliaContainer = ({
     pageLabel,
@@ -153,6 +155,10 @@ const CustomAlgoliaContainer = ({
             <InstantSearch
                 searchClient={searchClient}
                 indexName={indexName}
+                        routing={{
+                            router: history(),
+                            stateMapping: singleIndex(indexName),
+                        }}
             >
 
                 <AlgoliaListener subscribeFn={subscribeFn} />

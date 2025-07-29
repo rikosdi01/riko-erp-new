@@ -179,10 +179,10 @@ const EntityItems = ({
 
 
             const filteredItems = productSet
-                .filter((item) => item.set?.trim()) // pastikan hanya yang punya nama satuan
+                .filter((item) => item.set?.trim())
                 .map((item) => ({
                     set: item.set.trim(),
-                    qty: item.qty?.toString().trim() || "1"
+                    qty: parseInt(item.qty) || 1 // hasilnya integer
                 }));
 
 

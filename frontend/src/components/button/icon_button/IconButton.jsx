@@ -6,6 +6,7 @@ const IconButton = ({
     onclick,
     background = "#e4e4e4",
     color = "black",
+    padding = "10px",
 }) => {
     return (
         <button
@@ -16,7 +17,7 @@ const IconButton = ({
             style={{
                 background: background,
                 color: color,
-                padding: "10px 10px",
+                padding: padding,
             }}
         >
             {icon}

@@ -49,9 +49,14 @@ const Items = () => {
 
     // Navigation
     // Navigation to Create
+    // const navigateToCreateItems = () => {
+    //     navigate('/inventory/items/new');
+    // }
+
     const navigateToCreateItems = () => {
-        navigate('/inventory/items/new');
+        window.open('/inventory/items/new', '_blank');
     }
+
 
     return (
         <CustomAlgoliaContainer
