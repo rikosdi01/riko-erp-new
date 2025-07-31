@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './ForgotPassword.css';
 import { auth } from '../../../firebase';
 import { useToast } from '../../../context/ToastContext';
+import ImagePath from '../../../Utils/Constants/ImagePath';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -70,7 +71,7 @@ const ForgotPassword = () => {
         <div className="signin-container">
             <div className="signin-content">
                 <div className="signin-left">
-                    <img src="/assets/logo.png" className="signin-image" alt="Logo" />
+                    <img src={ImagePath.logoRIKO} className="signin-image" alt="Logo" />
                     <div className="signin-image-title">RIKO Motorcycle Parts</div>
                 </div>
 
