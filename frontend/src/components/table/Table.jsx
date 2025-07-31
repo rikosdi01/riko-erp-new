@@ -794,7 +794,7 @@ const Table = ({
             {
                 showOrderModal && (
                     <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
-                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content" style={{ maxWidth: '90%' }} onClick={(e) => e.stopPropagation()}>
                             <h3>Detail Pesanan</h3>
                             <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
                                 <thead>
