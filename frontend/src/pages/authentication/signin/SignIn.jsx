@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";  // Impor library js-cookie
 import { AuthContext } from "../../../context/AuthContext";
 import { useToast } from "../../../context/ToastContext";
-import React from "react";
 import UserRepository from "../../../repository/authentication/UserRepository";
 
 const SignIn = () => {
@@ -51,12 +50,16 @@ const SignIn = () => {
         } else if (!validateEmail(email)) {
             setEmailError("Format email tidak valid.");
             valid = false;
+        } else {
+            setEmailError(""); // ✅ Hapus error kalau valid
         }
 
         // Validasi password
         if (!password.trim()) {
             setPasswordError("Password tidak boleh kosong.");
             valid = false;
+        } else {
+            setPasswordError(""); // ✅ Hapus error kalau valid
         }
 
         if (!valid) return;
@@ -147,8 +150,10 @@ const SignIn = () => {
                                     className="signin-input"
                                     style={{ padding: "0.75rem 1rem 0.75rem 2.8rem" }}
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        setEmailError(""); // Hapus error saat user mengetik ulang
+                                    }} />
                             </div>
                             {emailError && <div className="error-message">{emailError}</div>}
                         </div>
@@ -164,7 +169,10 @@ const SignIn = () => {
                                     className="signin-input"
                                     style={{ padding: "0.75rem 2.8rem" }}
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setPasswordError(""); // Hapus error saat user mengetik ulang
+                                    }}
                                 />
                                 <span className="toggle-password" onClick={togglePassword}>
                                     {showPassword ? <EyeOff /> : <Eye />}
