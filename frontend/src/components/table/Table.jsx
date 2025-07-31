@@ -747,7 +747,7 @@ const Table = ({
                         <div className="order-modal-bo-buttons">
                             <button onClick={() => setShowOutOfStockModal(false)}>Tutup</button>
                             <button onClick={() => handleBackOrderDecision('cancel')}>Batalkan Item</button>
-                            <button onClick={() => handleBackOrderDecision('bo')}>Pindah ke Back Order</button>
+                            <button onClick={() => handleBackOrderDecision('bo')}>Pindah ke Pesanan Tertunda</button>
                         </div>
                     </div>
                 </div>
