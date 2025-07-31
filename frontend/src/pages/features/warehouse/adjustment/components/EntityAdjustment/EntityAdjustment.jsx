@@ -8,7 +8,7 @@ import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { ALGOLIA_INDEX_ITEMS, clientItems, productIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_ITEMS, clientItems, productIndex, rackIndex } from '../../../../../../../config/algoliaConfig';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import AdjustmentRepository from '../../../../../../repository/warehouse/AdjustmentRepository';
@@ -28,12 +28,13 @@ const EntityAdjustment = ({
 }) => {
     // Context
     const navigate = useNavigate();
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
     const { showToast } = useToast();
     const { racks } = useRacks();
     console.log('Racks: ', racks);
     const { formats } = useFormats();
     const formatCode = formats.presets?.adjustments?.code;
+    const rackFormat = formats.presets?.adjustments?.[`rack${loginUser?.location}`] || null;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
@@ -44,7 +45,7 @@ const EntityAdjustment = ({
     const [items, setItems] = useState(initialData.items || emptyData);
     // const [stock, setStock] = useState(initialData.description || "");
     const [warehouse, setWarehouse] = useState([]);
-    const [selectedWarehouse, setSelectedWarehouse] = useState("");
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [codeError, setCodeError] = useState("");
@@ -58,6 +59,49 @@ const EntityAdjustment = ({
     const handleRestricedAction = () => {
         setAccessDenied(true);
     }
+
+    useEffect(() => {
+        const fetchRack = async () => {
+            if (!rackFormat) return;
+
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${rackFormat}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setSelectedWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                });
+            }
+        };
+
+        fetchRack();
+    }, [rackFormat]);
+
+    useEffect(() => {
+        const fetchRack = async () => {
+            if (!rackFormat) return;
+
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${rackFormat}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setSelectedWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                    category: rack.category || 'Sales', // Tambahkan kategori jika ada
+                });
+            }
+        };
+
+        fetchRack();
+    }, [rackFormat]);
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
@@ -159,6 +203,8 @@ const EntityAdjustment = ({
         e.preventDefault();
         setLoading(true);
 
+        console.log('Warehouse: ', selectedWarehouse);
+
         let valid = true;
 
         if (!code.trim()) {
@@ -166,10 +212,11 @@ const EntityAdjustment = ({
             valid = false;
         }
 
-        if (!warehouse.length) {
+        if (!selectedWarehouse || !selectedWarehouse.id) {
             setWarehouseError('Gudang tidak boleh kosong!');
             valid = false;
         }
+
 
 
         if (JSON.stringify(items) === JSON.stringify(emptyData)) {
@@ -181,13 +228,6 @@ const EntityAdjustment = ({
 
         try {
             const filteredItems = items.filter(item => item.item && item.qty);
-            const wh = racks.find(wh => wh.id === selectedWarehouse);
-
-            const filteredWH = {
-                id: wh.id,
-                name: wh.name,
-                category: wh.category,
-            };
 
             const exists = await AdjustmentRepository.checkAdjExists(
                 code.trim(),
@@ -232,13 +272,12 @@ const EntityAdjustment = ({
                 code: finalCode,
                 description,
                 items: filteredItems,
-                warehouse: filteredWH,
+                warehouse: selectedWarehouse,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
 
-            console.log('Final Code: ', finalCode);
-            console.log('Exists: ', exists);
+            console.log('New Adjustment Data: ', newAdj);
 
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
@@ -247,8 +286,7 @@ const EntityAdjustment = ({
                     console.log('New Code: ', newCode);
                     setCode(newCode);
                 }
-
-                const rackName = filteredWH?.name ?? 'Unknown Rack';
+                
                 for (const adjItem of filteredItems) {
                     const itemId = adjItem.item.id;
                     const newQty = parseInt(adjItem.qty);
@@ -262,7 +300,7 @@ const EntityAdjustment = ({
                             oldQty = parseInt(existingItem?.qty ?? 0);
                         }
 
-                        await ItemsRepository.overwriteItemStock(itemId, newQty, rackName);
+                        await ItemsRepository.overwriteItemStock(itemId, newQty, selectedWarehouse.id);
                     }
                 }
 
@@ -275,7 +313,7 @@ const EntityAdjustment = ({
             showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
-            showToast('gagal', 'Gagal menambahkan merek baru!');
+            showToast('gagal', 'Gagal menambahkan penyesuaian baru!');
         } finally {
             setLoading(false);
         }
@@ -315,6 +353,20 @@ const EntityAdjustment = ({
         }
     };
 
+    const loadRackOptions = async (inputValue) => {
+        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
+        const { hits } = await rackIndex.search(searchTerm, {
+            hitsPerPage: 10,
+            filters: `location: ${loginUser?.location || "Medan"}`,
+        });
+
+        return hits.map(hit => ({
+            name: hit.name,
+            id: hit.objectID || hit.id,
+            location: hit.location,
+        }));
+    };
+
     return (
         <div className="main-container">
             <ContentHeader title={mode === "create" ? "Tambah Penyesuaian Stok" : "Rincian Penyesuaian Stok"} />
@@ -338,7 +390,8 @@ const EntityAdjustment = ({
                 />
                 <div>
                     <Dropdown
-                        values={racks}
+                        isAlgoliaDropdown={true}
+                        values={loadRackOptions}
                         selectedId={selectedWarehouse}
                         setSelectedId={setSelectedWarehouse}
                         label="Gudang"

@@ -30,6 +30,7 @@ const clientRack = algoliasearch(ALGOLIA_APP_ID_WAREHOUSE, ALGOLIA_SEARCH_KEY_WA
 // Initialize indices
 const productIndex = clientItems.initIndex(ALGOLIA_INDEX_ITEMS);
 const categoryIndex = clientCategories.initIndex(ALGOLIA_INDEX_CATEGORIES);
+const rackIndex = clientRack.initIndex(ALGOLIA_INDEX_WAREHOUSE);
 
 
 // =========================================================================================================================
@@ -72,6 +73,7 @@ export {
     // Warehouse
     productIndex,
     categoryIndex,
+    rackIndex,
     clientItems,
     clientCategories,
     clientInventory,

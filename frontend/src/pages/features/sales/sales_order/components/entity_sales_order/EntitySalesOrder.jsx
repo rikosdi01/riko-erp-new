@@ -8,7 +8,7 @@ import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { ALGOLIA_INDEX_CUSTOMERS, ALGOLIA_INDEX_ITEMS, clientCustomers, clientItems, customerIndex, productIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_CUSTOMERS, ALGOLIA_INDEX_ITEMS, clientCustomers, clientItems, customerIndex, productIndex, rackIndex } from '../../../../../../../config/algoliaConfig';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
@@ -25,14 +25,14 @@ const EntitySalesOrder = ({
     initialData = {},
     onSubmit,
 }) => {
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
     console.log('Initial Data: ', initialData);
     // Context
     const { showToast } = useToast();
     const { racks } = useRacks();
     const { formats } = useFormats();
     const formatCode = formats.presets?.sales?.code;
-    const rackFormat = formats.presets?.sales?.rackMedan;
+    const rackFormat = formats.presets?.sales?.[`rack${loginUser?.location}`] || null;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
@@ -48,7 +48,7 @@ const EntitySalesOrder = ({
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
     const [warehouse, setWarehouse] = useState([]);
-    const [selectedWarehouse, setSelectedWarehouse] = useState("");
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [isPrint, setIsPrint] = useState(initialData.isPrint || '');
     const [codeError, setCodeError] = useState("");
@@ -58,6 +58,36 @@ const EntitySalesOrder = ({
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
+
+
+    useEffect(() => {
+        const fetchRack = async () => {
+            if (!rackFormat) return;
+
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${rackFormat}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setSelectedWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                });
+            }
+        };
+
+        fetchRack();
+    }, [rackFormat]);
+
+    useEffect(() => {
+        console.log('Rack Format: ', rackFormat);
+    }, [rackFormat]);
+
+    useEffect(() => {
+        console.log('Selected Warehouse: ', selectedWarehouse);
+    }, [selectedWarehouse]);
 
     useEffect(() => {
         console.log('Customer: ', customer);
@@ -275,13 +305,13 @@ const EntitySalesOrder = ({
 
             console.log('New Sales Order Data: ', newSalesOrder);
 
-            try {
-                await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
-            } catch (submitError) {
-                console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
-                return;
-            }
+            // try {
+            //     await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
+            // } catch (submitError) {
+            //     console.error("Error during onSubmit: ", submitError);
+            //     showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
+            //     return;
+            // }
 
             showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
@@ -302,31 +332,17 @@ const EntitySalesOrder = ({
         setWarehouseError("");
     }
 
-    const loadItemOptions = async (inputValue) => {
+    const loadRackOptions = async (inputValue) => {
         const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
-        const { hits } = await productIndex.search(searchTerm, {
+        const { hits } = await rackIndex.search(searchTerm, {
             hitsPerPage: 10,
+            filters: `location: ${loginUser?.location || "Medan"}`,
         });
 
         return hits.map(hit => ({
-            name: hit.category.name + ' - ' + hit.name + ' (' + hit.brand + ')',
-            code: hit.category.code + '-' + hit.code,
-            rack: hit.racks,
-            price: hit.salePrice,
-            id: hit.objectID,
-        }));
-    };
-
-    const loadCustomerOptions = async (inputValue) => {
-        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
-        const { hits } = await customerIndex.search(searchTerm, {
-            hitsPerPage: 10,
-        });
-
-        return hits.map(hit => ({
-            name: hit.name + ' (' + hit.salesman.name + ')',
-            sales: hit.salesman.name,
-            id: hit.objectID,
+            name: hit.name,
+            id: hit.objectID || hit.id,
+            location: hit.location,
         }));
     };
 
@@ -381,8 +397,8 @@ const EntitySalesOrder = ({
                     ]}
                     value={
                         customer?.name
-                        ? `${customer.name} (${customer.salesman})`
-                        : "Pilih Pelanggan"
+                            ? `${customer.name} (${customer.salesman})`
+                            : "Pilih Pelanggan"
                     }
                     setValues={setCustomer}
                     mode="customer"
@@ -405,7 +421,8 @@ const EntitySalesOrder = ({
                 />
                 <div>
                     <Dropdown
-                        values={racks}
+                        isAlgoliaDropdown={true}
+                        values={loadRackOptions}
                         selectedId={selectedWarehouse}
                         setSelectedId={setSelectedWarehouse}
                         label="Gudang"

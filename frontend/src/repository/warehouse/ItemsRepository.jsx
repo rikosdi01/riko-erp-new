@@ -84,43 +84,43 @@ export default class ItemsRepository {
         }
     }
 
-    static async overwriteItemStock(itemId, newQty, rackName) {
-        try {
-            const itemRef = doc(db, "Items", itemId);
-            const itemSnap = await getDoc(itemRef);
+static async overwriteItemStock(itemId, newQty, rackId) {
+    try {
+        const itemRef = doc(db, "Items", itemId);
+        const itemSnap = await getDoc(itemRef);
 
-            if (!itemSnap.exists()) {
-                throw new Error(`Item ${itemId} not found`);
-            }
-
-            const data = itemSnap.data();
-            const racks = data.racks || [];
-
-            // Update atau tambah rack
-            const updatedRacks = racks.map(r => {
-                if (r.rack === rackName) {
-                    return { rack: r.rack, stock: newQty };
-                }
-                return r;
-            });
-
-            const rackExists = racks.some(r => r.rack === rackName);
-            if (!rackExists) {
-                updatedRacks.push({ rack: rackName, stock: newQty });
-            }
-
-            const totalStock = updatedRacks.reduce((sum, r) => sum + r.stock, 0);
-
-            await updateDoc(itemRef, {
-                stock: totalStock,
-                racks: updatedRacks
-            });
-
-        } catch (error) {
-            console.error(`Error overwriting stock for item ${itemId}:`, error);
-            throw error;
+        if (!itemSnap.exists()) {
+            throw new Error(`Item ${itemId} not found`);
         }
+
+        const data = itemSnap.data();
+        const racks = data.racks || [];
+
+        // Update atau tambah rack berdasarkan rackId
+        const updatedRacks = racks.map(r => {
+            if (r.rackId === rackId) {
+                return { ...r, stock: newQty };
+            }
+            return r;
+        });
+
+        const rackExists = racks.some(r => r.rackId === rackId);
+        if (!rackExists) {
+            updatedRacks.push({ rackId, stock: newQty });
+        }
+
+        const totalStock = updatedRacks.reduce((sum, r) => sum + r.stock, 0);
+
+        await updateDoc(itemRef, {
+            stock: totalStock,
+            racks: updatedRacks
+        });
+
+    } catch (error) {
+        console.error(`Error overwriting stock for item ${itemId}:`, error);
+        throw error;
     }
+}
 
     static async adjustItemStock(itemId, qtyToAdjust, rackName) {
         try {
