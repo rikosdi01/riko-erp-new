@@ -13,6 +13,7 @@ import { Plus } from "lucide-react";
 import IconButton from "../button/icon_button/IconButton";
 import ActionButton from "../button/actionbutton/ActionButton";
 import BackOrderRepository from "../../repository/sales/BackOrderRepostitory";
+import { rackIndex } from "../../../config/algoliaConfig";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -49,6 +50,7 @@ const Table = ({
     const [orderConfirmationModal, setOrderConfirmationModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState('');
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -66,6 +68,7 @@ const Table = ({
 
     const { formats } = useFormats();
     const formatCode = formats.presets?.sales?.code;
+        const formattedSO = formats?.presets?.sales?.rackMedan || '';
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
@@ -166,18 +169,31 @@ const Table = ({
         }
     };
 
+        useEffect(() => {
+        const fetchRack = async () => {
+            if (!formattedSO) return;
+
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${formattedSO}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setSelectedWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                    category: rack.category || 'Sales', // Tambahkan kategori jika ada
+                });
+            }
+        };
+
+        fetchRack();
+    }, [formattedSO]);
+
     const handleBackOrderDecision = async (mode = 'bo') => {
         const updatedQtyMap = {};
         const boQtyMap = {};
-        const formattedSO = formats?.presets?.sales?.rackMedan || '';
-        const rackData = racks.find((rack) => rack.id === formattedSO);
-
-        const selectedRackData = {
-            id: rackData.id,
-            name: rackData.name,
-            location: rackData.location,
-            category: rackData.category,
-        };
 
 
         const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
@@ -229,7 +245,7 @@ const Table = ({
                 },
                 description: description || "Pesanan kekurangan stok, dipindahkan ke BO.",
                 status: "tertunda",
-                warehouse: selectedRackData,
+                warehouse: selectedWarehouse,
                 items: boItems,
                 totalPrice: totalBOPrice,
                 createdAt: serverTimestamp(),
@@ -252,16 +268,6 @@ const Table = ({
         setLoading(true);
 
         try {
-            const formattedSO = formats?.presets?.sales?.rackMedan || '';
-            const rackData = racks.find((rack) => rack.id === formattedSO);
-
-            const selectedRackData = {
-                id: rackData.id,
-                name: rackData.name,
-                location: rackData.location,
-                category: rackData.category,
-            };
-
             const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
             const customerData = {
                 name: loginUser.username,
@@ -290,7 +296,7 @@ const Table = ({
                 description,
                 isPrint: false,
                 status: "mengantri",
-                warehouse: selectedRackData,
+                warehouse: selectedWarehouse,
                 items: transformedItems,
                 totalPrice,
                 createdAt: serverTimestamp(),
@@ -667,12 +673,12 @@ const Table = ({
 
             {orderConfirmationModal && (
                 <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content" style={{ maxWidth: "90%" }} onClick={(e) => e.stopPropagation()}>
                         <h3>Apakah pesanan anda sudah sesuai?</h3>
                         {Object.entries(qtyMap).filter(([, entry]) => entry.qty > 0 || true).map(([id, entry]) => (
                             <div key={id} className="confirmation-products">
                                 <div className="confirmation-sub-header-products" style={{ display: 'flex', justifyContent: 'center', alignItems: 'end' }}>
-                                    <div>{entry.name || "-"}</div>
+                                    <div>{entry.category?.name} - {entry.name || "-"} ({entry.brand})</div>
                                     <div>X{entry.totalQty || 0}</div>
                                     <div style={{ fontSize: '14px' }}>Rp. {entry.price.toLocaleString("id-ID")}</div>
                                 </div>

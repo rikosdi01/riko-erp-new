@@ -136,8 +136,9 @@ const CustomAlgoliaContainer = ({
 
         if (!startDate && !endDate) return filters;
 
-        const start = startDate ? new Date(startDate).getTime() : null;
-        const end = endDate ? new Date(endDate + 'T23:59:59.999').getTime() : null;
+const start = startDate ? new Date(`${startDate}T00:00:00+07:00`).getTime() : null;
+const end = endDate ? new Date(`${endDate}T23:59:59.999+07:00`).getTime() : null;
+
 
         let dateFilter = "";
 
