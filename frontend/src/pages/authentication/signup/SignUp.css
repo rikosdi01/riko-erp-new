@@ -173,14 +173,6 @@
     box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
-/* Error status */
-.error-message {
-    color: rgb(255, 0, 0);
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-top: 5px;
-}
-
 
 /* Responsive Design */
 @media (max-width: 768px) {

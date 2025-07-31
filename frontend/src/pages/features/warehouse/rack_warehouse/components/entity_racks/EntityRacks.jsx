@@ -3,7 +3,7 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityRacks.css';
-import { PackagePlus, PackageOpen } from "lucide-react";
+import { PackagePlus, PackageOpen, List } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
@@ -149,6 +149,30 @@ const EntityRacks = ({
             <div className='add-container-input'>
                 <InputLabel
                     label="Kategori Gudang"
+                    icon={<PackageOpen className='input-icon' size={20} />}
+                    value={category}
+                    onChange={(e) => {
+                        setCategory(e.target.value);
+                    }}
+                />
+                {categoryError && <div className="error-message">{categoryError}</div>}
+            </div>
+
+            <div className='add-container-input'>
+                <InputLabel
+                    label="Deskripsi Gudang"
+                    icon={<List className='input-icon' size={20} />}
+                    value={category}
+                    onChange={(e) => {
+                        setCategory(e.target.value);
+                    }}
+                />
+                {categoryError && <div className="error-message">{categoryError}</div>}
+            </div>
+
+            <div className='add-container-input'>
+                <InputLabel
+                    label="Lokasi Gudang"
                     icon={<PackageOpen className='input-icon' size={20} />}
                     value={category}
                     onChange={(e) => {

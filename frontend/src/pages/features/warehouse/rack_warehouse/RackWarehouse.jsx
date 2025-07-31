@@ -5,11 +5,14 @@ import { useState } from 'react';
 import { useRacks } from '../../../../context/warehouse/RackWarehouseContext';
 import roleAccess from '../../../../utils/helper/roleAccess';
 import { useUsers } from '../../../../context/auth/UsersContext';
+import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
+import { ALGOLIA_INDEX_WAREHOUSE, clientRack } from '../../../../../config/algoliaConfig';
+import RackWarehouseRepository from '../../../../repository/warehouse/RackWarehouseRepository';
 
 const RackWarehouse = () => {
     // Hooks
     const navigate = useNavigate();
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
 
 
     // ================================================================================
@@ -51,7 +54,7 @@ const RackWarehouse = () => {
 
     // Navigation
     // Navigation to Create
-    const navigateToCreateMerk = () => {
+    const navigateToCreateRack = () => {
         navigate('/inventory/warehouse/new');
     }
 
@@ -64,20 +67,23 @@ const RackWarehouse = () => {
 
     // ================================================================================
 
-
-    // Page Container
     return (
-        <MainContainer
+        <CustomAlgoliaContainer
             pageLabel="Rak"
-            setSearchValue={setSearchTerm}
-            createOnclick={navigateToCreateMerk}
+            searchClient={clientRack}
+            indexName={ALGOLIA_INDEX_WAREHOUSE}
             columns={columns}
-            data={filteredMerks}
-            isLoading={isLoading}
-            canEdit={roleAccess(accessList, 'mengedit-data-gudang')}
+            createOnclick={navigateToCreateRack}
+            subscribeFn={RackWarehouseRepository.subscribeToRackChanges}
+            enableExport={false}
+            enableImport={false}
+            enableDropdown={true}
+            dropdownAttribute="category"
+            filters={`location: ${loginUser?.location || ''}`}
             canAdd={roleAccess(accessList, 'menambah-data-gudang')}
+            canEdit={roleAccess(accessList, 'mengedit-data-gudang')}
         />
-    );
+    )
 }
 
 export default RackWarehouse;

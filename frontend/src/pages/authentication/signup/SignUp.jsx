@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 import ContentHeader from "../../../components/content_header/ContentHeader";
 import ImagePath from "../../../Utils/Constants/ImagePath";
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../context/ToastContext";
 import UserRepository from "../../../repository/authentication/UserRepository";
 import InputGroup from "../../../components/input/input_group/InputGroup";
+import { useRoles } from "../../../context/auth/RolesContext";
 
 const SignUp = () => {
     const navigate = useNavigate();
@@ -20,8 +21,11 @@ const SignUp = () => {
         username: "",
         email: "",
         password: "",
-        role: ""
+        role: "",
+        location: "",
     });
+    const { roles } = useRoles();
+    console.log("Roles: ", roles);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -47,7 +51,12 @@ const SignUp = () => {
                 uid: user.uid,
                 username: formData.username,
                 email: formData.email,
-                role: formData.role
+                role: formData.role,
+                location: formData.location,
+                type: "internal", // Atau "customer" sesuai kebutuhan
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                status: "active", // Atau sesuai logika bisnis
             });
 
 
@@ -105,6 +114,24 @@ const SignUp = () => {
                                     {showPassword ? <Eye /> : <EyeOff />} {/* Bisa ganti jadi Eye/EyeOff */}
                                 </span>}
                         />
+                        {/* Role */}
+                        <div className="input-group">
+                            <label>Lokasi Pengguna:</label>
+                            <div className="input-wrapper">
+                                <select
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleChange}
+                                    className="signin-input"
+                                    style={{ padding: "0.75rem 1rem" }}
+                                    required
+                                >
+                                    <option value="">Pilih Lokasi</option>
+                                    <option value="medan">Medan</option>
+                                    <option value="jakarta">Jakarta</option>
+                                </select>
+                            </div>
+                        </div>
 
 
                         {/* Role */}
@@ -120,13 +147,15 @@ const SignUp = () => {
                                     required
                                 >
                                     <option value="">Pilih Role</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="CSO">CSO</option>
-                                    <option value="Stok Controller">Stok Controller</option>
-                                    <option value="Logistic">Logistic</option>
+                                    {roles.map((role) => (
+                                        <option key={role.id} value={role.name}>
+                                            {role.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
+
 
                         {/* Submit */}
                         <button type="submit" className="signin-button">Sign Up</button>

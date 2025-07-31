@@ -5,6 +5,7 @@ const InputField = ({
     type = "text",
     label,
     icon,
+    surfixIcon,
     value = "",
     onChange = () => {}, // Default function jika tidak diberikan
     isDisabled,
@@ -20,6 +21,7 @@ const InputField = ({
                 onChange={onChange}
                 disabled={isDisabled}
             />
+            {surfixIcon}
         </div>
     );
 }

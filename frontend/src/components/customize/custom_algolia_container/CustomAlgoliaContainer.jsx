@@ -11,6 +11,7 @@ import CustomAlgoliaDropdown from '../custom_dropdown/CustomDropdown';
 import AccessAlertModal from '../../modal/access_alert_modal/AccessAlertModal';
 import { history } from 'instantsearch.js/es/lib/routers';
 import { singleIndex } from 'instantsearch.js/es/lib/stateMappings';
+import CustomCheckbox from '../custom_checkbox/CustomCheckbox';
 
 const CustomAlgoliaContainer = ({
     pageLabel,
@@ -25,6 +26,12 @@ const CustomAlgoliaContainer = ({
     dropdownAttribute3,
     enableDropdown3 = false,
     dropdownAttribute2,
+    enableCheckbox1 = false,
+    checkbox1Label,
+    checkbox1Attribute,  // Add ID prop
+    enableCheckbox2 = false,
+    checkbox2Label,
+    checkbox2Attribute,  // Add ID prop
     enableImport = true,
     enableExport = true,
     enableCreate = true,
@@ -155,16 +162,16 @@ const CustomAlgoliaContainer = ({
             <InstantSearch
                 searchClient={searchClient}
                 indexName={indexName}
-                        routing={{
-                            router: history(),
-                            stateMapping: singleIndex(indexName),
-                        }}
+                routing={{
+                    router: history(),
+                    stateMapping: singleIndex(indexName),
+                }}
             >
 
                 <AlgoliaListener subscribeFn={subscribeFn} />
                 <Configure
                     hitsPerPage={itemsPerPage}
-                    filters={formattedDateFilter}
+                    filters={enableDateRange ? formattedDateFilter : filters}
                 />
 
 
@@ -236,7 +243,26 @@ const CustomAlgoliaContainer = ({
                             color='white'
                         />
                     )}
+                </div>
 
+                {/* Checkbox */}
+                <div className='checkbox-container'>
+                    {enableCheckbox1 && (
+                        <CustomCheckbox
+                            key={`checkbox-${checkbox1Attribute}`} // Tambahkan key unik
+                            attribute={checkbox1Attribute}
+                            title={checkbox1Label} // Berikan title agar terlihat di UI
+                        />
+                    )}
+                    {enableCheckbox2 && (
+                        <CustomCheckbox
+                            key={`checkbox-${checkbox2Attribute}`} // Tambahkan key unik
+                            attribute={checkbox2Attribute}
+                            title={checkbox2Label} // Berikan title agar terlihat di UI
+                        />
+                    )}
+
+                    {/* <CustomCheckbox /> */}
                 </div>
 
                 <div className='table-wrapper'>

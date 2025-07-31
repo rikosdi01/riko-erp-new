@@ -12,6 +12,7 @@ import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import IconButton from "../button/icon_button/IconButton";
 import ActionButton from "../button/actionbutton/ActionButton";
+import BackOrderRepository from "../../repository/sales/BackOrderRepostitory";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -53,6 +54,10 @@ const Table = ({
     const [modalOpen, setModalOpen] = useState(false);
     const [unitQtyMap, setUnitQtyMap] = useState({}); // simpan jumlah per satuan
     const [isEditingQty, setIsEditingQty] = useState(false);
+
+    const [outOfStockItems, setOutOfStockItems] = useState([]);
+    const [showOutOfStockModal, setShowOutOfStockModal] = useState(false);
+
 
 
 
@@ -123,18 +128,125 @@ const Table = ({
 
     // Navigation
     // Navigation to Detail
-    // const navigateToDetail = (id) => {
-    //     navigate(`${location.pathname}/${id}`);
-    // }
-
     const navigateToDetail = (id) => {
-        window.open(`${location.pathname}/${id}`, '_blank');
+        navigate(`${location.pathname}/${id}`);
     }
+
+    // const navigateToDetail = (id) => {
+    //     window.open(`${location.pathname}/${id}`, '_blank');
+    // }
 
 
     const handleRestricedAction = () => {
         setAccessDenied(true);
     }
+
+    const checkStockBeforeOrder = () => {
+        const outOfStock = [];
+
+        Object.entries(qtyMap).forEach(([id, entry]) => {
+            if (entry.totalQty > entry.stock) {
+                outOfStock.push({
+                    id,
+                    name: entry.name,
+                    totalQty: entry.totalQty,
+                    stock: entry.stock,
+                    shortage: entry.totalQty - entry.stock,
+                    price: entry.price,
+                    code: entry.code
+                });
+            }
+        });
+
+        if (outOfStock.length > 0) {
+            setOutOfStockItems(outOfStock);
+            setShowOutOfStockModal(true);
+        } else {
+            handleCreateOrder(qtyMap); // semua stok cukup
+        }
+    };
+
+    const handleBackOrderDecision = async (mode = 'bo') => {
+        const updatedQtyMap = {};
+        const boQtyMap = {};
+        const formattedSO = formats?.presets?.sales?.rackMedan || '';
+        const rackData = racks.find((rack) => rack.id === formattedSO);
+
+        const selectedRackData = {
+            id: rackData.id,
+            name: rackData.name,
+            location: rackData.location,
+            category: rackData.category,
+        };
+
+
+        const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+
+        Object.entries(qtyMap).forEach(([id, entry]) => {
+            const stock = entry.stock;
+            const totalQty = entry.totalQty;
+
+            if (totalQty > stock) {
+                if (mode === 'bo') {
+                    if (stock > 0) {
+                        updatedQtyMap[id] = { ...entry, totalQty: stock };
+                    }
+                    boQtyMap[id] = { ...entry, totalQty: totalQty - stock };
+                } else if (mode === 'cancel') {
+                    if (stock > 0) {
+                        updatedQtyMap[id] = { ...entry, totalQty: stock };
+                    }
+                    // Item dengan 0 stock tidak disimpan
+                }
+            } else {
+                updatedQtyMap[id] = entry;
+            }
+        });
+
+        setQtyMap(updatedQtyMap);
+        setShowOutOfStockModal(false);
+        setOrderConfirmationModal(true);
+
+        if (mode === 'bo' && Object.keys(boQtyMap).length > 0) {
+            const boItems = Object.entries(boQtyMap).map(([id, entry]) => ({
+                item: {
+                    id,
+                    code: entry.code,
+                    name: entry.name,
+                },
+                price: entry.price,
+                qty: entry.totalQty,
+                discount: 0,
+            }));
+
+            const totalBOPrice = boItems.reduce((sum, item) => sum + item.qty * item.price, 0);
+
+            const boData = {
+                code: newCode,
+                customer: {
+                    id: loginUser.id,
+                    name: loginUser.username,
+                },
+                description: description || "Pesanan kekurangan stok, dipindahkan ke BO.",
+                status: "tertunda",
+                warehouse: selectedRackData,
+                items: boItems,
+                totalPrice: totalBOPrice,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            };
+
+            try {
+                await SalesOrderRepository.createSalesOrder(boData);
+                showToast("berhasil", "Pesanan BO berhasil dibuat!");
+            } catch (e) {
+                console.error("Gagal menyimpan BO:", e);
+                showToast("gagal", "Gagal menyimpan pesanan BO.");
+            }
+        }
+    };
+
+
 
     const handleCreateOrder = async () => {
         setLoading(true);
@@ -164,7 +276,8 @@ const Table = ({
                     name: data.name,
                 },
                 price: data.price,
-                qty: data.qty,
+                qty: data.totalQty,
+                discount: 0,
             }));
 
             const totalPrice = transformedItems.reduce((total, item) => {
@@ -228,7 +341,7 @@ const Table = ({
             code: productEntry.code,
             category: productEntry.category,
             brand: productEntry.brand,
-            qty: productEntry.qty,
+            stock: productEntry.stock,
             salePrice: productEntry.price,
             set: Object.entries(productEntry.units).map(([setName, { content }]) => ({
                 set: setName,
@@ -256,13 +369,13 @@ const Table = ({
         }
     }, [selectedProduct, isEditingQty]);
 
-const handleDeleteFromQtyMap = (productId) => {
-    setQtyMap((prev) => {
-        const newMap = { ...prev };
-        delete newMap[productId];
-        return newMap;
-    });
-};
+    const handleDeleteFromQtyMap = (productId) => {
+        setQtyMap((prev) => {
+            const newMap = { ...prev };
+            delete newMap[productId];
+            return newMap;
+        });
+    };
 
 
     return (
@@ -418,7 +531,7 @@ const handleDeleteFromQtyMap = (productId) => {
                     <div className="modal-content">
                         <h2>{selectedProduct.category.name} - {selectedProduct.name} ({selectedProduct.brand})
                         </h2>
-                        <p>Stok Tersedia: {selectedProduct.qty}</p>
+                        <p>Stok Tersedia: {selectedProduct.stock}</p>
 
                         <table>
                             <thead>
@@ -524,6 +637,7 @@ const handleDeleteFromQtyMap = (productId) => {
                                                 code: selectedProduct.code,
                                                 qty: selectedProduct.qty,
                                                 totalQty: Object.values(satuanMap).reduce((sum, item) => sum + (item.qty * item.content), 0),
+                                                stock: selectedProduct.stock || 0,
                                                 units: satuanMap,
                                                 price: selectedProduct.salePrice,
                                             }
@@ -560,7 +674,7 @@ const handleDeleteFromQtyMap = (productId) => {
                                 <div className="confirmation-sub-header-products" style={{ display: 'flex', justifyContent: 'center', alignItems: 'end' }}>
                                     <div>{entry.name || "-"}</div>
                                     <div>X{entry.totalQty || 0}</div>
-                                    <div style={{ fontSize: '14px'}}>Rp. {entry.price.toLocaleString("id-ID")}</div>
+                                    <div style={{ fontSize: '14px' }}>Rp. {entry.price.toLocaleString("id-ID")}</div>
                                 </div>
                                 <div>Rp. {(entry.totalQty * entry.price).toLocaleString("id-ID")}</div>
                             </div>
@@ -607,12 +721,32 @@ const handleDeleteFromQtyMap = (productId) => {
 
                         <div className="order-modal-buttons">
                             <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
-                            <button onClick={handleCreateOrder}>Pesan</button>
+                            <button onClick={checkStockBeforeOrder}>Pesan</button>
                         </div>
                     </div>
                 </div>
             )
             }
+
+            {showOutOfStockModal && (
+                <div className="modal-overlay" onClick={() => setShowOutOfStockModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Beberapa item kehabisan stok:</h3>
+                        {outOfStockItems.map((item) => (
+                            <div key={item.id} className="confirmation-products">
+                                <div>{item.name} ({item.totalQty} diminta, stok tersedia {item.stock})</div>
+                                <div style={{ color: 'red' }}>Kekurangan: {item.shortage}</div>
+                            </div>
+                        ))}
+                        <div className="order-modal-bo-buttons">
+                            <button onClick={() => setShowOutOfStockModal(false)}>Tutup</button>
+                            <button onClick={() => handleBackOrderDecision('cancel')}>Batalkan Item</button>
+                            <button onClick={() => handleBackOrderDecision('bo')}>Pindah ke Back Order</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
 
 

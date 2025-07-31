@@ -72,10 +72,10 @@ export default class UserRepository {
         }
     }
 
-    static async updateCourier(userId, updatedCourier) {
+    static async updateUserData(userId, updatedUser) {
         try {
             const docRef = doc(db, "Users", userId);
-            await updateDoc(docRef, updatedCourier);
+            await updateDoc(docRef, updatedUser);
         } catch (error) {
             console.error("Error updating user: ", error);
             throw error;

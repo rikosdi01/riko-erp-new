@@ -40,7 +40,6 @@ const EntityAdjustment = ({
 
     const emptyData = [{ item: '', qty: '' }]
     const [code, setCode] = useState(initialData.code || "");
-    const [previewCode, setPreviewCode] = useState("");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
     // const [stock, setStock] = useState(initialData.description || "");
@@ -135,12 +134,11 @@ const EntityAdjustment = ({
             const generate = async () => {
                 const newCode = await CounterRepository.previewNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
                 setCode(newCode);
-                setPreviewCode(newCode);
             };
 
             generate();
         }
-    }, []); // ⛔️ Hilangkan dependensi `code` agar tidak dipanggil ulang
+    }, []);
 
     useEffect(() => {
         console.log('Updated Code: ', code);
@@ -219,7 +217,6 @@ const EntityAdjustment = ({
                         finalCode = candidate; // simpan untuk langsung dipakai
                         lastValue = last;
                         setCode(nextCandidate); // tetap update state
-                        setPreviewCode(nextCandidate);
                     } else {
                         showToast("gagal", "Silakan ubah kode penyesuaian secara manual.");
                         return setLoading(false);
@@ -241,7 +238,6 @@ const EntityAdjustment = ({
             };
 
             console.log('Final Code: ', finalCode);
-            console.log('Preview Code: ', previewCode);
             console.log('Exists: ', exists);
 
             try {
@@ -250,7 +246,6 @@ const EntityAdjustment = ({
                     const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
                     console.log('New Code: ', newCode);
                     setCode(newCode);
-                    setPreviewCode(newCode);
                 }
 
                 const rackName = filteredWH?.name ?? 'Unknown Rack';

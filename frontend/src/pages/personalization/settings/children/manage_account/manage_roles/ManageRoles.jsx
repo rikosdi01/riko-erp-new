@@ -16,6 +16,17 @@ const ManageRoles = () => {
 
     const pages = [
         {
+            section: "Dashboard Global",
+            data: [
+                {
+                    title: 'Dashboard',
+                    items: [
+                        "Melihat dashboard global",
+                    ],
+                },
+            ],
+        },
+        {
             section: "Customer",
             data: [
                 {
@@ -37,18 +48,18 @@ const ManageRoles = () => {
             section: "CSO",
             data: [
                 {
-                    title: 'Dashboard Order',
+                    title: 'Dashboard Pesanan',
                     items: [
-                        "Melihat dashboard Order"
+                        "Melihat dashboard Pesanan"
                     ],
                 },
                 {
-                    title: 'Sales Order',
+                    title: 'Pesanan Penjualan',
                     items: [
-                        "Melihat data Sales Order",
-                        "Menambah data Sales Order",
-                        "Mengedit data Sales Order",
-                        "Menghapus data Sales Order",
+                        "Melihat data Pesanan Penjualan",
+                        "Menambah data Pesanan Penjualan",
+                        "Mengedit data Pesanan Penjualan",
+                        "Menghapus data Pesanan Penjualan",
                     ]
                 },
                 {
@@ -84,7 +95,7 @@ const ManageRoles = () => {
             section: "Warehouse",
             data: [
                 {
-                    title: 'Dashoboard Inventaris',
+                    title: 'Dashboard Inventaris',
                     items: [
                         "Melihat dashboard inventaris"
                     ],
@@ -158,7 +169,7 @@ const ManageRoles = () => {
             section: "Logistik",
             data: [
                 {
-                    title: 'Dashoboard Logistic',
+                    title: 'Dashboard Logistic',
                     items: [
                         "Melihat dashboard logistic"
                     ],
@@ -198,6 +209,45 @@ const ManageRoles = () => {
                         "Mengedit data Kurir",
                         "Menghapus data Kurir",
                     ]
+                },
+            ],
+        },
+        {
+            section: "Pengaturan",
+            data: [
+                {
+                    title: 'Mutasi',
+                    items: [
+                        "Melihat mutasi penjualan",
+                        "Melihat mutasi inventaris",
+                        "Melihat mutasi pengiriman",
+                    ],
+                },
+                {
+                    title: 'Kelola Akun',
+                    items: [
+                        "Melihat pengelolaan akun",
+                        "Megelola akses data",
+                        "Meregistrasi akun baru",
+                        "Meregistrasi akun baru pelanggan",
+                        "Melihat password pengguna",
+                        "Mengganti password pengguna",
+                        "Menonaktifkan akun pengguna",
+                        "Menghapus akun pengguna",
+                    ],
+                },
+                {
+                    title: 'Aktivitas Pengguna',
+                    items: [
+                        "Melihat aktifitas pengguna",
+                    ],
+                },
+                {
+                    title: 'Format Sistem',
+                    items: [
+                        "Melihat format sistem",
+                        "Mengedit format sistem",
+                    ],
                 },
             ],
         },
@@ -329,7 +379,7 @@ const ManageRoles = () => {
 
                     </div>
                 </div>
-
+                
                 <table className="user-role-table">
                     <thead>
                         <tr>

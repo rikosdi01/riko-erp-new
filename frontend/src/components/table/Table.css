@@ -188,19 +188,6 @@ tbody tr:nth-child(n + 3) {
     cursor: pointer;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
 .modal-content {
   background: white;
   padding: 24px;
@@ -254,14 +241,14 @@ tbody tr:nth-child(n + 3) {
     font-size: 16px;
 }
 
-.order-modal-buttons {
+.order-modal-buttons, .order-modal-bo-buttons {
     display: flex;
     gap: 20px;
     justify-content: center;
     margin-top: 20px;
 }
 
-.order-modal-buttons button {
+.order-modal-buttons button, .order-modal-bo-buttons button {
     padding: 10px 20px;
     border-radius: 10px;
     border: none;
@@ -269,12 +256,16 @@ tbody tr:nth-child(n + 3) {
     color: white;
 }
 
-.order-modal-buttons button:nth-child(1) {
+.order-modal-buttons button:nth-child(1), .order-modal-bo-buttons button:nth-child(2){
     background-color: red;
 }
 
-.order-modal-buttons button:nth-child(2) {
+.order-modal-buttons button:nth-child(2),.order-modal-bo-buttons button:nth-child(3) {
     background-color:#007bff;
+}
+
+.order-modal-bo-buttons button:nth-child(1) {
+    background-color:#bdbdbd;
 }
 
 .modal {

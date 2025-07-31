@@ -45,6 +45,7 @@
   max-width: 85vw;
   text-align: center;
   animation: fadeInUp 0.3s ease;
+  z-index: 1000; /* Pastikan ini di atas elemen lain */
 }
 
 
@@ -79,6 +80,7 @@
   display: flex;
   align-items: center;
   height: 40px;
+  z-index: 1000;
 }
 
 .container-search-label {

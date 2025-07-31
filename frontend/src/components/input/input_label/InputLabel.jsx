@@ -1,8 +1,16 @@
 import InputField from '../input_field/InputField';
 import './InputLabel.css'
-import React from "react";
 
-const InputLabel = ({ type, label, icon, value, onChange, isDisabled }) => {
+const InputLabel = ({
+    type,
+    label,
+    icon,
+    surfixIcon,
+    value,
+    onChange,
+    isDisabled,
+    errorMessage
+}) => {
     return (
         <div className="input-label">
             <label className='input-text-label'>{label}:</label>
@@ -10,10 +18,12 @@ const InputLabel = ({ type, label, icon, value, onChange, isDisabled }) => {
                 type={type}
                 label={label}
                 icon={icon}
+                surfixIcon={surfixIcon}
                 value={value}
                 onChange={onChange}
                 isDisabled={isDisabled}
             />
+            {errorMessage && <div className="error-message">{errorMessage}</div>}
         </div>
     )
 }

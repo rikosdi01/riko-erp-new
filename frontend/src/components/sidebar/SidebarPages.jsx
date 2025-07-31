@@ -38,13 +38,13 @@ const SidebarPages = () => {
         );
 
     const customerSubItems = filterSubItems([
-        { text: "Daftar Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-daftar-list-barang-pelanggan" },
+        { text: "Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-daftar-list-barang-pelanggan" },
         { text: "Pesanan", to: "/customer/list-orders", icon: <ListOrdered size={20} />, permission: "melihat-daftar-pesanan-pelanggan" },
     ]);
 
     const salesSubItems = filterSubItems([
         { text: "Dashboard", to: "/sales/sales-dashboard", icon: <Activity size={20} />, permission: "melihat-dashboard-order" },
-        { text: "Pesanan Penjualan", to: "/sales/sales-order", icon: <NotebookPen size={20} />, permission: "melihat-data-sales-order" },
+        { text: "Pesanan Penjualan", to: "/sales/sales-order", icon: <NotebookPen size={20} />, permission: "melihat-data-pesanan-penjualan" },
         { text: "Retur Penjualan", to: "/sales/return-order", icon: <PackageMinus size={20} />, permission: "melihat-data-retur-order" },
         { type: "divider" },
         { text: "Pelanggan", to: "/sales/customers", icon: <Store size={20} />, permission: "melihat-data-pelanggan" },
@@ -74,21 +74,21 @@ const SidebarPages = () => {
 
     return (
         <Sidebar>
-            {loginUser && loginUser.role !== 'Customer' && (
+            {roleAccess(accessList, "melihat-dashboard-global") && (
                 <SidebarItem
                     icon={<LayoutDashboard size={20} />}
                     text="Dashboard"
                     to="/dashboard"
-                    permission="melihat-dashboard-global"
                 />
-                )}
+            )}
+
 
             {loginUser && loginUser.role === 'Customer' ? (
                 <>
                     {customerSubItems.length > 0 && (
                         <SidebarItem
                             icon={<Computer size={20} />}
-                            text="Daftar Barang"
+                            text="Barang"
                             to="/customer/list-products"
                         />
                     )}
@@ -141,13 +141,15 @@ const SidebarPages = () => {
                 />
             )}
 
-            <hr />
-
-            <SidebarItem
-                icon={<Settings size={20} />}
-                text="Pengaturan"
-                to="/settings"
-            />
+            {loginUser && loginUser.role !== 'Customer' && (
+                <><hr />
+                    <SidebarItem
+                        icon={<Settings size={20} />}
+                        text="Pengaturan"
+                        to="/settings"
+                    />
+                </>
+            )}
         </Sidebar>
     );
 };

@@ -8,7 +8,7 @@ import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { customerIndex, productIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_CUSTOMERS, ALGOLIA_INDEX_ITEMS, clientCustomers, clientItems, customerIndex, productIndex } from '../../../../../../../config/algoliaConfig';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
@@ -18,6 +18,7 @@ import roleAccess from '../../../../../../utils/helper/roleAccess';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 import { useFormats } from '../../../../../../context/personalization/FormatContext';
 import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
+import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
 
 const EntitySalesOrder = ({
     mode,
@@ -46,7 +47,8 @@ const EntitySalesOrder = ({
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
-    const [warehouse, setWarehouse] = useState(initialData.warehouse?.id || '');
+    const [warehouse, setWarehouse] = useState([]);
+    const [selectedWarehouse, setSelectedWarehouse] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [isPrint, setIsPrint] = useState(initialData.isPrint || '');
     const [codeError, setCodeError] = useState("");
@@ -56,6 +58,10 @@ const EntitySalesOrder = ({
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
+
+    useEffect(() => {
+        console.log('Customer: ', customer);
+    }, [customer]);
 
     const handleRestricedAction = () => {
         setAccessDenied(true);
@@ -142,11 +148,6 @@ const EntitySalesOrder = ({
         }
     }, []); // ⛔️ Hilangkan dependensi `code` agar tidak dipanggil ulang
 
-    useEffect(() => {
-        if (mode === "create" && rackFormat) {
-            setWarehouse(rackFormat);
-        }
-    }, [])
 
     // Hanya jalan sekali saat komponen pertama kali dimount
     useEffect(() => {
@@ -164,12 +165,38 @@ const EntitySalesOrder = ({
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
-        setWarehouse(initialData.warehouse?.id || '');
+        setWarehouse(racks);
+        setSelectedWarehouse(initialData.warehouse?.id || '');
         setIsPrint(initialData.isPrint || '');
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
     }, [initialData]);
+
+
+    useEffect(() => {
+        console.log('Racks: ', racks);
+        if (racks.length > 0) {
+            const racksDropdown = racks.map(rack => ({
+                id: rack.id,
+                name: rack.name + ' - ' + rack.location,
+                category: rack.category,
+            }));
+            setWarehouse(racksDropdown);
+            setSelectedWarehouse(initialData.warehouse?.id || racks[0]?.id || 1);
+        }
+    }, [racks]);
+
+    useEffect(() => {
+        if (mode === "create" && formatCode) {
+            const generate = async () => {
+                const newCode = await CounterRepository.previewNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+                setCode(newCode);
+            };
+
+            generate();
+        }
+    }, []);
 
 
     const handleSalesOrder = async (e) => { // Tambahkan 'e' di sini
@@ -270,7 +297,6 @@ const EntitySalesOrder = ({
         setCode("");
         setDescription("");
         setItems(emptyData);
-        setWarehouse("");
         setCodeError("");
         setItemError("");
         setWarehouseError("");
@@ -340,13 +366,26 @@ const EntitySalesOrder = ({
             />
 
             <div className='add-container-input'>
-                <Dropdown
-                    isAlgoliaDropdown={true}
-                    values={loadCustomerOptions}
-                    selectedId={customer}
-                    setSelectedId={setCustomer}
-                    label="Pelanggan"
-                    icon={<Store className="input-icon" />}
+                <ContainerSearch
+                    label={"Pelanggan"}
+                    icon={<Computer className='input-icon' />}
+                    searchClient={clientCustomers}
+                    indexName={ALGOLIA_INDEX_CUSTOMERS}
+                    columns={[
+                        { header: 'Nama Pelanggan', accessor: 'name' },
+                        { header: 'Alamat', accessor: 'address' },
+                        { header: 'Kota', accessor: 'city' },
+                        { header: 'Provinsi', accessor: 'province' },
+                        { header: 'No. Telpon', accessor: 'phone' },
+                        { header: 'Sales', accessor: 'salesman.name' },
+                    ]}
+                    value={
+                        customer?.name
+                        ? `${customer.name} (${customer.salesman})`
+                        : "Pilih Pelanggan"
+                    }
+                    setValues={setCustomer}
+                    mode="customer"
                 />
                 <InputLabel
                     label="Nomor Pesanan"
@@ -367,8 +406,8 @@ const EntitySalesOrder = ({
                 <div>
                     <Dropdown
                         values={racks}
-                        selectedId={warehouse}
-                        setSelectedId={setWarehouse}
+                        selectedId={selectedWarehouse}
+                        setSelectedId={setSelectedWarehouse}
                         label="Gudang"
                         icon={<Warehouse className="input-icon" />}
                     />
@@ -390,20 +429,41 @@ const EntitySalesOrder = ({
 
                 {items.map((item, index) => (
                     <div key={index} className="add-container-input-area">
-                        <Dropdown
-                            isAlgoliaDropdown={true}
-                            values={loadItemOptions}
-                            selectedId={item.item} // harus objek, bukan string
-                            setSelectedId={(selectedItem) => handleItemChange(index, "item", selectedItem)}
-                            label="Pilih Item"
-                            icon={<Computer className="input-icon" />}
-                        />
-                        <InputLabel
-                            label="Stok"
-                            icon={<Sheet className='input-icon' />}
-                            value={item.stock}
-                            isDisabled={true}
-                            onChange={(e) => handleItemChange(index, "stock", e.target.value)}
+                        <ContainerSearch
+                            label={"Item"}
+                            icon={<Computer className='input-icon' />}
+                            searchClient={clientItems}
+                            indexName={ALGOLIA_INDEX_ITEMS}
+                            columns={[
+                                {
+                                    header: 'Kode Item',
+                                    accessor: 'itemCode',
+                                    renderCell: (_, item) => {
+                                        const code = item?.code ?? "";
+                                        const categoryCode = item?.category?.code ?? "";
+                                        return categoryCode + '-' + code;
+                                    }
+                                },
+                                {
+                                    header: 'Nama Item',
+                                    accessor: 'category.name',
+                                    renderCell: (_, item) => {
+                                        const itemName = item?.name ?? "";
+                                        const categoryName = item?.category?.name ?? "";
+                                        return categoryName + ' - ' + itemName;
+                                    }
+                                },
+                            ]}
+                            value={
+                                item.item?.category?.name && item.item?.name && item.item?.brand
+                                    ? `${item.item.category.name} - ${item.item.name} (${item.item.brand})`
+                                    : "Pilih Item"
+                            }
+                            setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
+                            enableStock={true}
+                            stocks={racks || []}
+                            stockSelectedId={selectedWarehouse}
+                            mode="item"
                         />
                         <InputLabel
                             label="Kuantitas"

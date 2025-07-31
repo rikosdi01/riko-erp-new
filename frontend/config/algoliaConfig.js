@@ -16,10 +16,16 @@ const ALGOLIA_APP_ID_INVENTORY = import.meta.env.VITE_APP_ALGOLIA_APP_ID_INVENTO
 const ALGOLIA_SEARCH_KEY_INVENTORY = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_INVENTORY;
 const ALGOLIA_INDEX_INVENTORY = import.meta.env.VITE_APP_ALGOLIA_INDEX_INVENTORY;
 
+// Algolia Rack
+const ALGOLIA_APP_ID_WAREHOUSE = import.meta.env.VITE_APP_ALGOLIA_APP_ID_WAREHOUSE;
+const ALGOLIA_SEARCH_KEY_WAREHOUSE = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_WAREHOUSE;
+const ALGOLIA_INDEX_WAREHOUSE = import.meta.env.VITE_APP_ALGOLIA_INDEX_WAREHOUSE;
+
 // Client Warehouse
 const clientItems = algoliasearch(ALGOLIA_APP_ID_ITEMS, ALGOLIA_SEARCH_KEY_ITEMS);
 const clientCategories = algoliasearch(ALGOLIA_APP_ID_CATEGORIES, ALGOLIA_SEARCH_KEY_CATEGORIES);
 const clientInventory = algoliasearch(ALGOLIA_APP_ID_INVENTORY, ALGOLIA_SEARCH_KEY_INVENTORY);
+const clientRack = algoliasearch(ALGOLIA_APP_ID_WAREHOUSE, ALGOLIA_SEARCH_KEY_WAREHOUSE);
 
 // Initialize indices
 const productIndex = clientItems.initIndex(ALGOLIA_INDEX_ITEMS);
@@ -69,9 +75,11 @@ export {
     clientItems,
     clientCategories,
     clientInventory,
+    clientRack,
     ALGOLIA_INDEX_ITEMS,
     ALGOLIA_INDEX_CATEGORIES,
     ALGOLIA_INDEX_INVENTORY,
+    ALGOLIA_INDEX_WAREHOUSE,
 
 
     // Sales

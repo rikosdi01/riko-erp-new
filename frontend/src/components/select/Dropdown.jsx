@@ -26,6 +26,10 @@ const customStyles = (hasIcon) => ({
         fontSize: "14px",
         fontWeight: 400,
     }),
+    menuPortal: (base) => ({
+        ...base,
+        zIndex: 1100, // lebih tinggi dari modal (1000)
+    }),
     option: (provided, state) => ({
         ...provided,
         backgroundColor: state.isSelected
@@ -64,9 +68,11 @@ function Dropdown({
     if (!isAlgoliaDropdown) {
         valuesOption = values.map(value => ({
             value: value.id,
-            label: value.label || value.name, // 🔁 Gunakan label jika sudah diproses sebelumnya
+            label: value.label || `${value.name}${value.location ? ' - ' + value.location : ''}`,
             code: value.code,
         }));
+
+
 
         // Temukan nilai yang dipilih saat ini
         selectedValue = valuesOption.find(opt => opt.value === selectedId) || null;
@@ -98,8 +104,8 @@ function Dropdown({
                         noOptionsMessage={() => "Tidak ada hasil, coba ketik kata kunci lain..."}
                         styles={styles}
                         isClearable={true}
-                        // menuPosition="fixed"
-                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                        // menuPortalTarget={document.body}
                     />
                 ) : (
                     <Select
@@ -112,7 +118,7 @@ function Dropdown({
                         classNamePrefix="react-select"
                         styles={styles}
                         menuPosition="fixed"
-                    // menuPortalTarget={document.body}
+                        // menuPortalTarget={document.body}
                     />
                 )}
             </div>

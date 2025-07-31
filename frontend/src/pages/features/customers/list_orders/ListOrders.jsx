@@ -26,7 +26,11 @@ const ListOrders = () => {
             accessor: "totalPrice",
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
         },
-        { header: "Status", accessor: "status" }
+        {
+            header: "Status",
+            accessor: "status",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        }
     ]
 
 

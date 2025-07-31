@@ -3,12 +3,12 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityTransfer.css';
-import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, PackageOpen, Search } from "lucide-react";
+import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, PackageOpen, Search, Info } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { productIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_ITEMS, clientItems, productIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
@@ -16,6 +16,12 @@ import ItemsRepository from '../../../../../../repository/warehouse/ItemsReposit
 import { useUsers } from '../../../../../../context/auth/UsersContext';
 import roleAccess from '../../../../../../utils/helper/roleAccess';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import { useFormats } from '../../../../../../context/personalization/FormatContext';
+import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
+import Tippy from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css'; // default styling
+import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
+
 
 const EntityTransfer = ({
     mode,
@@ -26,7 +32,13 @@ const EntityTransfer = ({
     // Context
     const { showToast } = useToast();
     const { racks } = useRacks();
-    const { accessList } = useUsers();
+    console.log('Racks: ', racks);
+    const { accessList } = useUsers()
+    const { formats } = useFormats();
+    const formatCode = formats.presets?.transfers?.code;
+    const yearFormat = formats.yearFormat;
+    const monthFormat = formats.monthFormat;
+    const uniqueFormat = formats.uniqueFormat;
 
     const packingStatusOptions = [
         { id: 1, name: "Sudah Kemas" },
@@ -53,6 +65,7 @@ const EntityTransfer = ({
     const [items, setItems] = useState(initialData.items || emptyData);
     const [warehouseFrom, setWarehouseFrom] = useState(initialData.warehouseFrom?.id || '');
     const [warehouseTo, setWarehouseTo] = useState(initialData.warehouseTo?.id || '');
+    const [warehouseName, setWarehouseName] = useState('');
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
@@ -70,7 +83,8 @@ const EntityTransfer = ({
     useEffect(() => {
         if (warehouseTo) {
             const racksData = racks.find(wh => wh.id === warehouseTo);
-            if (racksData.category === 'Sales Department') {
+            setWarehouseName(racksData?.category || '');
+            if (racksData.category === 'Sales') {
                 setTypeList('out');
             } else {
                 setTypeList('in');
@@ -82,8 +96,25 @@ const EntityTransfer = ({
         console.log('Type List Updated: ', typeList);
     }, [typeList]);
 
-    const handleItemChange = (index, field, value) => {
+    useEffect(() => {
+        console.log('Warehouse Name: ', warehouseName);
 
+        if (mode === "create" && warehouseName) {
+            const generate = async () => {
+                const firstLetter = warehouseName.charAt(0).toUpperCase();
+                const dynamicFormatCode = `${formatCode}${firstLetter}`; // atau `${firstLetter}-WRH` jika `formatCode` bukan string awal
+
+                const newCode = await CounterRepository.previewNextCode(dynamicFormatCode, uniqueFormat, monthFormat, yearFormat);
+                console.log('Generated Code: ', newCode);
+                setCode(newCode);
+            };
+
+            generate();
+        }
+    }, [warehouseName]);
+
+
+    const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
         const selectedWarehouseName = racks.find(r => r.id === warehouseFrom)?.name;
         console.log('Racks: ', racks);
@@ -351,32 +382,41 @@ const EntityTransfer = ({
                 enablePrint={true}
             />
 
-            <div className='add-container-input'>
-                <InputLabel
-                    label="Nomor Transferan"
-                    icon={<KeyRound className='input-icon' />}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                />
-                {codeError && <div className="error-message">{codeError}</div>}
+            <div>
+                <div className='add-container-input'>
+                    <InputLabel
+                        label="Nomor Transferan"
+                        icon={<KeyRound className='input-icon' />}
+                        surfixIcon={
+                            <Tippy content="Kode ini digenerate otomatis berdasarkan gudang dan format yang ditentukan.">
+                                <Info className="surfix-input-icon" tabIndex={0} />
+                            </Tippy>
+                        }
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        errorMessage={codeError}
+                    />
+                </div>
             </div>
 
-            <div className='add-container-input-attribute'>
-                <Dropdown
-                    values={racks}
-                    selectedId={warehouseFrom}
-                    setSelectedId={handleWarehouseFromChange}
-                    label="Gudang Asal"
-                    icon={<Warehouse className="input-icon" />}
-                />
+            <div>
+                <div className='add-container-input-attribute'>
+                    <Dropdown
+                        values={racks}
+                        selectedId={warehouseFrom}
+                        setSelectedId={handleWarehouseFromChange}
+                        label="Gudang Asal"
+                        icon={<Warehouse className="input-icon" />}
+                    />
 
-                <Dropdown
-                    values={racks}
-                    selectedId={warehouseTo}
-                    setSelectedId={handleWarehouseToChange}
-                    label="Gudang Tujuan"
-                    icon={<Warehouse className="input-icon" />}
-                />
+                    <Dropdown
+                        values={racks}
+                        selectedId={warehouseTo}
+                        setSelectedId={handleWarehouseToChange}
+                        label="Gudang Tujuan"
+                        icon={<Warehouse className="input-icon" />}
+                    />
+                </div>
                 {warehouseError && <div className="error-message">{warehouseError}</div>}
             </div>
 
@@ -404,117 +444,164 @@ const EntityTransfer = ({
 
                     {typeList === 'in' ? (
                         items.map((item, index) => (
-                            <div key={index} className="add-container-input-area-horizontal">
-                                <Dropdown
-                                    isAlgoliaDropdown={true}
-                                    values={loadItemOptions}
-                                    selectedId={item.item}
-                                    setSelectedId={(value) => handleItemChange(index, "item", value)}
-                                    label="Pilih Item"
-                                    icon={<Computer className="input-icon" />}
-                                />
-                                <InputLabel
-                                    label="Total Stok"
-                                    icon={<Computer className='input-icon' />}
-                                    value={item.stock}
-                                    isDisabled={true}
-                                    onChange={(e) => handleItemChange(index, "stock", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Kuantitas"
-                                    icon={<Sheet className='input-icon' />}
-                                    value={item.qty}
-                                    onChange={(e) => handleItemChange(index, "qty", e.target.value)}
-                                />
-                                <Dropdown
-                                    values={packingStatusOptions}
-                                    selectedId={item.packingStatus}
-                                    setSelectedId={(value) => handleItemChange(index, "packingStatus", value)}
-                                    label="Status Paking"
-                                    icon={<PackageOpen className="input-icon" />}
-                                />
-                                <InputLabel
-                                    label="Rak"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.rack}
-                                    onChange={(e) => handleItemChange(index, "rack", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Baris Rak"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.rackLines}
-                                    onChange={(e) => handleItemChange(index, "rackLines", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Nomor Kotak"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.boxNumber}
-                                    onChange={(e) => handleItemChange(index, "boxNumber", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Partai"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.trip}
-                                    onChange={(e) => handleItemChange(index, "trip", e.target.value)}
-                                />
-                                {/* {itemError && <div className="error-message">{itemError}</div>} */}
+                            <div>
+                                <div key={index} className="add-container-input-area-horizontal">
+                                    <ContainerSearch
+                                        label={"Item"}
+                                        icon={<Computer className='input-icon' />}
+                                        searchClient={clientItems}
+                                        indexName={ALGOLIA_INDEX_ITEMS}
+                                        columns={[
+                                            {
+                                                header: 'Kode Item',
+                                                accessor: 'itemCode',
+                                                renderCell: (_, item) => {
+                                                    const code = item?.code ?? "";
+                                                    const categoryCode = item?.category?.code ?? "";
+                                                    return categoryCode + '-' + code;
+                                                }
+                                            },
+                                            {
+                                                header: 'Nama Item',
+                                                accessor: 'category.name',
+                                                renderCell: (_, item) => {
+                                                    const itemName = item?.name ?? "";
+                                                    const categoryName = item?.category?.name ?? "";
+                                                    return categoryName + ' - ' + itemName;
+                                                }
+                                            },
+                                        ]}
+                                        value={
+                                            item.item?.category?.name && item.item?.name && item.item?.brand
+                                                ? `${item.item.category.name} - ${item.item.name} (${item.item.brand})`
+                                                : "Pilih Item"
+                                        }
+                                        setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
+                                        enableStock={true}
+                                        stocks={racks || []}
+                                        stockSelectedId={warehouseFrom}
+                                        mode="item"
+                                    />
+                                    <InputLabel
+                                        label="Kuantitas"
+                                        icon={<Sheet className='input-icon' />}
+                                        value={item.qty}
+                                        onChange={(e) => handleItemChange(index, "qty", e.target.value)}
+                                    />
+                                    <Dropdown
+                                        values={packingStatusOptions}
+                                        selectedId={item.packingStatus}
+                                        setSelectedId={(value) => handleItemChange(index, "packingStatus", value)}
+                                        label="Status Paking"
+                                        icon={<PackageOpen className="input-icon" />}
+                                    />
+                                    <InputLabel
+                                        label="Rak"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.rack}
+                                        onChange={(e) => handleItemChange(index, "rack", e.target.value)}
+                                    />
+                                    <InputLabel
+                                        label="Baris Rak"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.rackLines}
+                                        onChange={(e) => handleItemChange(index, "rackLines", e.target.value)}
+                                    />
+                                    <InputLabel
+                                        label="Nomor Kotak"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.boxNumber}
+                                        onChange={(e) => handleItemChange(index, "boxNumber", e.target.value)}
+                                    />
+                                    <InputLabel
+                                        label="Partai"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.trip}
+                                        onChange={(e) => handleItemChange(index, "trip", e.target.value)}
+                                    />
+                                </div>
+                                {itemError && <div className="error-message-list">{itemError}</div>}
                             </div>
                         ))
                     ) : (
                         items.map((item, index) => (
-                            <div key={index} className="add-container-input-area-horizontal">
-                                <InputLabel
-                                    label="Cari Item"
-                                    icon={<Computer className='input-icon' />}
-                                    value={item.stock}
-                                    isDisabled={true}
-                                    onChange={(e) => handleItemChange(index, "stock", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Total Stok"
-                                    icon={<Computer className='input-icon' />}
-                                    value={item.stock}
-                                    isDisabled={true}
-                                    onChange={(e) => handleItemChange(index, "stock", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Kuantitas"
-                                    icon={<Sheet className='input-icon' />}
-                                    value={item.qty}
-                                    onChange={(e) => handleItemChange(index, "qty", e.target.value)}
-                                />
-                                <Dropdown
-                                    values={packingStatusOptions}
-                                    selectedId={item.packingStatus}
-                                    setSelectedId={(value) => handleItemChange(index, "packingStatus", value)}
-                                    label="Status Paking"
-                                    icon={<PackageOpen className="input-icon" />}
-                                />
-                                <InputLabel
-                                    label="Rak"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.rack}
-                                    onChange={(e) => handleItemChange(index, "rack", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Baris Rak"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.rackLines}
-                                    onChange={(e) => handleItemChange(index, "rackLines", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Nomor Kotak"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.boxNumber}
-                                    onChange={(e) => handleItemChange(index, "boxNumber", e.target.value)}
-                                />
-                                <InputLabel
-                                    label="Partai"
-                                    icon={<ClipboardPen className='input-icon' />}
-                                    value={item.trip}
-                                    onChange={(e) => handleItemChange(index, "trip", e.target.value)}
-                                />
-                                {/* {itemError && <div className="error-message">{itemError}</div>} */}
+                            <div>
+                                <div key={index} className="add-container-input-area-horizontal">
+                                    <ContainerSearch
+                                        label={"Item"}
+                                        icon={<Computer className='input-icon' />}
+                                        searchClient={clientItems}
+                                        indexName={ALGOLIA_INDEX_ITEMS}
+                                        columns={[
+                                            {
+                                                header: 'Kode Item',
+                                                accessor: 'itemCode',
+                                                renderCell: (_, item) => {
+                                                    const code = item?.code ?? "";
+                                                    const categoryCode = item?.category?.code ?? "";
+                                                    return categoryCode + '-' + code;
+                                                }
+                                            },
+                                            {
+                                                header: 'Nama Item',
+                                                accessor: 'category.name',
+                                                renderCell: (_, item) => {
+                                                    const itemName = item?.name ?? "";
+                                                    const categoryName = item?.category?.name ?? "";
+                                                    return categoryName + ' - ' + itemName;
+                                                }
+                                            },
+                                        ]}
+                                        value={
+                                            item.item?.category?.name && item.item?.name && item.item?.brand
+                                                ? `${item.item.category.name} - ${item.item.name} (${item.item.brand})`
+                                                : "Pilih Item"
+                                        }
+                                        setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
+                                        enableStock={true}
+                                        stocks={racks || []}
+                                        stockSelectedId={warehouseFrom}
+                                        mode="item"
+                                    />
+                                    <InputLabel
+                                        label="Kuantitas"
+                                        icon={<Sheet className='input-icon' />}
+                                        value={item.qty}
+                                        onChange={(e) => handleItemChange(index, "qty", e.target.value)}
+                                    />
+                                    <Dropdown
+                                        values={packingStatusOptions}
+                                        selectedId={item.packingStatus}
+                                        setSelectedId={(value) => handleItemChange(index, "packingStatus", value)}
+                                        label="Status Paking"
+                                        icon={<PackageOpen className="input-icon" />}
+                                    />
+                                    <InputLabel
+                                        label="Rak"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.rack}
+                                        onChange={(e) => handleItemChange(index, "rack", e.target.value)}
+                                    />
+                                    <InputLabel
+                                        label="Baris Rak"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.rackLines}
+                                        onChange={(e) => handleItemChange(index, "rackLines", e.target.value)}
+                                    />
+                                    <InputLabel
+                                        label="Nomor Kotak"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.boxNumber}
+                                        onChange={(e) => handleItemChange(index, "boxNumber", e.target.value)}
+                                    />
+                                    <InputLabel
+                                        label="Partai"
+                                        icon={<ClipboardPen className='input-icon' />}
+                                        value={item.trip}
+                                        onChange={(e) => handleItemChange(index, "trip", e.target.value)}
+                                    />
+                                </div>
+                                {itemError && <div className="error-message">{itemError}</div>}
                             </div>
                         ))
                     )}

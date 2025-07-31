@@ -41,3 +41,15 @@
     color: #949494;
     pointer-events: none;
 }
+
+.surfix-input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    color: #949494;
+
+    pointer-events: auto; /* <- ini penting agar tooltip bisa muncul */
+    cursor: pointer;       /* opsional, supaya ada indikator hover */
+}

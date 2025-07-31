@@ -60,10 +60,11 @@ const ContainerSearch = ({
             name: item?.name ?? '',
             merks: item?.merks ?? '',
         }),
-        supplier: (item) => ({
+        customer: (item) => ({
             id: item?.id || item?.objectID,
             name: item?.name ?? '',
             contact: item?.contact ?? '',
+            salesman: item?.salesman?.name ?? '',
         }),
         // tambah mode lainnya di sini...
     };
@@ -98,19 +99,27 @@ const ContainerSearch = ({
     }
 
     return (
-        <div className="container-search">
+        <div className="container-search"
+            onClick={() => setOpenContainerSearch(true)}
+        >
             <label className='container-search-label'>Pilih {label}:</label>
-            <div className='container-search-box'>
-                {icon}
-                {value}
-                <div className='container-search-child' onClick={() => setOpenContainerSearch(true)}>
+            <div style={{ position: 'relative' }}>
+                <input
+                    type="text"
+                    className="container-search-box"
+                    readOnly
+                    value={value}
+                    onFocus={() => setOpenContainerSearch(true)}
+                />
+                <div className='container-search-child'>
                     <Search size={18} />
                 </div>
+                {icon}
             </div>
 
             {openContainerSearch && (
-                <div className='modal-overlay'>
-                    <div className='container-search-results'>
+                <div className='modal-overlay' onClick={() => setOpenContainerSearch(false)}>
+                    <div className='container-search-results' onClick={(e) => e.stopPropagation()} >
                         {/* Tombol Close */}
                         <button
                             className="close-modal-button"

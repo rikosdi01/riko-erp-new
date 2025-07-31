@@ -85,13 +85,15 @@ const DetailListOrder = () => {
                 </div>
             </div>
 
-            {salesOrder.status === 'mengantri' ? (
+            {salesOrder.status === 'mengantri' && (
                 <ActionButton
                     title={'Batalkan Pesanan'}
                     background={'red'}
                     onclick={() => setConfirmationModal(true)}
                 />
-            ) : (
+            )}
+
+            {salesOrder.status === 'batal' && (
                 <ActionButton
                     title={'Lakukan Pemesanan Ulang'}
                     onclick={() =>
@@ -101,11 +103,15 @@ const DetailListOrder = () => {
                             'Pesanan gagal dipesan ulang'
                         )}
                 />
+
+            )}
+            {salesOrder.status === 'tertunda' && (
+                <div>Pesanan anda menunggu barang masuk...</div>
             )}
 
             {confirmationModal && (
                 <div className='modal-overlay'>
-                    <div className="modal">
+                    <div className="modal-content">
                         <div className='modal-title' style={{ marginBottom: '40px', fontSize: '20px' }}>Apakah Anda yakin ingin membatalkan pesanan ini?</div>
                         <div className='modal-actions'>
                             <ActionButton

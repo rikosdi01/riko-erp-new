@@ -55,8 +55,8 @@ const SalesOrder = () => {
             subscribeFn={SalesOrderRepository.subscribeToSalesOrderChanges}
             enableExport={false}
             enableImport={false}
-            canAdd={roleAccess(accessList, 'menambah-data-sales-order')}
-            canEdit={roleAccess(accessList, 'mengedit-data-sales-order')}
+            canAdd={roleAccess(accessList, 'menambah-data-pesanan-penjualan')}
+            canEdit={roleAccess(accessList, 'mengedit-data-pesanan-penjualan')}
             enableDateRange={true}
         />
     )

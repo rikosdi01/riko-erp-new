@@ -90,12 +90,14 @@ import SignUpCustomer from "./pages/authentication/signup_customer/SignUpCustome
 import ListProducts from "./pages/features/customers/list_products/ListProducts";
 import ListOrders from "./pages/features/customers/list_orders/ListOrders";
 import DetailListOrder from "./pages/features/customers/list_orders/detail_list_orders/DetailListOrder";
+import ForgotPassword from "./pages/authentication/forgot_password/ForgotPassword";
+import { RolesProvider } from "./context/auth/RolesContext";
 
 function AppContent() {
   const location = useLocation();
 
   // Daftar halaman yang tidak menampilkan sidebar
-  const hideSidebarRoutes = ["/signin", "/signup", "/signup-customer", "/404"];
+  const hideSidebarRoutes = ["/signin", "/signup", "/signup-customer", "/forgot-password", "/404"];
 
   return (
     <div className="app-container">
@@ -106,6 +108,7 @@ function AppContent() {
         <Routes>
           {/* Authentication */}
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -255,41 +258,43 @@ function App() {
   return (
     <ToastProvider>
       <UsersProvider>
-        <FormatProvider>
-          <RackProvider>
-            <MerkProvider>
-              <CategoryProvider>
-                <ItemProvider>
-                  <AdjustmentProvider>
-                    <TransferProvider>
-                      <CustomersProvider>
-                        <SalesmanProvider>
-                          <CSOProvider>
-                            <SalesOrderProvider>
-                              <CourierProvider>
-                                <ExpressProvider>
-                                  <DeliveryOrderProvider>
-                                    <InvoiceProvider>
-                                      <ReturnProvider>
-                                        <Router>
-                                          <AppContent />
-                                        </Router>
-                                      </ReturnProvider>
-                                    </InvoiceProvider>
-                                  </DeliveryOrderProvider>
-                                </ExpressProvider>
-                              </CourierProvider>
-                            </SalesOrderProvider>
-                          </CSOProvider>
-                        </SalesmanProvider>
-                      </CustomersProvider>
-                    </TransferProvider>
-                  </AdjustmentProvider>
-                </ItemProvider>
-              </CategoryProvider>
-            </MerkProvider>
-          </RackProvider>
-        </FormatProvider>
+        <RolesProvider>
+          <FormatProvider>
+            <RackProvider>
+              <MerkProvider>
+                <CategoryProvider>
+                  <ItemProvider>
+                    <AdjustmentProvider>
+                      <TransferProvider>
+                        <CustomersProvider>
+                          <SalesmanProvider>
+                            <CSOProvider>
+                              <SalesOrderProvider>
+                                <CourierProvider>
+                                  <ExpressProvider>
+                                    <DeliveryOrderProvider>
+                                      <InvoiceProvider>
+                                        <ReturnProvider>
+                                          <Router>
+                                            <AppContent />
+                                          </Router>
+                                        </ReturnProvider>
+                                      </InvoiceProvider>
+                                    </DeliveryOrderProvider>
+                                  </ExpressProvider>
+                                </CourierProvider>
+                              </SalesOrderProvider>
+                            </CSOProvider>
+                          </SalesmanProvider>
+                        </CustomersProvider>
+                      </TransferProvider>
+                    </AdjustmentProvider>
+                  </ItemProvider>
+                </CategoryProvider>
+              </MerkProvider>
+            </RackProvider>
+          </FormatProvider>
+        </RolesProvider>
       </UsersProvider>
     </ToastProvider>
   );

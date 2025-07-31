@@ -2,6 +2,14 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot,
 import { db } from "../../firebase";
 
 export default class RackWarehouseRepository {
+    static subscribeToRackChanges(callback) {
+        const unsub = onSnapshot(collection(db, 'Warehouse'), (snapshot) => {
+            callback(snapshot);
+        });
+
+        return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
+    }
+
     static async checkExistsRackName(rackCode, excludeId = null) {
         try {
             const q = query(
@@ -9,7 +17,7 @@ export default class RackWarehouseRepository {
                 where("code", "==", rackCode),
                 limit(1)
             );
-            
+
             const querySnapshot = await getDocs(q);
 
             return querySnapshot.docs.some(doc => doc.id !== excludeId);
@@ -18,13 +26,14 @@ export default class RackWarehouseRepository {
             throw error
         }
     }
-    
-    static getRacks(callback) {
+
+    static getRacks(callback, location = null) {
         try {
             // Query Firestore untuk mengurutkan berdasarkan 'name'
             const racksQuery = query(
                 collection(db, "Warehouse"),
-                orderBy("name")
+                orderBy("name"),
+                where("location", "==", location)
             );
 
             return onSnapshot(racksQuery, (querySnapshot) => {

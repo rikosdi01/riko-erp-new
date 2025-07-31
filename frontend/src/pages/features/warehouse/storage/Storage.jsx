@@ -45,7 +45,7 @@ const Storage = () => {
             columns={columns}
             createOnclick={navigateToCreateInventory}
             subscribeFn={InventoryRepository.subscribeToInvetoryChanges}
-            enableDropdown={true}
+            // enableDropdown={true}
             enableImport={false}
             enableExport={false}
             enableCreate={false}

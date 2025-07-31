@@ -97,17 +97,25 @@ const SignIn = () => {
             }
 
             const userData = await UserRepository.getUserByUID(user.uid);
-            console.log('User Data: ', userData);
-            console.log('User Data: ', userData);
 
+            const roleRoutes = {
+                'Administrator': '/dashboard',
+                'Customer': '/customer/list-products',
+                'Default': '/inventory/items',
+                'Logistic Admin': '/logistic/logistic-dashboard',
+                'Logistic Supervisor': '/logistic/logistic-dashboard',
+                'Stock Controller Supervisor': '/inventory/inventory-dashboard',
+                'Stock Controller': '/inventory/inventory-dashboard',
+                'CSO': '/sales/sales-dashboard',
+                'CSO Supervisor': '/sales/sales-dashboard',
+            };
 
             showToast("success", "Login Berhasil!");
 
-            if (userData.role === 'Customer') {
-                navigate('/customer/list-products')
-            } else {
-                navigate("/dashboard");
-            }
+            console.log('User Data: ', userData);
+
+            const redirectPath = roleRoutes[userData.role] || '/dashboard'; // fallback
+            navigate(redirectPath);
         } catch (error) {
             setPasswordError("Login gagal. Periksa kembali email dan password Anda.");
             showToast("gagal", "Login Gagal!");
@@ -163,6 +171,10 @@ const SignIn = () => {
                                 </span>
                             </div>
                             {passwordError && <div className="error-message">{passwordError}</div>}
+                        </div>
+
+                        <div className="forgot-password">
+                            <div onClick={() => navigate("/forgot-password")}>Lupa Password?</div>
                         </div>
 
                         {/* Checkbox Remember Me */}

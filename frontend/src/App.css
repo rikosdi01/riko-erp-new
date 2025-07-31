@@ -8,6 +8,7 @@
   padding: 20px;
   scrollbar-width: none;
 }
+
 .add-container-input {
   display: flex;
   gap: 20px;
@@ -17,31 +18,18 @@
   flex: 3;
 }
 
-.add-container-input > div:nth-child(n+2) {
+.add-container-input>div:nth-child(n+2) {
   flex: 1;
 }
 
 .add-container-input-attribute {
   display: flex;
   gap: 20px;
+  margin-bottom: 10px;
 }
 
-.add-container-input-attribute > div:nth-child(n+1){
+.add-container-input-attribute>div:nth-child(n+1) {
   flex: 1;
-}
-
-.add-container-input-attribute {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-}
-
-.add-container-input-attribute > div:nth-child(n+1){
-  flex: 1;
-  width: 100%; 
 }
 
 .add-container-input-area-attribute {
@@ -51,7 +39,7 @@
   align-items: center;
 }
 
-.add-container-input-area-attribute > div:nth-child(n+1){
+.add-container-input-area-attribute>div:nth-child(n+1) {
   flex: 1;
 }
 
@@ -65,8 +53,10 @@
 .divider {
   width: 100%;
   height: 1px;
-  background-color: #ddd; /* Warna garis */
-  margin-bottom: 20px; /* Jarak atas & bawah */
+  background-color: #ddd;
+  /* Warna garis */
+  margin-bottom: 20px;
+  /* Jarak atas & bawah */
   border-radius: 4px;
 }
 
@@ -100,16 +90,18 @@
   gap: 20px;
 }
 
-.add-container-input-area-horizontal > * {
+.add-container-input-area-horizontal>* {
   flex: 0 0 auto;
-  min-width: 200px; /* atau sesuai kebutuhan */
+  min-width: 200px;
+  /* atau sesuai kebutuhan */
 }
 
-.add-container-input-area-horizontal > div:nth-child(1) {
+.add-container-input-area-horizontal>div:nth-child(1) {
   position: sticky;
   left: 0;
   z-index: 1;
-  background-color: white; /* Warna latar belakang untuk elemen sticky */
+  background-color: white;
+  /* Warna latar belakang untuk elemen sticky */
 }
 
 
@@ -121,16 +113,16 @@
 }
 
 .add-container-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 25px;
 }
 
 .add-container-actions-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .action-button-group {
@@ -141,4 +133,18 @@
 .empty-table {
   display: flex;
   background-color: red;
+}
+
+.error-message {
+  margin-top: 5px;
+  padding-left: 10px;
+  margin-bottom: 20px;
+  color: red;
+}
+
+.error-message-list {
+  margin-top: -5px;
+  padding-left: 10px;
+  margin-bottom: 20px;
+  color: red;
 }

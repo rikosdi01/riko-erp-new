@@ -6,16 +6,9 @@ import {
     BarChart3,
     Package,
     Truck,
-    UserPlus,
     History,
-    Bell,
-    HelpCircle,
-    LogOut,
     User,
-    Lock,
-    Eye,
     Settings as SettingsIcon,
-    Palette,
     UserCog,
     Edit
 } from "lucide-react";
@@ -25,7 +18,7 @@ import { AuthContext } from "../../../context/AuthContext";
 
 const Settings = () => {
     const { dispatch } = useContext(AuthContext);
-    const { loginUser, isLoading } = useUsers();
+    const { loginUser, accessList, isLoading } = useUsers();
     const { showToast } = useToast();
     const navigate = useNavigate();
 
@@ -64,6 +57,7 @@ const Settings = () => {
                     </div>
                 </section>
 
+                {loginUser.role === 'admin' && (
                 <section className="password-section">
                     <h3>🔒 Ganti Password</h3>
                     <input type="password" placeholder="Password Saat Ini" />
@@ -71,16 +65,7 @@ const Settings = () => {
                     <input type="password" placeholder="Konfirmasi Password Baru" />
                     <button className="button-save">Simpan Perubahan</button>
                 </section>
-
-                <section className="theme-section">
-                    <h3>⚙️ Preferensi Tampilan</h3>
-                    <label>
-                        <input type="checkbox" /> Mode Gelap
-                    </label>
-                    <label>
-                        Warna Utama: <input type="color" />
-                    </label>
-                </section>
+                )}
 
 
                 <div className="settings-tile-section">

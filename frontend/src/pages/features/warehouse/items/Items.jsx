@@ -49,13 +49,13 @@ const Items = () => {
 
     // Navigation
     // Navigation to Create
-    // const navigateToCreateItems = () => {
-    //     navigate('/inventory/items/new');
-    // }
-
     const navigateToCreateItems = () => {
-        window.open('/inventory/items/new', '_blank');
+        navigate('/inventory/items/new');
     }
+
+    // const navigateToCreateItems = () => {
+    //     window.open('/inventory/items/new', '_blank');
+    // }
 
 
     return (
@@ -74,6 +74,9 @@ const Items = () => {
             dropdownAttribute2={'category.name'}
             enableDropdown3={true}
             dropdownAttribute3={'name'}
+            // enableCheckbox1={true}
+            // checkbox1Label="Stok Tersedia"
+            // checkbox1Attribute="stock"
             canEdit={roleAccess(accessList, 'mengedit-data-item')}
             canAdd={roleAccess(accessList, 'menambah-data-item')}
         />
