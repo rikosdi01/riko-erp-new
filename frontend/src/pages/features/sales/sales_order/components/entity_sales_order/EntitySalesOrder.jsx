@@ -488,6 +488,7 @@ const EntitySalesOrder = ({
             updatedAt: Timestamp.now(),
         };
 
+        await SalesOrderRepository.createSalesOrder(backOrder);
         console.log('Backorder Data:', backOrder);
 
         showToast('berhasil', 'Backorder berhasil disimpan!');
