@@ -68,7 +68,7 @@ function Dropdown({
     if (!isAlgoliaDropdown) {
         valuesOption = values.map(value => ({
             value: value.id,
-            label: value.label || `${value.name}${value.location ? ' - ' + value.location : ''}`,
+            label: value.label || value.name,
             code: value.code,
         }));
 

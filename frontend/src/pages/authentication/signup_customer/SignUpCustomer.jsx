@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
@@ -21,6 +21,10 @@ const SignUpCustomer = () => {
     const { salesman } = useSalesman();
     const [showPassword, setShowPassword] = useState(false);
     const [selectedSalesman, setSelectedSalesman] = useState(null);
+
+    useEffect(() => {
+        console.log('Salesman: ', selectedSalesman);
+    }, [selectedSalesman])
 
     const [formData, setFormData] = useState({
         email: "",
@@ -45,6 +49,8 @@ const SignUpCustomer = () => {
         e.preventDefault();
 
         try {
+            const selectedSalesmanData = salesman.find(s => s.id === selectedSalesman);
+
             // 1. Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
             const user = userCredential.user;
@@ -64,13 +70,14 @@ const SignUpCustomer = () => {
                 address: formData.address,
                 city: formData.city,
                 province: formData.province,
-                salesman: selectedSalesman, // ⬅️ tambahkan ini
-                createdAt: Timestamp.now(),
+                salesman: selectedSalesmanData
+                    ? { id: selectedSalesmanData.id, name: selectedSalesmanData.name }
+                    : null, createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             });
 
             showToast("berhasil", "Berhasil membuat akun customer!");
-            navigate("/settings/manage-account");
+            navigate("/sales/customers");
         } catch (error) {
             console.error("Error:", error.message);
             showToast("gagal", `Gagal daftar: ${error.message}`);
@@ -83,7 +90,7 @@ const SignUpCustomer = () => {
                 <form onSubmit={handleSubmit}>
                     <ContentHeader
                         title="Daftar Pelanggan"
-                        enableBack={loginUser?.type !== 'customer'}
+                        enableBack={loginUser && loginUser?.type !== 'customer'}
                     />
 
                     <InputGroup
@@ -117,13 +124,15 @@ const SignUpCustomer = () => {
                         name={"name"}
                     />
 
-                    <Dropdown
-                        values={salesman}
-                        selectedId={selectedSalesman}
-                        setSelectedId={setSelectedSalesman}
-                        label={"Pilih Sales"}
-                        icon={<UserCheck className="input-icon" />}
-                    />
+                    {loginUser && loginUser?.type !== 'customer' && (
+                        <Dropdown
+                            values={salesman}
+                            selectedId={selectedSalesman}
+                            setSelectedId={setSelectedSalesman}
+                            label={"Pilih Sales"}
+                            icon={<UserCheck className="input-icon" />}
+                        />
+                    )}
 
                     <div className="signup-customer-form-flex">
                         <InputGroup

@@ -61,6 +61,11 @@ const EntitySalesOrder = ({
     const [showPreview, setShowPreview] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
     const [isLoginCustomer, setIsLoginCustomer] = useState(false);
+    // Harus di luar fungsi handleSalesOrder
+    const [pendingBO, setPendingBO] = useState([]);
+    const [showBOConfirmation, setShowBOConfirmation] = useState(false);
+    const [finalOrderItems, setFinalOrderItems] = useState([]);
+
 
     useEffect(() => {
         console.log('Items: ', items);
@@ -221,20 +226,6 @@ const EntitySalesOrder = ({
             : Formatting.formatDateForInput(new Date()));
     }, [initialData]);
 
-
-    useEffect(() => {
-        console.log('Racks: ', racks);
-        if (racks.length > 0) {
-            const racksDropdown = racks.map(rack => ({
-                id: rack.id,
-                name: rack.name + ' - ' + rack.location,
-                category: rack.category,
-            }));
-            setWarehouse(racksDropdown);
-            setSelectedWarehouse(initialData.warehouse?.id || racks[0]?.id || 1);
-        }
-    }, [racks]);
-
     useEffect(() => {
         if (mode === "create" && formatCode) {
             const generate = async () => {
@@ -251,6 +242,7 @@ const EntitySalesOrder = ({
         e.preventDefault();
         setLoading(true);
         console.log('Warehouse: ', warehouse);
+        console.log('Items : ', items);
 
         let valid = true;
 
@@ -273,18 +265,55 @@ const EntitySalesOrder = ({
 
         try {
             const filteredItems = items.filter(item => item.item && item.qty);
-            const cleanedItems = filteredItems.map(item => ({
-                item: {
-                    id: item.item?.id,
-                    code: item.item?.category?.code + '-' + item.item?.code,
-                    name: item.item?.category?.name + ' - ' + item.item?.name + (item.item?.brand ? ` (${item.item.brand})` : ''),
-                },
-                qty: parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0,
-                price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
-                discount: parseFloat(
-                    (item.discount || "0").toString().replace(/[^0-9.]/g, "")
-                ) / 100 || 0,
-            }));
+            console.log('Filtered Items: ', filteredItems);
+            const cleanedItems = filteredItems.map(item => {
+                console.log('Cleaned Items Items: ', item);
+                console.log('Selected Warehouse: ', selectedWarehouse);
+                const requestedQty = parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0;
+                const matchedRack = item.item?.racks?.find(r => r.rackId === selectedWarehouse.id);
+                console.log("matchedRack:", matchedRack); // DEBUG
+
+                const stock = matchedRack?.stock || 0;
+
+                return {
+                    item: {
+                        id: item.item?.id,
+                        code: item.item?.category?.code + '-' + item.item?.code,
+                        name: item.item?.category?.name + ' - ' + item.item?.name + (item.item?.brand ? ` (${item.item.brand})` : ''),
+                    },
+                    requestedQty,
+                    availableQty: stock,
+                    price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                    discount: parseFloat((item.discount || "0").toString().replace(/[^0-9.]/g, "")) / 100 || 0,
+                };
+            });
+
+            // Bagi menjadi item cukup dan kurang
+            const orderItems = [];
+            const boItems = [];
+
+            for (const item of cleanedItems) {
+                console.log('Item - 290: ', item);
+                if (item.availableQty >= item.requestedQty) {
+                    // Cukup
+                    orderItems.push({ ...item, qty: item.requestedQty });
+                } else if (item.availableQty > 0) {
+                    // Sebagian cukup, sisanya BO
+                    orderItems.push({ ...item, qty: item.availableQty });
+                    boItems.push({ ...item, qty: item.requestedQty - item.availableQty });
+                } else {
+                    // Tidak ada stok, full BO
+                    boItems.push({ ...item, qty: item.requestedQty });
+                }
+            }
+
+            if (boItems.length > 0) {
+                setPendingBO(boItems);
+                setFinalOrderItems(orderItems);
+                setShowBOConfirmation(true);
+                return setLoading(false); // Tunggu user konfirmasi dulu
+            }
+
 
             console.log('cleanedItems: ', cleanedItems);
 
@@ -340,18 +369,18 @@ const EntitySalesOrder = ({
 
             console.log('New Sales Order Data: ', newSalesOrder);
 
-            try {
-                await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
-                if (mode === "create" && !exists) {
-                    const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
-                    console.log('New Code: ', newCode);
-                    setCode(newCode);
-                }
-            } catch (submitError) {
-                console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
-                return;
-            }
+            // try {
+            //     await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
+            //     if (mode === "create" && !exists) {
+            //         const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+            //         console.log('New Code: ', newCode);
+            //         setCode(newCode);
+            //     }
+            // } catch (submitError) {
+            //     console.error("Error during onSubmit: ", submitError);
+            //     showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
+            //     return;
+            // }
 
             showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
@@ -360,6 +389,30 @@ const EntitySalesOrder = ({
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSaveOrder = async (finalItems) => {
+        const totalPrice = finalItems.reduce((total, item) => {
+            const discountedPrice = item.price * (1 - item.discount);
+            return total + (discountedPrice * item.qty);
+        }, 0);
+
+        const orderData = {
+            customer,
+            code,
+            description,
+            items: finalItems,
+            warehouse: selectedWarehouse,
+            isPrint: false,
+            totalPrice,
+            status: 'Mengantri',
+            createdAt: Timestamp.fromDate(new Date(createdAt)),
+            updatedAt: Timestamp.now(),
+        };
+        console.log('Order Data: ', orderData)
+
+        // await SalesOrderRepository.createSalesOrder(orderData); // or whatever logic
+        showToast('berhasil', 'Pesanan berhasil disimpan!');
     };
 
     const handleConfirmationActiveStock = async () => {
@@ -408,6 +461,15 @@ const EntitySalesOrder = ({
             showToast("gagal", "Gagal menghapus pesanan!");
         }
     }
+
+    const [rackOptions, setRackOptions] = useState([]);
+    useEffect(() => {
+        const fetchRacks = async () => {
+            const results = await loadRackOptions('');
+            setRackOptions(results);
+        };
+        fetchRacks();
+    }, []);
 
 
     return (
@@ -528,8 +590,8 @@ const EntitySalesOrder = ({
                             }
                             setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
                             enableStock={true}
-                            stocks={racks || []}
-                            stockSelectedId={selectedWarehouse}
+                            stocks={rackOptions || []}
+                            stockSelectedId={selectedWarehouse.id}
                             mode="item"
                         />
                         <InputLabel
@@ -619,6 +681,48 @@ const EntitySalesOrder = ({
                 isOpen={accessDenied}
                 onClose={() => setAccessDenied(false)}
             />
+
+            {showBOConfirmation && (
+                <div className='modal-overlay'>
+                    <div className="modal-content">
+                        <h3 className="bo-title">Stok Tidak Mencukupi</h3>
+                        <ul className="bo-list">
+                            {pendingBO.map((item, i) => (
+                                <li key={i}>
+                                    {item.item.name} kurang {item.qty}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="bo-buttons">
+                            <ActionButton
+                                title={'Batal'}
+                                onclick={() => setShowBOConfirmation(false)}
+                            />
+                            <button
+                                className="btn btn-confirm"
+                                onClick={() => {
+                                    handleSaveOrder(finalOrderItems); // Simpan item cukup
+                                    saveBackOrder(pendingBO); // Simpan BO
+                                    setShowBOConfirmation(false);
+                                }}
+                            >
+                                Pindahkan ke Pesanan Tertunda
+                            </button>
+                            <button
+                                className="btn btn-cancel"
+                                onClick={() => {
+                                    handleSaveOrder(finalOrderItems); // Simpan item cukup
+                                    setShowBOConfirmation(false);
+                                }}
+                            >
+                                Batalkan Item Kurang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
         </div>
     )
 }

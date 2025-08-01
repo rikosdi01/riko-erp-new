@@ -168,7 +168,7 @@ const ContainerSearch = ({
                                             console.log('stockSelectedId:', stockSelectedId);
 
                                             const rackQty = selectedValue?.racks?.find(
-                                                (rack) => rack.id === selectedRack
+                                                (rack) => rack.rackId === selectedRack
                                             )?.stock;
 
                                             console.log('Rack Quantity:', rackQty);

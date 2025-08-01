@@ -1,25 +1,30 @@
 import { useParams } from "react-router-dom";
-import MerksRepository from "../../../../../../repository/warehouse/MerksRepository";
 import './DetailCustomer.css'
 import { useEffect, useState } from "react";
 import EntityCustomers from "../../components/entity_customers/EntityCustomers";
-import { useCustomers } from "../../../../../../context/sales/CustomersContext";
 import CustomersRepository from "../../../../../../repository/sales/CustomersRepository";
+import UserRepository from "../../../../../../repository/authentication/UserRepository";
 
 const DetailCustomer = () => {
     // Hooks
     const { id } = useParams();
-    const { customers } = useCustomers();
     console.log(id);
 
     const [customer, setCustomer] = useState([]);
 
-    useEffect(() => {
-        const selectedCustomer = customers.find((c) => c.id === id);
-        if (selectedCustomer) {
-            setCustomer(selectedCustomer);
-        }
-    }, [customers, id]);
+        // Fetch the item details using the id from the URL
+        useEffect(() => {
+            const fetchCustomerDetails = async () => {
+                try {
+                    const customerDetails = await UserRepository.getUserByUID(id);
+                    setCustomer(customerDetails);
+                } catch (error) {
+                    console.error("Error fetching item details: ", error);
+                }
+            };
+    
+            fetchCustomerDetails();
+        }, [id]);
 
     return (
         <div>
@@ -27,7 +32,7 @@ const DetailCustomer = () => {
                 mode={'detail'}
                 initialData={customer}
                 onSubmit={async (data) => {
-                    await CustomersRepository.updateCustomers(id, data);
+                    await UserRepository.updateUserData(id, data);
                 }}
             />
         </div>

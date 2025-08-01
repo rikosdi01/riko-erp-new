@@ -27,11 +27,11 @@ const SalesOrder = () => {
             accessor: "totalPrice",
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
         },
-        {
-            header: "Sudah Print?",
-            accessor: "isPrint",
-            renderCell: (value) => value ? 'Sudah Print' : 'Belum Print'
-        },
+        // {
+        //     header: "Sudah Print?",
+        //     accessor: "isPrint",
+        //     renderCell: (value) => value ? 'Sudah Print' : 'Belum Print'
+        // },
         { header: "Status", accessor: "status" }
     ]
 

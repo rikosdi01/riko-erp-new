@@ -21,13 +21,14 @@ const EntityCustomers = ({
     initialData = {},
     onSubmit
 }) => {
+    console.log('Initial Data: ', initialData);
     const { showToast } = useToast();
     const { accessList } = useUsers();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
     const { salesman } = useSalesman();
 
-    const [name, setName] = useState(initialData.name || "");
+    const [name, setName] = useState(initialData.username || "");
     const [address, setAddress] = useState(initialData.address || "");
     const [phone, setPhone] = useState(initialData.phone || "");
     const [city, setCity] = useState(initialData.city || "");
@@ -53,7 +54,7 @@ const EntityCustomers = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
-        setName(initialData.name || "");
+        setName(initialData.username || "");
         setAddress(initialData.address || "");
         setPhone(initialData.phone || "");
         setCity(initialData.city || "");
