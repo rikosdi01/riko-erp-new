@@ -13,7 +13,7 @@ const Customers = () => {
 
 
     const columns = [
-        { header: "Nama Customer", accessor: "name" },
+        { header: "Nama Pelanggan", accessor: "name" },
         { header: "Alamat", accessor: "address" },
         { header: "Telepon", accessor: "phone" },
         { header: "Kota", accessor: "city" },
@@ -33,7 +33,7 @@ const Customers = () => {
 
     return (
         <CustomAlgoliaContainer
-            pageLabel="Customer"
+            pageLabel="Pelanggan"
             searchClient={clientCustomers}
             indexName={ALGOLIA_INDEX_CUSTOMERS}
             columns={columns}

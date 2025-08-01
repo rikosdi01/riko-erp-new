@@ -34,8 +34,6 @@ const Salesman = () => {
     const columns = [
         { header: "Kode Sales", accessor: "code" },
         { header: "Nama Sales", accessor: "name" },
-        { header: "Target Penjualan", accessor: "target" },
-        { header: "Total Penjualan", accessor: "total" },
     ]
 
     // Filter Data

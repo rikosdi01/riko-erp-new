@@ -26,6 +26,7 @@ const EntitySalesOrder = ({
     onSubmit,
 }) => {
     const { loginUser, accessList } = useUsers();
+    console.log('Login User: ', loginUser);
     console.log('Initial Data: ', initialData);
     // Context
     const { showToast } = useToast();
@@ -47,8 +48,8 @@ const EntitySalesOrder = ({
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
-    const [warehouse, setWarehouse] = useState([]);
-    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+    const [warehouse, setWarehouse] = useState(initialData.warehouse || []);
+    const [selectedWarehouse, setSelectedWarehouse] = useState(initialData.warehouse || []);
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [isPrint, setIsPrint] = useState(initialData.isPrint || '');
     const [codeError, setCodeError] = useState("");
@@ -59,9 +60,13 @@ const EntitySalesOrder = ({
     const [showPreview, setShowPreview] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
 
+    useEffect(() => {
+        console.log('Items: ', items);
+    }, [items]);
 
     useEffect(() => {
         const fetchRack = async () => {
+            console.log('Rack Format: ', rackFormat)
             if (!rackFormat) return;
 
             const { hits } = await rackIndex.search('', {
@@ -74,6 +79,7 @@ const EntitySalesOrder = ({
                     id: rack.objectID,
                     name: rack.name,
                     location: rack.location,
+                    category: rack.category,
                 });
             }
         };
@@ -101,39 +107,28 @@ const EntitySalesOrder = ({
         console.log('index: ', index);
         console.log('field: ', field);
         console.log('value: ', value);
+
         const updatedItems = [...items];
-        const selectedWarehouseName = racks.find(r => r.id === warehouse)?.name;
-        console.log('selectedWarehouseName : ', selectedWarehouseName);
-        console.log('Items: ', items);
 
         if (field === "item") {
-            const racksArray = value?.rack || []; // atau ganti nama jadi value?.racks untuk lebih benar secara grammar
-            console.log('racksArray : ', racksArray);
-
-            // Fix: pakai `rack.rack`, bukan `rack.name`
-            const matchedRack = racksArray.find(rack => rack.rack === selectedWarehouseName);
-            const stockFromThisWarehouse = matchedRack?.stock ?? 0;
-
             updatedItems[index] = {
                 ...updatedItems[index],
                 item: value,
-                stock: stockFromThisWarehouse,
-                price: value?.price ? Formatting.formatCurrencyIDR(value?.price) : "",
-            };
-        } else if (field === "stock") {
-            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
-            updatedItems[index] = {
-                ...updatedItems[index],
-                stock: raw ? parseInt(raw) : "",
+                price: value?.price !== undefined ? Formatting.formatCurrencyIDR(value.price) : "",
             };
         } else if (field === "price") {
-            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
+            const raw = value.toString().replace(/[^0-9]/g, "");
             updatedItems[index] = {
                 ...updatedItems[index],
                 price: raw ? Formatting.formatCurrencyIDR(raw) : "",
             };
+        } else if (field === "qty") {
+            updatedItems[index] = {
+                ...updatedItems[index],
+                qty: value,
+            };
         } else if (field === "discount") {
-            const raw = value.toString().replace(/[^0-9]/g, ""); // hanya angka
+            const raw = value.toString().replace(/[^0-9]/g, "");
             updatedItems[index] = {
                 ...updatedItems[index],
                 discount: raw ? `${raw}%` : "",
@@ -145,7 +140,7 @@ const EntitySalesOrder = ({
             };
         }
 
-        // Validasi dan tambah baris seperti biasa
+        // Tambah baris baru jika baris terakhir sudah lengkap
         const isRowComplete = (row) => row.item && row.qty;
         const isRowFilled = (row) => row.item || row.qty;
 
@@ -196,7 +191,7 @@ const EntitySalesOrder = ({
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
         setWarehouse(racks);
-        setSelectedWarehouse(initialData.warehouse?.id || '');
+        setSelectedWarehouse(initialData.warehouse || []);
         setIsPrint(initialData.isPrint || '');
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
@@ -232,6 +227,7 @@ const EntitySalesOrder = ({
     const handleSalesOrder = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
+        console.log('Warehouse: ', warehouse);
 
         let valid = true;
 
@@ -240,7 +236,7 @@ const EntitySalesOrder = ({
             valid = false;
         }
 
-        if (!warehouse.trim()) {
+        if (!selectedWarehouse) {
             setWarehouseError('Gudang tidak boleh kosong!');
             valid = false;
         }
@@ -257,8 +253,8 @@ const EntitySalesOrder = ({
             const cleanedItems = filteredItems.map(item => ({
                 item: {
                     id: item.item?.id,
-                    code: item.item?.code,
-                    name: item.item?.name,
+                    code: item.item?.category?.code + '-' + item.item?.code,
+                    name: item.item?.category?.name + ' - ' + item.item?.name + (item.item?.brand ? ` (${item.item.brand})` : ''),
                 },
                 qty: parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0,
                 price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
@@ -269,31 +265,47 @@ const EntitySalesOrder = ({
 
             console.log('cleanedItems: ', cleanedItems);
 
-            const wh = racks.find(wh => wh.id === warehouse);
-
-            const filteredWH = {
-                id: wh.id,
-                name: wh.name,
-                category: wh.category,
-            };
-
             const exists = await SalesOrderRepository.checkSalesOrderExists(
                 code.trim(),
                 mode === "detail" ? initialData.id : null
             );
 
+            let finalCode = code;
+            let lastValue = 0;
+
             if (exists) {
-                showToast("gagal", "Kode Sales Order sudah digunakan!");
-                return setLoading(false);
+                try {
+                    const { candidate, nextCandidate, last, formattingCode } = await CounterRepository.getAvailableNextCode(
+                        formatCode,
+                        uniqueFormat,
+                        monthFormat,
+                        yearFormat
+                    );
+
+                    const confirmed = await confirmAutoCode(candidate);
+                    if (confirmed) {
+                        await CounterRepository.commitNextCode(formattingCode, last);
+                        finalCode = candidate; // simpan untuk langsung dipakai
+                        lastValue = last;
+                        setCode(nextCandidate); // tetap update state
+                    } else {
+                        showToast("gagal", "Silakan ubah kode pesanan secara manual.");
+                        return setLoading(false);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast("gagal", "Gagal mendapatkan kode baru. Silakan ubah manual.");
+                    return setLoading(false);
+                }
             }
 
             const newSalesOrder = {
                 customer,
-                code,
+                code: finalCode,
                 description,
                 items: cleanedItems,
-                warehouse: filteredWH,
-                isPrint,
+                warehouse: selectedWarehouse,
+                isPrint: false,
                 totalPrice: cleanedItems.reduce((total, item) => {
                     const discountedPrice = item.price * (1 - item.discount); // Harga setelah diskon
                     return total + (discountedPrice * item.qty);
@@ -305,13 +317,18 @@ const EntitySalesOrder = ({
 
             console.log('New Sales Order Data: ', newSalesOrder);
 
-            // try {
-            //     await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
-            // } catch (submitError) {
-            //     console.error("Error during onSubmit: ", submitError);
-            //     showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
-            //     return;
-            // }
+            try {
+                await onSubmit(newSalesOrder, handleReset); // Eksekusi yang berisiko error
+                if (mode === "create" && !exists) {
+                    const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
+                    console.log('New Code: ', newCode);
+                    setCode(newCode);
+                }
+            } catch (submitError) {
+                console.error("Error during onSubmit: ", submitError);
+                showToast("gagal", mode === "create" ? "Gagal menyimpan adj!" : "Gagal memperbarui adj!");
+                return;
+            }
 
             showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
         } catch (error) {
@@ -397,7 +414,7 @@ const EntitySalesOrder = ({
                     ]}
                     value={
                         customer?.name
-                            ? `${customer.name} (${customer.salesman})`
+                            ? `${customer.name}${customer.salesman ? ` (${customer.salesman})` : ''}`
                             : "Pilih Pelanggan"
                     }
                     setValues={setCustomer}
@@ -472,8 +489,8 @@ const EntitySalesOrder = ({
                                 },
                             ]}
                             value={
-                                item.item?.category?.name && item.item?.name && item.item?.brand
-                                    ? `${item.item.category.name} - ${item.item.name} (${item.item.brand})`
+                                item.item?.name
+                                    ? `${item.item?.category?.name ? item.item?.category?.name + ' - ' : ''} ${item.item?.name || ''} (${item.item?.brand || ''})`
                                     : "Pilih Item"
                             }
                             setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
