@@ -1,154 +1,124 @@
+import React, { useEffect, useState } from 'react';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-    PieChart, Pie, Cell, LineChart, Line
+    BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
-import dayjs from 'dayjs';
-import { useCSO } from '../../../../context/sales/CSOContext';
-import { useCustomers } from '../../../../context/sales/CustomersContext';
-import { useReturnOrder } from '../../../../context/sales/ReturnOrderContext';
-import { useSalesman } from '../../../../context/sales/SalesmanContext';
-import { useSalesOrder } from '../../../../context/sales/SalesOrderContext';
+
 import './SalesDashboard.css';
+import { soIndex, usersIndex } from '../../../../../config/algoliaConfig';
+import { useSalesman } from '../../../../context/sales/SalesmanContext';
+import Formatting from '../../../../utils/format/Formatting';
 
 const SalesDashboard = () => {
-    const { salesOrder } = useSalesOrder();
-    const { returnOrder } = useReturnOrder();
-    const { customers } = useCustomers();
-    const { salesman } = useSalesman();
-    const { cso } = useCSO();
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [totalCustomers, setTotalCustomers] = useState(0);
+    const [totalReturns, setTotalReturns] = useState(0);
+    const [orderStatusData, setOrderStatusData] = useState([]);
+    const [latestOrders, setLatestOrders] = useState([]);
+    const { salesmen } = useSalesman(); // ← ambil dari context
 
-    const totalOrder = salesOrder.length;
-    const totalCustomer = customers.length;
-    const totalPenjualan = salesOrder.reduce((acc, item) => acc + item.price, 0);
-    const totalRetur = returnOrder.length;
 
-    const orderStatusData = [
-        { name: 'Tercetak', value: salesOrder.filter(item => item.status === 'Tercetak').length },
-        { name: 'Belum Tercetak', value: salesOrder.filter(item => item.status === 'Belum Tercetak').length },
-    ];
+    const STATUS_LABELS = ['mengantri', 'diproses', 'selesai', 'pending', 'tertunda'];
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA66CC'];
 
-    const salesByCustomer = salesOrder.reduce((acc, order) => {
-        const existing = acc.find(item => item.name === order.customerName);
-        if (existing) {
-            existing.total += order.price;
-        } else {
-            acc.push({ name: order.customerName, total: order.price });
-        }
-        return acc;
+    useEffect(() => {
+        const fetchSalesData = async () => {
+            try {
+                // 1. Pesanan Penjualan
+                const ordersRes = await soIndex.search('', { hitsPerPage: 1000 });
+                const orders = ordersRes.hits;
+                setTotalOrders(ordersRes.nbHits);
+
+                // Hitung berdasarkan status
+                const statusMap = {};
+                orders.forEach(order => {
+                    const status = order.status || 'tidak diketahui';
+                    statusMap[status] = (statusMap[status] || 0) + 1;
+                });
+
+                const statusData = Object.entries(statusMap).map(([status, count]) => ({
+                    status,
+                    count
+                }));
+                setOrderStatusData(statusData);
+
+                // Ambil 5 orderan terbaru
+                setLatestOrders(orders.slice(0, 5));
+
+                // 2. Total Customer
+                const customersRes = await usersIndex.search('', { hitsPerPage: 0 });
+                setTotalCustomers(customersRes.nbHits);
+
+                // 3. Total Retur Penjualan
+                // const returnRes = await ioI.search('', { hitsPerPage: 0 });
+                // setTotalReturns(returnRes.nbHits);
+
+            } catch (err) {
+                console.error("Sales Dashboard Error:", err);
+            }
+        };
+
+        fetchSalesData();
     }, []);
-
-    const salesBySalesman = salesOrder.reduce((acc, order) => {
-        console.log(acc);
-        console.log(order);
-        const existing = acc.find(item => item.name === order.salesmanName);
-        if (existing) {
-            existing.total += order.price;
-        } else {
-            acc.push({ name: order.salesmanName, total: order.price });
-        }
-        return acc;
-    }, []);
-
-    const monthlySales = {};
-
-    salesOrder.forEach(order => {
-        if (order.createdAt && dayjs(+order.createdAt).isValid()) {
-            const month = dayjs(+order.createdAt).format('YYYY-MM');
-            monthlySales[month] = (monthlySales[month] || 0) + order.price;
-        }
-    });
-
-    const monthlySalesData = Object.entries(monthlySales).map(([month, total]) => ({
-        month,
-        total,
-    }));
-
-
-    const pieColors = ['#00C49F', '#FF8042'];
 
     return (
-        <div className="dashboard-container">
+        <div className="main-container">
+            <h1>Sales Dashboard</h1>
+
             {/* Summary Cards */}
-            <div className="card-grid">
-                <div className="card">
-                    <h3>Total Order</h3>
-                    <p className="card-value">{totalOrder}</p>
-                </div>
-                <div className="card">
-                    <h3>Total Customer</h3>
-                    <p className="card-value">{totalCustomer}</p>
-                </div>
-                <div className="card">
-                    <h3>Total Penjualan</h3>
-                    <p className="card-value">Rp {totalPenjualan.toLocaleString('id-ID')}</p>
-                </div>
-                <div className="card">
-                    <h3>Total Retur</h3>
-                    <p className="card-value">{totalRetur}</p>
+            <div className="summary-cards">
+                <div className="card">Total Pesanan: {totalOrders}</div>
+                <div className="card">Total Customer: {totalCustomers}</div>
+                <div className="card">Total Salesman: {salesmen?.length || 0}</div>
+                <div className="card">Total Retur: {totalReturns}</div>
+            </div>
+
+            {/* Chart Status Pesanan */}
+            <div className="charts">
+                <div className="chart-container">
+                    <h3>Status Pesanan</h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                            <Pie
+                                data={orderStatusData}
+                                dataKey="count"
+                                nameKey="status"
+                                outerRadius={80}
+                                label
+                            >
+                                {orderStatusData.map((entry, index) => (
+                                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Legend />
+                            <Tooltip />
+                        </PieChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 
-            {/* Charts */}
-            <div className="chart-grid">
-                <div className="chart-card-custom">
-                    <h3>Status Pemesanan</h3>
-                    {/* <PieChart width={300} height={250}>
-                        <Pie
-                            data={orderStatusData}
-                            cx="50%"
-                            cy="50%"
-                            label
-                            outerRadius={80}
-                            dataKey="value"
-                        >
-                            {orderStatusData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                    </PieChart> */}
-                    <div>Tidak ada data</div>
-                </div>
-
-                <div className="chart-card-custom">
-                    <h3>Penjualan per Customer</h3>
-                    {/* <BarChart width={400} height={250} data={salesByCustomer}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis tickFormatter={(value) => `Rp ${value / 1000}k`} />
-                        <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
-                        <Legend />
-                        <Bar dataKey="total" fill="#8884d8" name="Penjualan" />
-                    </BarChart> */}
-                    <div>Tidak ada data</div>
-                </div>
-
-                <div className="chart-card-custom">
-                    <h3>Penjualan per Salesman</h3>
-                    {/* <BarChart width={400} height={250} data={salesBySalesman}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis tickFormatter={(value) => `Rp ${value / 1000}k`} />
-                        <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
-                        <Legend />
-                        <Bar dataKey="total" fill="#82ca9d" name="Penjualan" />
-                    </BarChart> */}
-                    <div>Tidak ada data</div>
-                </div>
-
-                <div className="chart-card-custom">
-                    <h3>Tren Penjualan Bulanan</h3>
-                    {/* <LineChart width={400} height={250} data={monthlySalesData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis tickFormatter={(value) => `Rp ${value / 1000}k`} />
-                        <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
-                        <Legend />
-                        <Line type="monotone" dataKey="total" stroke="#ff7300" name="Penjualan Bulanan" />
-                    </LineChart> */}
-                    <div>Tidak ada data</div>
-                </div>
-
+            {/* Tabel Pesanan Terbaru */}
+            <div className="recent-orders">
+                <h3>Pesanan Terbaru</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {latestOrders.map(order => (
+                            <tr key={order.objectID}>
+                                <td>{order.code || '-'}</td>
+                                <td>{order.customer?.name || '-'}</td>
+                                <td>{order.status}</td>
+                                <td>{Formatting.formatDateByTimestamp(order.createdAt)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

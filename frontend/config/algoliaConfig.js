@@ -85,14 +85,17 @@ export {
     productIndex,
     categoryIndex,
     rackIndex,
+    usersIndex,
     clientItems,
     clientCategories,
     clientInventory,
     clientRack,
+    clientUsers,
     ALGOLIA_INDEX_ITEMS,
     ALGOLIA_INDEX_CATEGORIES,
     ALGOLIA_INDEX_INVENTORY,
     ALGOLIA_INDEX_WAREHOUSE,
+    ALGOLIA_INDEX_USERS,
 
 
     // Sales

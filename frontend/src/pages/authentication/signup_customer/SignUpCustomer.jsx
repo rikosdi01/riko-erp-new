@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { serverTimestamp, Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { auth } from "../../../firebase";
 import UserRepository from "../../../repository/authentication/UserRepository";
 import "./SignUpCustomer.css";
 
-import CustomersRepository from "../../../repository/sales/CustomersRepository";
 import { useToast } from "../../../context/ToastContext";
 import InputGroup from "../../../components/input/input_group/InputGroup";
-import { Eye, EyeOff, LockKeyhole, Mail, MapPin, Phone, Store } from "lucide-react";
+import { Eye, EyeOff, FlagTriangleRight, Hotel, LockKeyhole, Mail, MapPin, Phone, Store, UserCheck } from "lucide-react";
+import ContentHeader from "../../../components/content_header/ContentHeader";
+import { useUsers } from "../../../context/auth/UsersContext";
+import Dropdown from "../../../components/select/Dropdown";
+import { useSalesman } from "../../../context/sales/SalesmanContext";
 
 const SignUpCustomer = () => {
     const navigate = useNavigate();
+    const { loginUser } = useUsers();
     const { showToast } = useToast();
+    const { salesman } = useSalesman();
     const [showPassword, setShowPassword] = useState(false);
+    const [selectedSalesman, setSelectedSalesman] = useState(null);
 
     const [formData, setFormData] = useState({
         email: "",
@@ -42,7 +48,7 @@ const SignUpCustomer = () => {
             // 1. Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
             const user = userCredential.user;
-            
+
             console.log("User created:", user);
             console.log("User data:", formData);
 
@@ -58,6 +64,7 @@ const SignUpCustomer = () => {
                 address: formData.address,
                 city: formData.city,
                 province: formData.province,
+                salesman: selectedSalesman, // ⬅️ tambahkan ini
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             });
@@ -73,86 +80,97 @@ const SignUpCustomer = () => {
     return (
         <div className="signin-container">
             <div className="signin-customer-content">
-            <form onSubmit={handleSubmit}>
-                <h2 className="form-title">Sign Up Customer</h2>
-
-                <InputGroup
-                    label={"Email"}
-                    icon={<Mail className="input-icon" />}
-                    value={formData.email}
-                    handleChange={handleChange}
-                    type={"email"}
-                    name={"email"}
-                />
-
-                <InputGroup
-                    label={"Password"}
-                    icon={<LockKeyhole className="input-icon" />}
-                    value={formData.password}
-                    handleChange={handleChange}
-                    type={showPassword ? "text" : "password"}
-                    name={"password"}
-                    leadingIcon={
-                        <span className="toggle-password" onClick={togglePasswordVisibility} style={{ cursor: "pointer" }}>
-                            {showPassword ? <Eye /> : <EyeOff />} {/* Bisa ganti jadi Eye/EyeOff */}
-                        </span>}
-                />
-
-                <InputGroup
-                    label={"Nama Toko"}
-                    icon={<Store className="input-icon" />}
-                    value={formData.name}
-                    handleChange={handleChange}
-                    type={"text"}
-                    name={"name"}
-                />
-
-                <div className="signup-customer-form-flex">
-                    <InputGroup
-                        label={"Nomor HP"}
-                        icon={<Phone className="input-icon" />}
-                        value={formData.phone}
-                        handleChange={handleChange}
-                        type={"text"}
-                        name={"phone"}
-                        isRequired={false}
+                <form onSubmit={handleSubmit}>
+                    <ContentHeader
+                        title="Daftar Pelanggan"
+                        enableBack={loginUser?.type !== 'customer'}
                     />
 
                     <InputGroup
-                        label={"Alamat"}
-                        icon={<MapPin className="input-icon" />}
-                        value={formData.address}
+                        label={"Email"}
+                        icon={<Mail className="input-icon" />}
+                        value={formData.email}
                         handleChange={handleChange}
-                        type={"text"}
-                        name={"address"}
-                        isRequired={false}
-                    />
-                </div>
-
-                <div className="signup-customer-form-flex">
-                    <InputGroup
-                        label={"Kota"}
-                        icon={<MapPin className="input-icon" />}
-                        value={formData.city}
-                        handleChange={handleChange}
-                        type={"text"}
-                        name={"city"}
-                        isRequired={false}
+                        type={"email"}
+                        name={"email"}
                     />
 
                     <InputGroup
-                        label={"Provinsi"}
-                        icon={<MapPin className="input-icon" />}
-                        value={formData.province}
+                        label={"Password"}
+                        icon={<LockKeyhole className="input-icon" />}
+                        value={formData.password}
+                        handleChange={handleChange}
+                        type={showPassword ? "text" : "password"}
+                        name={"password"}
+                        leadingIcon={
+                            <span className="toggle-password" onClick={togglePasswordVisibility} style={{ cursor: "pointer" }}>
+                                {showPassword ? <Eye /> : <EyeOff />} {/* Bisa ganti jadi Eye/EyeOff */}
+                            </span>}
+                    />
+
+                    <InputGroup
+                        label={"Nama Toko"}
+                        icon={<Store className="input-icon" />}
+                        value={formData.name}
                         handleChange={handleChange}
                         type={"text"}
-                        name={"province"}
-                        isRequired={false}
+                        name={"name"}
                     />
-                </div>
 
-                <button className="submit-button" type="submit">Sign Up</button>
-            </form>
+                    <Dropdown
+                        values={salesman}
+                        selectedId={selectedSalesman}
+                        setSelectedId={setSelectedSalesman}
+                        label={"Pilih Sales"}
+                        icon={<UserCheck className="input-icon" />}
+                    />
+
+                    <div className="signup-customer-form-flex">
+                        <InputGroup
+                            label={"Nomor HP"}
+                            icon={<Phone className="input-icon" />}
+                            value={formData.phone}
+                            handleChange={handleChange}
+                            type={"text"}
+                            name={"phone"}
+                            isRequired={false}
+                        />
+
+                        <InputGroup
+                            label={"Alamat"}
+                            icon={<MapPin className="input-icon" />}
+                            value={formData.address}
+                            handleChange={handleChange}
+                            type={"text"}
+                            name={"address"}
+                            isRequired={false}
+                        />
+                    </div>
+
+                    <div className="signup-customer-form-flex">
+                        <InputGroup
+                            label={"Kota"}
+                            icon={<Hotel className="input-icon" />}
+                            value={formData.city}
+                            handleChange={handleChange}
+                            type={"text"}
+                            name={"city"}
+                            isRequired={false}
+                        />
+
+                        <InputGroup
+                            label={"Provinsi"}
+                            icon={<FlagTriangleRight className="input-icon" />}
+                            value={formData.province}
+                            handleChange={handleChange}
+                            type={"text"}
+                            name={"province"}
+                            isRequired={false}
+                        />
+                    </div>
+
+                    <button className="submit-button" type="submit">Sign Up</button>
+                </form>
             </div>
         </div>
     );
