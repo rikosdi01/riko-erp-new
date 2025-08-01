@@ -33,12 +33,19 @@ const DetailListOrder = () => {
         try {
             await SalesOrderRepository.updateStatusValue(id, status);
             showToast('berhasil', successMessage);
-            navigate('/customer/list-orders');
+
+            // 🔁 Fetch ulang data order agar status ter-update di tampilan
+            const updated = await SalesOrderRepository.getSalesOrderById(id);
+            setSalesOrder(updated);
+
+            // (Opsional) kalau tetap mau arahkan ke halaman lain
+            // navigate('/customer/list-orders');
         } catch (error) {
-            showToast('gagal', failMessage)
+            showToast('gagal', failMessage);
             console.log('Error when cancelling order : ', error);
         }
-    }
+    };
+
 
     if (!salesOrder) return <div>Loading...</div>;
 
@@ -107,6 +114,34 @@ const DetailListOrder = () => {
             )}
             {salesOrder.status === 'tertunda' && (
                 <div>Pesanan anda menunggu barang masuk...</div>
+            )}
+            {salesOrder.status === 'pending' && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'end', flexDirection: 'column' }}>
+                    <div className='customer-order-pending'>Pesanan anda telah tersedia</div>
+                    <div className='customer-order-pending-button'>
+                        <ActionButton
+                            title={'Batalkan'}
+                            onclick={() => [
+                                handleUpdateOrderStatus(
+                                    'Batal',
+                                    'Pesanan berhasil dibatalkan',
+                                    'Pesanan gagal dibatalkan'
+                                )
+                            ]}
+                            background={'red'}
+                        />
+                        <ActionButton
+                            title={'Pesan Sekarang'}
+                            onclick={() => [
+                                handleUpdateOrderStatus(
+                                    'mengantri',
+                                    'Pesanan berhasil dipesan',
+                                    'Pesanan gagal dipesan'
+                                )
+                            ]}
+                        />
+                    </div>
+                </div>
             )}
 
             {confirmationModal && (

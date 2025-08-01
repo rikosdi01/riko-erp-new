@@ -228,7 +228,7 @@ const EntitySalesOrder = ({
         setWarehouse(racks);
         setSelectedWarehouse(initialData.warehouse || []);
         setIsPrint(initialData.isPrint || false);
-        setStatus(initialData.status || 'Mengantri');
+        setStatus(initialData.status || 'mengantri');
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -439,7 +439,7 @@ const EntitySalesOrder = ({
             warehouse: selectedWarehouse,
             isPrint: false,
             totalPrice,
-            status: 'Mengantri',
+            status: 'mengantri',
             createdAt: Timestamp.fromDate(new Date(createdAt)),
             updatedAt: Timestamp.now(),
         };
@@ -483,7 +483,7 @@ const EntitySalesOrder = ({
             warehouse: selectedWarehouse,
             isPrint: false,
             totalPrice,
-            status: 'Tertunda',
+            status: 'tertunda',
             createdAt: Timestamp.fromDate(new Date(createdAt)),
             updatedAt: Timestamp.now(),
         };
@@ -500,6 +500,29 @@ const EntitySalesOrder = ({
     const handleConfirmationActiveStock = async () => {
         try {
             await SalesOrderRepository.updateStatusValue(initialData.id || initialData.objectID, 'pending');
+            setStatus('pending'); // 🔥 Tambahkan ini
+            showToast("berhasil", "Status Pesanan berhasil diperbarui!");
+        } catch (error) {
+            console.error("Gagal memperbarui status:", error);
+            showToast("gagal", "Gagal memperbarui status Pesanan!");
+        }
+    }
+
+    const handleAvaibleOrder = async () => {
+        try {
+            await SalesOrderRepository.updateStatusValue(initialData.id || initialData.objectID, 'mengantri');
+            setStatus('mengantri'); // 🔥 Tambahkan ini
+            showToast("berhasil", "Status Pesanan berhasil diperbarui!");
+        } catch (error) {
+            console.error("Gagal memperbarui status:", error);
+            showToast("gagal", "Gagal memperbarui status Pesanan!");
+        }
+    }
+
+    const handleCancelOrder = async () => {
+        try {
+            await SalesOrderRepository.updateStatusValue(initialData.id || initialData.objectID, 'batal');
+            setStatus('batal'); // 🔥 Tambahkan ini
             showToast("berhasil", "Status Pesanan berhasil diperbarui!");
         } catch (error) {
             console.error("Gagal memperbarui status:", error);
@@ -727,11 +750,27 @@ const EntitySalesOrder = ({
                     )}
 
                     {status === 'tertunda' && (
-                        <ActionButton
-                            title={loading ? "Mengkonfirmasikan..." : "Konfirmasikan Produk telah Tersedia"}
-                            disabled={loading}
-                            onclick={handleConfirmationActiveStock}
-                        />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <ActionButton
+                                title={loading ? "Mengkonfirmasikan..." : "Konfirmasikan Produk telah Tersedia"}
+                                disabled={loading}
+                                onclick={handleConfirmationActiveStock}
+                            />
+                            <div className='sales-order-bo'>
+                                <ActionButton
+                                    title={loading ? "Membatalkan..." : "Batal pesanan"}
+                                    disabled={loading}
+                                    onclick={handleCancelOrder}
+                                    background={'red'}
+                                />
+                                <ActionButton
+                                    title={loading ? "Memproses..." : "Proses ke mengantri"}
+                                    disabled={loading}
+                                    onclick={handleAvaibleOrder}
+                                    background={'rgb(191, 191, 70)'}
+                                />
+                            </div>
+                        </div>
                     )}
 
                     {status === 'pending' && (
