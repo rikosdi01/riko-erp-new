@@ -52,6 +52,7 @@ const EntitySalesOrder = ({
     const [selectedWarehouse, setSelectedWarehouse] = useState(initialData.warehouse || []);
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [isPrint, setIsPrint] = useState(initialData.isPrint || '');
+    const [status, setStatus] = useState(initialData.status || 'mengantri');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
     const [warehouseError, setWarehouseError] = useState("");
@@ -63,6 +64,10 @@ const EntitySalesOrder = ({
     useEffect(() => {
         console.log('Items: ', items);
     }, [items]);
+
+    useEffect(() => {
+        console.log('Status: ', status);
+    }, [status]);
 
     useEffect(() => {
         const fetchRack = async () => {
@@ -192,7 +197,8 @@ const EntitySalesOrder = ({
         setItems(initialData.items || emptyData);
         setWarehouse(racks);
         setSelectedWarehouse(initialData.warehouse || []);
-        setIsPrint(initialData.isPrint || '');
+        setIsPrint(initialData.isPrint || false);
+        setStatus(initialData.status || 'Mengantri');
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -338,6 +344,10 @@ const EntitySalesOrder = ({
             setLoading(false);
         }
     };
+
+    const handleConfirmationActiveStock = () => {
+        
+    }
 
     const handleReset = (e) => {
         setCustomer([]);
@@ -539,18 +549,32 @@ const EntitySalesOrder = ({
                 </div>
             ) : (
                 <div className='add-container-actions'>
-                    <ActionButton
-                        title={"Hapus"}
-                        background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
-                        color="white"
-                        onclick={() => roleAccess(accessList, 'menghapus-data-sales-order') ? setOpenDeleteModal(true) : handleRestricedAction()}
-                    />
+                    {status === 'mengantri' ? (
+                        <ActionButton
+                            title={"Hapus"}
+                            background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
+                            color="white"
+                            onclick={() => roleAccess(accessList, 'menghapus-data-sales-order') ? setOpenDeleteModal(true) : handleRestricedAction()}
+                        />
+                    ) : (
+                        <div></div>
+                    )}
 
-                    <ActionButton
-                        title={loading ? "Memperbarui..." : "Perbarui"}
-                        disabled={loading}
-                        onclick={handleSalesOrder}
-                    />
+                    {status === 'tertunda' && (
+                        <ActionButton
+                            title={loading ? "Mengkonfirmasikan..." : "Konfirmasikan Produk telah Tersedia"}
+                            disabled={loading}
+                            onclick={handleSalesOrder}
+                        />
+                    )}
+
+                    {status === 'mengantri' && (
+                        <ActionButton
+                            title={loading ? "Memperbarui..." : "Perbarui"}
+                            disabled={loading}
+                            onclick={handleSalesOrder}
+                        />
+                    )}
                 </div>
             )}
 

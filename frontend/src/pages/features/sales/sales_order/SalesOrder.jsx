@@ -55,6 +55,8 @@ const SalesOrder = () => {
             subscribeFn={SalesOrderRepository.subscribeToSalesOrderChanges}
             enableExport={false}
             enableImport={false}
+            enableDropdown={true}
+            dropdownAttribute={"status"}
             canAdd={roleAccess(accessList, 'menambah-data-pesanan-penjualan')}
             canEdit={roleAccess(accessList, 'mengedit-data-pesanan-penjualan')}
             enableDateRange={true}

@@ -136,8 +136,8 @@ const CustomAlgoliaContainer = ({
 
         if (!startDate && !endDate) return filters;
 
-const start = startDate ? new Date(`${startDate}T00:00:00+07:00`).getTime() : null;
-const end = endDate ? new Date(`${endDate}T23:59:59.999+07:00`).getTime() : null;
+        const start = startDate ? new Date(`${startDate}T00:00:00+07:00`).getTime() : null;
+        const end = endDate ? new Date(`${endDate}T23:59:59.999+07:00`).getTime() : null;
 
 
         let dateFilter = "";
@@ -199,24 +199,6 @@ const end = endDate ? new Date(`${endDate}T23:59:59.999+07:00`).getTime() : null
                         />
                     )}
 
-                    {enableDateRange && (
-                        <div className="date-range-filter">
-                            <input
-                                type="date"
-                                value={startDate || ""}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className='date-range-filter-container'
-                            />
-                            <span> - </span>
-                            <input
-                                type="date"
-                                value={endDate || ""}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className='date-range-filter-container'
-                            />
-                        </div>
-                    )}
-
 
                     {/* Import */}
                     {enableImport && (
@@ -265,6 +247,24 @@ const end = endDate ? new Date(`${endDate}T23:59:59.999+07:00`).getTime() : null
 
                     {/* <CustomCheckbox /> */}
                 </div>
+
+                {enableDateRange && (
+                    <div className="date-range-filter">
+                        <input
+                            type="date"
+                            value={startDate || ""}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className='date-range-filter-container'
+                        />
+                        <span> - </span>
+                        <input
+                            type="date"
+                            value={endDate || ""}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className='date-range-filter-container'
+                        />
+                    </div>
+                )}
 
                 <div className='table-wrapper'>
                     <ItemsHit />
