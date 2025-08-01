@@ -60,6 +60,7 @@ const EntitySalesOrder = ({
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [isLoginCustomer, setIsLoginCustomer] = useState(false);
 
     useEffect(() => {
         console.log('Items: ', items);
@@ -68,6 +69,22 @@ const EntitySalesOrder = ({
     useEffect(() => {
         console.log('Status: ', status);
     }, [status]);
+
+    useEffect(() => {
+        const checkLoginCustomer = async () => {
+            if (customer?.id) {
+                const { hits } = await customerIndex.search('', {
+                    filters: `objectID:${customer.id}`,
+                });
+
+                if (hits.length > 0) {
+                    const customerData = hits[0];
+                    setIsLoginCustomer(customerData.isLoginCustomer || false);
+                }
+            }
+        }
+        checkLoginCustomer();
+    })
 
     useEffect(() => {
         const fetchRack = async () => {
@@ -345,8 +362,14 @@ const EntitySalesOrder = ({
         }
     };
 
-    const handleConfirmationActiveStock = () => {
-        
+    const handleConfirmationActiveStock = async () => {
+        try {
+            await SalesOrderRepository.updateStatusValue(initialData.id || initialData.objectID, 'pending');
+            showToast("berhasil", "Status Pesanan berhasil diperbarui!");
+        } catch (error) {
+            console.error("Gagal memperbarui status:", error);
+            showToast("gagal", "Gagal memperbarui status Pesanan!");
+        }
     }
 
     const handleReset = (e) => {
@@ -564,8 +587,12 @@ const EntitySalesOrder = ({
                         <ActionButton
                             title={loading ? "Mengkonfirmasikan..." : "Konfirmasikan Produk telah Tersedia"}
                             disabled={loading}
-                            onclick={handleSalesOrder}
+                            onclick={handleConfirmationActiveStock}
                         />
+                    )}
+
+                    {status === 'pending' && (
+                        <div>Menunggu konfirmasi pelanggan</div>
                     )}
 
                     {status === 'mengantri' && (

@@ -69,6 +69,17 @@ const soIndex = clientSO.initIndex(ALGOLIA_INDEX_SO);
 const doIndex = clientDO.initIndex(ALGOLIA_INDEX_DO);
 const ioIndex = clientIO.initIndex(ALGOLIA_INDEX_IO);
 
+
+// Users
+const ALGOLIA_APP_ID_USERS = import.meta.env.VITE_APP_ALGOLIA_APP_ID_USERS;
+const ALGOLIA_SEARCH_KEY_USERS = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_USERS;
+const ALGOLIA_INDEX_USERS = import.meta.env.VITE_APP_ALGOLIA_INDEX_USERS;
+
+const clientUsers = algoliasearch(ALGOLIA_APP_ID_USERS, ALGOLIA_SEARCH_KEY_USERS);
+
+// Initialize indices for Sales
+const usersIndex = clientUsers.initIndex(ALGOLIA_INDEX_USERS);
+
 export {
     // Warehouse
     productIndex,
