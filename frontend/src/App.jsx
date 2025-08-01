@@ -244,7 +244,7 @@ function AppContent() {
 
 
           <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
-          <Route path="/signup-customer" element={<ProtectedRoute><SignUpCustomer /></ProtectedRoute>} />
+          <Route path="/signup-customer" element={<SignUpCustomer />} />
 
           {/* Not Found Page */}
           <Route path="*" element={<NotFound />} />
