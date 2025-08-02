@@ -13,15 +13,28 @@ const InvoiceOrder = () => {
     const { accessList } = useUsers();
 
     const columns = [
-        { header: "No. Pesanan", accessor: "soData.code" },
+        { header: "No. Pesanan", accessor: "code" },
+        { header: "Pelanggan", accessor: "customer.name" },
         {
             header: "Tanggal Pesanan",
-            accessor: "soData.createdAt",
+            accessor: "soDate",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
-        { header: "Pelanggan", accessor: "soData.customer.name" },
-        { header: "Total Pesanan", accessor: "totalPayment" },
-        { header: "Status Pesanan", accessor: "statusDelivery" },
+        {
+            header: "Tanggal Pengiriman",
+            accessor: "doDate",
+            renderCell: (value) => Formatting.formatDateByTimestamp(value),
+        },
+        {
+            header: "Total Pesanan",
+            accessor: "totalPayment",
+            renderCell: (value) => Formatting.formatCurrencyIDR(value),
+        },
+        {
+            header: "Status Pesanan",
+            accessor: "statusPayment",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        },
     ]
 
 

@@ -66,6 +66,14 @@ const ContainerSearch = ({
             name: item?.name ?? '',
             salesman: item?.salesman?.name ?? '',
         }),
+        express: (item) => ({
+            id: item?.id || item?.objectID,
+            name: item?.name ?? '',
+            phone: item?.phone ?? '',
+            price: item?.price ?? 0,
+            service: item?.service ?? '',
+            set: item?.set ?? '',
+        }),
         // tambah mode lainnya di sini...
     };
 

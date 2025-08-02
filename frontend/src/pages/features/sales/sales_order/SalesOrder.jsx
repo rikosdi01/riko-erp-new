@@ -10,7 +10,7 @@ import roleAccess from '../../../../utils/helper/roleAccess';
 const SalesOrder = () => {
     // Hooks
     const navigate = useNavigate();
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
     console.log('Access List: ', accessList);
 
     const columns = [
@@ -32,7 +32,11 @@ const SalesOrder = () => {
         //     accessor: "isPrint",
         //     renderCell: (value) => value ? 'Sudah Print' : 'Belum Print'
         // },
-        { header: "Status", accessor: "status" }
+        {
+            header: "Status",
+            accessor: "status",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        }
     ]
 
 

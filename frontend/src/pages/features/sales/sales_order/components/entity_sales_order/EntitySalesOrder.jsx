@@ -19,6 +19,7 @@ import AccessAlertModal from '../../../../../../components/modal/access_alert_mo
 import { useFormats } from '../../../../../../context/personalization/FormatContext';
 import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
 import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
+import DeliveryOrderRepository from '../../../../../../repository/logistic/DeliveryOrderRepository';
 
 const EntitySalesOrder = ({
     mode,
@@ -33,6 +34,7 @@ const EntitySalesOrder = ({
     const { racks } = useRacks();
     const { formats } = useFormats();
     const formatCode = formats.presets?.sales?.code;
+    const formatDOCode = formats.presets?.delivery?.code;
     const rackFormat = formats.presets?.sales?.[`rack${loginUser?.location}`] || null;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
@@ -75,6 +77,15 @@ const EntitySalesOrder = ({
     useEffect(() => {
         console.log('Status: ', status);
     }, [status]);
+
+    useEffect(() => {
+        if (loginUser) {
+            console.log('Login User Role: ', loginUser.role);
+        } else {
+            console.log('Login User belum tersedia');
+        }
+    }, [loginUser]);
+
 
     useEffect(() => {
         const checkLoginCustomer = async () => {
@@ -396,6 +407,58 @@ const EntitySalesOrder = ({
             setLoading(false);
         }
     };
+
+    const handleProcessOrder = async () => {
+        try {
+            console.log('Items - 413: ', items);
+            const filteredItems = items.filter(item => item.item && item.qty);
+            const cleanedItems = filteredItems.map(item => {
+                const requestedQty = parseInt(item.qty.toString().replace(/[^0-9]/g, ""), 10) || 0;
+                const matchedRack = item.item?.racks?.find(r => r.rackId === selectedWarehouse.id);
+                const stock = matchedRack?.stock || 0;
+
+                return {
+                    item: {
+                        id: item.item?.id,
+                        code: item.item?.code,
+                        name: item.item?.name,
+                    },
+                    qty: requestedQty,
+                    stock,
+                    price: parseInt(item.price.toString().replace(/[^0-9]/g, ""), 10) || 0,
+                    discount: parseFloat((item.discount || "0").toString().replace(/[^0-9.]/g, "")) / 100 || 0,
+                };
+            });
+
+            const doCode = code.replace(formatCode, formatDOCode);
+            const newDeliveryOrder = {
+                customer,
+                soId: initialData.id || initialData.objectID,
+                code: doCode,
+                description,
+                items: stripStock(cleanedItems),
+                warehouse: selectedWarehouse,
+                isPrint: false,
+                totalPrice: cleanedItems.reduce((total, item) => {
+                    const discountedPrice = item.price * (1 - item.discount); // Harga setelah diskon
+                    return total + (discountedPrice * item.qty);
+                }, 0),
+                status: 'diproses',
+                createdAt: Timestamp.fromDate(new Date(createdAt)),
+                updatedAt: Timestamp.now(),
+            };
+
+            await DeliveryOrderRepository.createDeliveryOrder(newDeliveryOrder);
+            await SalesOrderRepository.updateStatusValue(initialData.id || initialData.objectID, 'diproses')
+            setStatus('diproses');
+            showToast('berhasil', 'Berhasil memproses pesanan baru!')
+        } catch (error) {
+            console.error('Terjadi kesalahan: ', error);
+            showToast('gagal', 'Gagal memproses pesanan baru!');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleSaveOrder = async (finalItems, boItems = []) => {
         let finalCode = code;
@@ -738,7 +801,7 @@ const EntitySalesOrder = ({
                 </div>
             ) : (
                 <div className='add-container-actions'>
-                    {status === 'mengantri' ? (
+                    {status === 'mengantri' && loginUser && loginUser.role !== 'Logistic Admin' && loginUser.role !== 'Logistic Supervisor' ? (
                         <ActionButton
                             title={"Hapus"}
                             background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
@@ -749,7 +812,7 @@ const EntitySalesOrder = ({
                         <div></div>
                     )}
 
-                    {status === 'tertunda' && (
+                    {status === 'tertunda' && loginUser && loginUser.role !== 'Logistic Admin' && loginUser.role !== 'Logistic Supervisor' && (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <ActionButton
                                 title={loading ? "Mengkonfirmasikan..." : "Konfirmasikan Produk telah Tersedia"}
@@ -773,17 +836,29 @@ const EntitySalesOrder = ({
                         </div>
                     )}
 
-                    {status === 'pending' && (
+                    {status === 'pending' && loginUser && loginUser.role !== 'Logistic Admin' && loginUser.role !== 'Logistic Supervisor' && (
                         <div>Menunggu konfirmasi pelanggan</div>
                     )}
 
-                    {status === 'mengantri' && (
+                    {status === 'mengantri' && loginUser && loginUser.role !== 'Logistic Admin' && loginUser.role !== 'Logistic Supervisor' && (
                         <ActionButton
                             title={loading ? "Memperbarui..." : "Perbarui"}
                             disabled={loading}
                             onclick={handleSalesOrder}
                         />
                     )}
+
+                    {status === 'mengantri' &&
+                        loginUser &&
+                        (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && (
+                            <ActionButton
+                                title={loading ? "Memproses..." : "Proses Pesanan"}
+                                disabled={loading}
+                                onclick={handleProcessOrder}
+                            />
+                        )}
+
+
                 </div>
             )}
 

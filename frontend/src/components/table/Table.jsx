@@ -248,6 +248,7 @@ const Table = ({
                 warehouse: selectedWarehouse,
                 items: boItems,
                 totalPrice: totalBOPrice,
+                isCustomerOrder: true,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             };
@@ -299,6 +300,7 @@ const Table = ({
                 warehouse: selectedWarehouse,
                 items: transformedItems,
                 totalPrice,
+                isCustomerOrder: true,
                 createdAt: serverTimestamp(),
                 udpatedAt: serverTimestamp(),
             }

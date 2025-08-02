@@ -42,6 +42,10 @@ const ListProducts = () => {
             enableExport={false}
             enableImport={false}
             enableCreate={false}
+            enableDropdown={true}
+            dropdownAttribute={'category.name'}
+            enableDropdown2={true}
+            dropdownAttribute2={'brand'}
             onTableClick={() => {}}
             tableType='customers'
         />

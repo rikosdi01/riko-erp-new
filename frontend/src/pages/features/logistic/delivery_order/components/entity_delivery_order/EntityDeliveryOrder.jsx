@@ -5,10 +5,10 @@ import InputLabel from '../../../../../../components/input/input_label/InputLabe
 import './EntityDeliveryOrder.css';
 import { Computer, Sheet, KeyRound, ClipboardPen, Warehouse, BadgeDollarSign, PercentCircle, Store, Ship, UserCog } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
-import { Timestamp } from 'firebase/firestore';
+import { serverTimestamp, Timestamp } from 'firebase/firestore';
 import Dropdown from '../../../../../../components/select/Dropdown';
 import Formatting from '../../../../../../utils/format/Formatting';
-import { customerIndex, productIndex, soIndex } from '../../../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_EXPRESS, clientExpress, customerIndex, productIndex, rackIndex, soIndex } from '../../../../../../../config/algoliaConfig';
 import TransferRepository from '../../../../../../repository/warehouse/TransferRepository';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import { useRacks } from '../../../../../../context/warehouse/RackWarehouseContext';
@@ -21,6 +21,9 @@ import InvoiceOrderRepository from '../../../../../../repository/logistic/Invoic
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from '../../../../../../context/auth/UsersContext';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
+import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
+import roleAccess from '../../../../../../utils/helper/roleAccess';
+import { useFormats } from '../../../../../../context/personalization/FormatContext';
 
 const EntityDeliveryOrder = ({
     mode,
@@ -29,12 +32,13 @@ const EntityDeliveryOrder = ({
 }) => {
     console.log('Initial Data: ', initialData);
     // Context
-                const { accessList } = useUsers();
+    const { accessList } = useUsers();
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { racks } = useRacks();
     const { couriers } = useCourier();
     const { express } = useExpress();
+    const { formats } = useFormats();
 
     const emptyData = [{
         item: '',
@@ -50,7 +54,7 @@ const EntityDeliveryOrder = ({
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
     const [warehouse, setWarehouse] = useState(initialData.warehouse?.id || '');
-    const [selectedExpress, setSelectedExpress] = useState(initialData.express?.id || '');
+    const [selectedExpress, setSelectedExpress] = useState(initialData.express || []);
     const [selectedCourier, setSelectedCourier] = useState(initialData.courier?.id || '');
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [doDate, setDODate] = useState(initialData.doDate || '');
@@ -61,12 +65,23 @@ const EntityDeliveryOrder = ({
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [status, setStatus] = useState(initialData.status || '');
 
     const [accessDenied, setAccessDenied] = useState(false);
+    const formatCode = formats.presets?.delivery?.code;
+    const formatINVCode = formats.presets?.invoice?.code;
 
     const handleRestricedAction = () => {
         setAccessDenied(true);
     }
+
+    useEffect(() => {
+        console.log('Selected Express: ', selectedExpress);
+    }, [selectedExpress])
+
+    useEffect(() => {
+        console.log('Warehouse: ', warehouse);
+    }, [warehouse])
 
     const handleItemChange = (index, field, value) => {
         const updatedItems = [...items];
@@ -116,7 +131,30 @@ const EntityDeliveryOrder = ({
         setItems(cleanedItems);
     };
 
+    useEffect(() => {
+        console.log('Fetching Data...');
+        console.log('Warehouse: ', warehouse);
+        const fetchRack = async () => {
+            if (!warehouse) return;
+            console.log('Warehouse-126: ', warehouse);
 
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${warehouse}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                    category: rack.category,
+                });
+            }
+        };
+
+        fetchRack();
+    }, [warehouse]);
 
     // Hanya jalan sekali saat komponen pertama kali dimount
     useEffect(() => {
@@ -131,14 +169,24 @@ const EntityDeliveryOrder = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
+        setCustomer(initialData.customer || [])
+        setDescription(initialData.description || '')
         setCode(initialData.code || '');
+        setWarehouse(initialData.warehouse.id || '');
+        setItems(initialData.items || []);
         setSOCode(initialData.soCode || []);
         setDODate(initialData.doDate
             ? Formatting.formatTimestampToISO(initialData.doDate)
             : Formatting.formatDateForInput(new Date()));
-        setSelectedExpress(initialData.express?.id || '');
+        setSelectedExpress(initialData.express || []);
+        setStatus(initialData.status || '')
         setSelectedCourier(initialData.courier?.id || '');
+        setCreatedAt(initialData.createdAt || '');
     }, [initialData]);
+
+    useEffect(() => {
+        console.log('Created At: ', createdAt);
+    }, [createdAt]);
 
     useEffect(() => {
         // Skip jika kosong, string kosong, atau array kosong
@@ -180,53 +228,28 @@ const EntityDeliveryOrder = ({
     const handleDeliveryOrder = async (e) => { // Tambahkan 'e' di sini
         e.preventDefault();
         setLoading(true);
-        console.log('SO Code: ', soCode);
-
-        let valid = true;
-
-        if (!code.trim()) {
-            setCodeError('Kode Penyesuaian tidak boleh kosong!');
-            valid = false;
-        }
-
-        if (!soCode || typeof soCode !== 'object' || !soCode.id) {
-            setSoCodeError('Pesanan harus dipilih!');
-            valid = false;
-        }
-
-        if (!valid) return setLoading(false);
 
         try {
             const filteredCourier = couriers.find(courier => courier.id === selectedCourier);
-            const FilteredExpress = express.find(express => express.id === selectedExpress);
-
-            console.log('Filtered Courier: ', filteredCourier);
-            console.log('Filtered Express: ', FilteredExpress);
-            const exists = await DeliveryOrderRepository.checkDeliveryOrderExists(
-                code.trim(),
-                mode === "detail" ? initialData.id : null
-            );
-
-            if (exists) {
-                showToast("gagal", "Kode Sales Order sudah digunakan!");
-                return setLoading(false);
+            console.log('Filteed Courier: ', filteredCourier);
+            const courierData = {
+                id: filteredCourier.id || filteredCourier.objectID,
+                name: filteredCourier.name,
+                phone: filteredCourier.phone,
             }
 
-            console.log('DO Date: ', doDate);
+            console.log('Filtered Courier: ', filteredCourier);
 
             const newDeliveryOrder = {
-                code,
-                soData,
-                soCode,
-                doDate: Timestamp.fromDate(new Date(doDate)),
-                express: FilteredExpress,
-                courier: filteredCourier,
+                updatedAt: serverTimestamp(),
+                status: 'dikirim',
+                express: selectedExpress,
+                courier: courierData,
             };
-
-
-            console.log('New Delivery Order Data: ', newDeliveryOrder);
+            console.log('Updated Delivery Order Data: ', newDeliveryOrder);
 
             try {
+                await SalesOrderRepository.updateStatusValue(initialData.soId, 'dikirim')
                 await onSubmit(newDeliveryOrder, handleReset); // Eksekusi yang berisiko error
             } catch (submitError) {
                 console.error("Error during onSubmit: ", submitError);
@@ -234,10 +257,10 @@ const EntityDeliveryOrder = ({
                 return;
             }
 
-            showToast('berhasil', 'Penyesuaian berhasil ditambahkan!');
+            showToast('berhasil', 'Pengiriman pesanan berhasil diperbarui!');
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
-            showToast('gagal', 'Gagal menambahkan merek baru!');
+            showToast('gagal', 'Gagal memperbarui pengiriman pesanan!');
         } finally {
             setLoading(false);
         }
@@ -245,6 +268,8 @@ const EntityDeliveryOrder = ({
 
     const processDeliveryOrder = async () => {
         try {
+            console.log('DO Date: ', doDate);
+            console.log('SO Date: ', createdAt);
             const filteredItems = items.filter(item => item.item && item.qty);
             const cleanedItems = filteredItems.map(item => ({
                 item: {
@@ -259,35 +284,55 @@ const EntityDeliveryOrder = ({
                 ) / 100 || 0,
             }));
             const filteredCourier = couriers.find(courier => courier.id === selectedCourier);
-            const FilteredExpress = express.find(express => express.id === selectedExpress);
+            const courierData = {
+                id: filteredCourier.id || filteredCourier.objectID,
+                name: filteredCourier.name,
+                phone: filteredCourier.phone,
+            }
 
-            const baseDate = new Date(doDate); // pastikan doDate adalah Date atau ISO string
-            const dueDate = new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 hari
+            // Ubah Timestamp ke JavaScript Date jika perlu
+            const parseToDate = (val) => {
+                if (!val) return new Date();
+                if (val instanceof Date) return val;
+                if (val.seconds) return new Date(val.seconds * 1000);
+                return new Date(val);
+            };
 
+            const baseDate = parseToDate(doDate);
+            const soDate = parseToDate(createdAt);
+            const dueDate = new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+            const invCode = code.replace(formatCode, formatINVCode);
             const deliveryOrderData = {
-                code,
-                soData,
-                soCode,
+                code: invCode,
+                doId: initialData.id || initialData.objectID,
+                soId: initialData.soId,
+                customer,
+                description,
+                soDate: Timestamp.fromDate(soDate),
                 doDate: Timestamp.fromDate(baseDate),
-                express: FilteredExpress,
-                courier: filteredCourier,
+                dueData: Timestamp.fromDate(dueDate),
+                express: selectedExpress,
+                courier: courierData,
                 totalPrice: cleanedItems.reduce((total, item) => total + item.price * item.qty, 0),
                 totalDiscount: cleanedItems.reduce((total, item) => total + item.price * item.discount * item.qty, 0),
                 totalPayment: cleanedItems.reduce((total, item) => {
                     const discountedPrice = item.price * (1 - item.discount);
                     return total + discountedPrice * item.qty;
                 }, 0),
-                statusPayment: 'Belum Dibayar',
-                dueData: Timestamp.fromDate(dueDate),
+                statusPayment: 'menunggu pembayaran',
             };
 
 
             console.log('Delivery Order Data: ', deliveryOrderData);
 
-            await DeliveryOrderRepository.updateStatusDeliveryOrder(initialData.id, 'Selesai');
+            await DeliveryOrderRepository.updateStatusDeliveryOrder(initialData.id || initialData.objectID, 'menunggu pembayaran');
+            await SalesOrderRepository.updateStatusValue(initialData.soId, 'menunggu pembayaran');
             await InvoiceOrderRepository.createInvoiceOrder(deliveryOrderData);
+
+            setStatus('menunggu pembayaran')
             showToast("berhasil", "Pesanan berhasil diselesaikan!");
-            navigate("/delivery-order");
+            // navigate("/logistic/delivery-order");
         } catch (error) {
             console.error("Error finish the order: ", error);
             showToast("gagal", "Gagal menyelesaikan pesanan!");
@@ -305,27 +350,15 @@ const EntityDeliveryOrder = ({
         setReloadSO(prev => prev + 1); // ⬅️ trigger ulang pencarian SO
     }
 
-    const loadSOOptions = async (inputValue) => {
-        const searchTerm = inputValue || "";
-
-        const { hits } = await soIndex.search(searchTerm, {
-            hitsPerPage: 10,
-            filters: 'status: "Mengantri"',
-        });
-
-        return hits.map(hit => ({
-            name: hit.code,
-            id: hit.objectID,
-        }));
-    };
-
 
     // handler delete
-    const handleDeleteTransfer = async () => {
+    const handleDeleteDelivery = async () => {
         try {
-            await TransferRepository.deleteTransfer(initialData.id);
+            await SalesOrderRepository.updateStatusValue(initialData.soId, 'mengantri');
+            await DeliveryOrderRepository.deleteDeliveryOrder(initialData.id);
+
             showToast("berhasil", "Transferan berhasil dihapus!");
-            navigate("/inventory/transfer");
+            navigate("/logistic/delivery-order");
         } catch (error) {
             console.error("Error deleting transfer: ", error);
             showToast("gagal", "Gagal menghapus transfer!");
@@ -337,7 +370,7 @@ const EntityDeliveryOrder = ({
         <div className="main-container">
             <ContentHeader
                 title={mode === "create" ? "Tambah Pengiriman" : "Rincian Pengiriman"}
-                enablePrint={true}
+                // enablePrint={true}
                 setShowPreview={setShowPreview}
             />
 
@@ -354,32 +387,35 @@ const EntityDeliveryOrder = ({
                 }}
             />
 
-            <div className='add-container-input'>
-                <InputLabel
-                    label="No Pengiriman"
-                    icon={<KeyRound className='input-icon' />}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                />
-                <Dropdown
-                    key={reloadSO}
-                    isAlgoliaDropdown={true}
-                    values={loadSOOptions}
-                    selectedId={soCode}
-                    setSelectedId={setSOCode}
-                    label="Pilih Pesanan"
-                    icon={<Store className="input-icon" />}
-                />
-                {codeError && <div className="error-message">{codeError}</div>}
-            </div>
+            <InputLabel
+                label="No Pengiriman"
+                icon={<KeyRound className='input-icon' />}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+            />
 
             <div className='add-container-input-attribute'>
-                <Dropdown
-                    values={express}
-                    selectedId={selectedExpress}
-                    setSelectedId={setSelectedExpress}
-                    label="Pilih Express"
-                    icon={<Ship className="input-icon" />}
+                <ContainerSearch
+                    label={"Express"}
+                    icon={<Ship className='input-icon' />}
+                    searchClient={clientExpress}
+                    indexName={ALGOLIA_INDEX_EXPRESS}
+                    columns={[
+                        { header: "Nama Ekspedisi", accessor: "name" },
+                        { header: "Alamat", accessor: "address" },
+                        { header: "Nomor Telpon", accessor: "phone" },
+                        { header: "Harga", accessor: "price" },
+                        { header: "Satuan", accessor: "set" },
+                        { header: "Layanan", accessor: "service" },
+                    ]}
+                    value={
+                        selectedExpress?.name
+                            ? selectedExpress.name
+                            : "Pilih Ekspedisi"
+                    }
+
+                    setValues={setSelectedExpress}
+                    mode="express"
                 />
 
                 <Dropdown
@@ -405,7 +441,7 @@ const EntityDeliveryOrder = ({
                 <InputLabel
                     label="Pelanggan"
                     icon={<Store className='input-icon' />}
-                    value={customer}
+                    value={customer.name}
                     onChange={(e) => setCustomer(e.target.value)}
                     isDisabled={true}
                 />
@@ -422,7 +458,7 @@ const EntityDeliveryOrder = ({
                 <InputLabel
                     label="Gudang"
                     icon={<Warehouse className='input-icon' />}
-                    value={warehouse}
+                    value={warehouse.name}
                     onChange={(e) => setWarehouse(e.target.value)}
                     isDisabled={true}
                 />
@@ -430,7 +466,7 @@ const EntityDeliveryOrder = ({
                     label="Tanggal"
                     type="datetime-local"
                     icon={<ClipboardPen className='input-icon' />}
-                    value={createdAt}
+                    value={Formatting.formatToDatetimeLocal(createdAt)}
                     onChange={(e) => setCreatedAt(e.target.value)}
                     isDisabled={true}
                 />
@@ -478,24 +514,30 @@ const EntityDeliveryOrder = ({
                 </div>
             ) : (
                 <div className='add-container-actions'>
-                    <ActionButton
-                        title={"Hapus"}
-                        background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
-                        color="white"
-                        onclick={() => roleAccess(accessList, 'menghapus-data-pengiriman-pesanan') ? setOpenDeleteModal(true) : handleRestricedAction()}
-                    />
+                    {status === 'diproses' ? (
+                        <ActionButton
+                            title={"Hapus"}
+                            background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
+                            color="white"
+                            onclick={() => roleAccess(accessList, 'menghapus-data-pengiriman-pesanan') ? setOpenDeleteModal(true) : handleRestricedAction()}
+                        />
+                    ) : <div></div>}
 
                     <div className='action-button-group'>
-                        <ActionButton
-                            title={loading ? "Menyelesaikan Pesanan..." : "Selesaikan Pesanan"}
-                            onclick={processDeliveryOrder}
-                        />
+                        {status === 'dikirim' && (
+                            <ActionButton
+                                title={loading ? "Menyelesaikan Pesanan..." : "Selesaikan Pesanan"}
+                                onclick={processDeliveryOrder}
+                            />
+                        )}
 
-                        <ActionButton
-                            title={loading ? "Memperbarui..." : "Perbarui"}
-                            disabled={loading}
-                            onclick={handleDeliveryOrder}
-                        />
+                        {status === 'diproses' && (
+                            <ActionButton
+                                title={loading ? "Memperbarui..." : "Perbarui"}
+                                disabled={loading}
+                                onclick={handleDeliveryOrder}
+                            />
+                        )}
                     </div>
                 </div>
             )}
@@ -504,8 +546,8 @@ const EntityDeliveryOrder = ({
                 <ConfirmationModal
                     isOpen={openDeleteModal}
                     onClose={() => setOpenDeleteModal(false)}
-                    onClick={handleDeleteTransfer}
-                    title="Transfer"
+                    onClick={handleDeleteDelivery}
+                    title="Pengiriman"
                     itemDelete={initialData?.code}
                 />
             )}

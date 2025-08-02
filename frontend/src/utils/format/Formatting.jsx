@@ -15,6 +15,26 @@ export default class Formatting {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
+    static formatToDatetimeLocal = (date) => {
+        if (!date) return '';
+
+        let d;
+
+        // Handle Firestore Timestamp (cek jika ada .seconds)
+        if (typeof date === 'object' && date.seconds) {
+            d = new Date(date.seconds * 1000);
+        } else {
+            d = new Date(date);
+        }
+
+        if (isNaN(d)) return '';
+
+        const pad = (n) => n.toString().padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+
+
     static formatTimestampToISO(timestamp) {
         if (!timestamp) return ""; // Tangani kasus null atau undefined
         const date = timestamp.toDate(); // Konversi Firestore Timestamp ke Date
@@ -34,21 +54,25 @@ export default class Formatting {
             date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
-    static formatDateByTimestamp = (value) => {
-        if (!value) return '-';
-        const date = new Date(value);
-        if (isNaN(date.getTime())) return 'Invalid Date';
+static formatDateByTimestamp = (value) => {
+    if (!value) return '-';
 
-        return date.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        }) + ' ' + date.toLocaleTimeString('id-ID', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-    };
+    // Jika Firestore Timestamp, ubah ke JS Date
+    const date = typeof value.toDate === 'function' ? value.toDate() : new Date(value);
+
+    if (isNaN(date.getTime())) return 'Invalid Date';
+
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }) + ' ' + date.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+};
+
 
     static formatTime = (timestamp) => {
         if (!timestamp) return "";

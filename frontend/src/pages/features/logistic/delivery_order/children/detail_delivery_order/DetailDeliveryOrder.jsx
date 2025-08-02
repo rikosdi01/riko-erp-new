@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './DetailDeliveryOrder.css'
 import { useEffect, useState } from 'react';
 import SalesOrderRepository from '../../../../../../repository/sales/SalesOrderRepository';
@@ -8,6 +8,7 @@ import DeliveryOrderRepository from '../../../../../../repository/logistic/Deliv
 const DetailDeliveryOrder = () => {
     // Hooks
     const { id } = useParams();
+    const navigate = useNavigate();
 
     // Variables
     const [deliveryOrder, setDeliveryOrder] = useState([]);
@@ -33,6 +34,7 @@ const DetailDeliveryOrder = () => {
                 initialData={deliveryOrder}
                 onSubmit={async (data) => {
                     await DeliveryOrderRepository.updateDeliveryOrder(id, data);
+                    navigate('/logistic/delivery-order')
                 }}
             />
         </div>

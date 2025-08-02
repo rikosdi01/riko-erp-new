@@ -70,6 +70,17 @@ const doIndex = clientDO.initIndex(ALGOLIA_INDEX_DO);
 const ioIndex = clientIO.initIndex(ALGOLIA_INDEX_IO);
 
 
+// Logistic
+const ALGOLIA_APP_ID_EXPRESS = import.meta.env.VITE_APP_ALGOLIA_APP_ID_EXPRESS;
+const ALGOLIA_SEARCH_KEY_EXPRESS = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_EXPRESS;
+const ALGOLIA_INDEX_EXPRESS = import.meta.env.VITE_APP_ALGOLIA_INDEX_EXPRESS;
+
+const clientExpress = algoliasearch(ALGOLIA_APP_ID_EXPRESS, ALGOLIA_SEARCH_KEY_EXPRESS);
+
+// Initialize indices for Sales
+const expressIndex = clientExpress.initIndex(ALGOLIA_INDEX_EXPRESS);
+
+
 // Users
 const ALGOLIA_APP_ID_USERS = import.meta.env.VITE_APP_ALGOLIA_APP_ID_USERS;
 const ALGOLIA_SEARCH_KEY_USERS = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_USERS;
@@ -110,4 +121,8 @@ export {
     ALGOLIA_INDEX_SO,
     ALGOLIA_INDEX_DO,
     ALGOLIA_INDEX_IO,
+
+    expressIndex,
+    clientExpress,
+    ALGOLIA_INDEX_EXPRESS
 };

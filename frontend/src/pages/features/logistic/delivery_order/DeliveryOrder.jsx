@@ -17,18 +17,23 @@ const DeliveryOrder = () => {
         { header: "No. Pengiriman", accessor: "code" },
         {
             header: "Tanggal",
-            accessor: "doDate",
+            accessor: "createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
-        { header: "Pelanggan", accessor: "soData.customer.name" },
+        { header: "Pelanggan", accessor: "customer.name" },
         { header: "Pengangkutan", accessor: "express.name" },
         { header: "Kurir", accessor: "courier.name" },
-        { header: "Keterangan", accessor: "soData.description" },
+        { header: "Keterangan", accessor: "description" },
         {
-            header: "Status Print",
-            accessor: "statusDO",
-            renderCell: (value) => value ? 'Sudah Print' : 'Belum Print',
-        },
+            header: "Status",
+            accessor: "status",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        }
+        // {
+        //     header: "Status Print",
+        //     accessor: "statusDO",
+        //     renderCell: (value) => value ? 'Sudah Print' : 'Belum Print',
+        // },
     ]
 
 
@@ -48,6 +53,12 @@ const DeliveryOrder = () => {
             indexName={ALGOLIA_INDEX_DO}
             columns={columns}
             createOnclick={navigateToCreateDO}
+            enableCreate={false}
+            enableExport={false}
+            enableDateRange={true}
+            enableImport={false}
+            enableDropdown={true}
+            dropdownAttribute={'status'}
             subscribeFn={DeliveryOrderRepository.subscribeToDeliveryOrderChanges}
             canEdit={roleAccess(accessList, 'mengedit-data-pengiriman-pesanan')}
             canAdd={roleAccess(accessList, 'menambah-data-pengiriman-pesanan')}

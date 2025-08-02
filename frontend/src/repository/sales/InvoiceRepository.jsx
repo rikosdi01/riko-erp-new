@@ -21,4 +21,16 @@ export default class InvoiceRepository {
             console.error("Error listening to invoice: ", error);
         }
     }
+
+    
+
+    static async updateStatusValue(deliveryOrderId, status) {
+        try {
+            const docRef = doc(db, "Invoice", deliveryOrderId); // sesuaikan path koleksi
+            await updateDoc(docRef, { statusPayment: status });
+            console.log("Status Pesanan berhasil diupdate.");
+        } catch (error) {
+            console.error("Gagal update isPrint:", error);
+        }
+    }
 }
