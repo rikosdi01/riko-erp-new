@@ -53,11 +53,9 @@ const SidebarPages = () => {
 
     const inventorySubItems = filterSubItems([
         { text: "Dashboard", to: "/inventory/inventory-dashboard", icon: <Activity size={20} />, permission: "melihat-dashboard-inventaris" },
-        { text: "Penyimpanan Stok", to: "/inventory/storage", icon: <Backpack size={20} />, permission: "melihat-data-penyimpanan-stok" },
         { text: "Penyesuaian Stok", to: "/inventory/adjustment", icon: <FilePlus2 size={20} />, permission: "melihat-data-penyesuaian-pesanan" },
-        { text: "Pemindahan Stok", to: "/inventory/transfer", icon: <SendToBack size={20} />, permission: "melihat-data-pemindahan-stok" },
+        { text: "Catatan Pemindahan", to: "/inventory/transfer", icon: <SendToBack size={20} />, permission: "melihat-data-pemindahan-stok" },
         { type: "divider" },
-        { text: "Gudang Rak", to: "/inventory/warehouse", icon: <Warehouse size={20} />, permission: "melihat-data-gudang" },
         { text: "Merek", to: "/inventory/merks", icon: <BadgeCheckIcon size={20} />, permission: "melihat-data-merek" },
         { text: "Kategori", to: "/inventory/categories", icon: <LayoutGrid size={20} />, permission: "melihat-data-kategori" },
         { text: "Item", to: "/inventory/items", icon: <Computer size={20} />, permission: "melihat-data-item" },

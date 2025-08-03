@@ -50,7 +50,6 @@ const EntityAdjustment = ({
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
-    const [warehouseError, setWarehouseError] = useState("");
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
@@ -212,11 +211,6 @@ const EntityAdjustment = ({
             valid = false;
         }
 
-        if (!selectedWarehouse || !selectedWarehouse.id) {
-            setWarehouseError('Gudang tidak boleh kosong!');
-            valid = false;
-        }
-
 
 
         if (JSON.stringify(items) === JSON.stringify(emptyData)) {
@@ -235,7 +229,6 @@ const EntityAdjustment = ({
             );
 
             let finalCode = code;
-            let lastValue = 0;
 
             if (exists) {
                 try {
@@ -272,18 +265,19 @@ const EntityAdjustment = ({
                 code: finalCode,
                 description,
                 items: filteredItems,
-                warehouse: selectedWarehouse,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
 
             console.log('New Adjustment Data: ', newAdj);
 
+                console.log('Login User: ', loginUser);
+
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
                 if (mode === "create" && !exists) {
                     const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
-                    console.log('New Code: ', newCode);
+                    // console.log('New Code: ', newCode);
                     setCode(newCode);
                 }
                 
@@ -300,7 +294,7 @@ const EntityAdjustment = ({
                             oldQty = parseInt(existingItem?.qty ?? 0);
                         }
 
-                        await ItemsRepository.overwriteItemStock(itemId, newQty, selectedWarehouse.id);
+                        await ItemsRepository.overwriteItemStock(itemId, newQty, loginUser.location);
                     }
                 }
 
@@ -324,7 +318,6 @@ const EntityAdjustment = ({
         setItems(emptyData);
         setCodeError("");
         setItemError("");
-        setWarehouseError("");
     }
 
     // handler delete
@@ -388,17 +381,6 @@ const EntityAdjustment = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
-                <div>
-                    <Dropdown
-                        isAlgoliaDropdown={true}
-                        values={loadRackOptions}
-                        selectedId={selectedWarehouse}
-                        setSelectedId={setSelectedWarehouse}
-                        label="Gudang"
-                        icon={<Warehouse className="input-icon" />}
-                    />
-                    {warehouseError && <div className="error-message">{warehouseError}</div>}
-                </div>
                 <InputLabel
                     label="Tanggal"
                     type="datetime-local"

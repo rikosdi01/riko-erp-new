@@ -84,43 +84,35 @@ export default class ItemsRepository {
         }
     }
 
-static async overwriteItemStock(itemId, newQty, rackId) {
-    try {
-        const itemRef = doc(db, "Items", itemId);
-        const itemSnap = await getDoc(itemRef);
+    static async overwriteItemStock(itemId, newQty, userLocation) {
+        try {
+            const itemRef = doc(db, "Items", itemId);
+            const itemSnap = await getDoc(itemRef);
 
-        if (!itemSnap.exists()) {
-            throw new Error(`Item ${itemId} not found`);
-        }
-
-        const data = itemSnap.data();
-        const racks = data.racks || [];
-
-        // Update atau tambah rack berdasarkan rackId
-        const updatedRacks = racks.map(r => {
-            if (r.rackId === rackId) {
-                return { ...r, stock: newQty };
+            if (!itemSnap.exists()) {
+                throw new Error(`Item ${itemId} not found`);
             }
-            return r;
-        });
 
-        const rackExists = racks.some(r => r.rackId === rackId);
-        if (!rackExists) {
-            updatedRacks.push({ rackId, stock: newQty });
+            const data = itemSnap.data();
+            const currentStock = data.stock || {};
+
+            // Overwrite hanya lokasi tertentu (misalnya 'medan' atau 'jakarta')
+            const updatedStock = {
+                ...currentStock,
+                [userLocation]: newQty
+            };
+
+            await updateDoc(itemRef, {
+                stock: updatedStock,
+                updatedAt: new Date()
+            });
+
+        } catch (error) {
+            console.error(`Error overwriting stock for item ${itemId}:`, error);
+            throw error;
         }
-
-        const totalStock = updatedRacks.reduce((sum, r) => sum + r.stock, 0);
-
-        await updateDoc(itemRef, {
-            stock: totalStock,
-            racks: updatedRacks
-        });
-
-    } catch (error) {
-        console.error(`Error overwriting stock for item ${itemId}:`, error);
-        throw error;
     }
-}
+
 
     static async adjustItemStock(itemId, qtyToAdjust, rackName) {
         try {

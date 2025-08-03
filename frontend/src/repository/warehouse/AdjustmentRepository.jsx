@@ -2,6 +2,13 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot,
 import { db } from "../../firebase";
 
 export default class AdjustmentRepository {
+    static subscribeToAdjustmentChanges(callback) {
+        const unsub = onSnapshot(collection(db, 'Adjustment'), (snapshot) => {
+            callback(snapshot);
+        });
+
+        return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
+    }
     static async checkAdjExists(adjCode, excludeId = null) {
         try {
             const q = query(

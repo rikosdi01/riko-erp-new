@@ -9,11 +9,11 @@ import { useRacks } from "../../context/warehouse/RackWarehouseContext";
 import { serverTimestamp } from "firebase/firestore";
 import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
 import { useToast } from "../../context/ToastContext";
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import IconButton from "../button/icon_button/IconButton";
 import ActionButton from "../button/actionbutton/ActionButton";
-import BackOrderRepository from "../../repository/sales/BackOrderRepostitory";
 import { rackIndex } from "../../../config/algoliaConfig";
+import Tippy from "@tippyjs/react";
 
 const Table = ({
     isAlgoliaTable = false,
@@ -275,7 +275,8 @@ const Table = ({
                 customer: customerData,
                 description,
                 isPrint: false,
-                status: "mengantri",
+                status: "menunggu",
+                statusPayment: "menunggu pembayaran",
                 warehouse: selectedWarehouse,
                 items: transformedItems,
                 totalPrice,
@@ -286,17 +287,17 @@ const Table = ({
 
             console.log('Order Data: ', orderData);
 
-            try {
-                await SalesOrderRepository.createSalesOrder(orderData);
-            } catch (submitError) {
-                console.error("Error during onSubmit: ", submitError);
-                showToast("gagal", "Gagal menyimpan pemesanan!");
-                return;
-            }
+            // try {
+            //     await SalesOrderRepository.createSalesOrder(orderData);
+            // } catch (submitError) {
+            //     console.error("Error during onSubmit: ", submitError);
+            //     showToast("gagal", "Gagal menyimpan pemesanan!");
+            //     return;
+            // }
 
             showToast('berhasil', 'Pemesanan berhasil dilakukan!');
-            resetForm();
-            setOrderConfirmationModal(false);
+            // resetForm();
+            // setOrderConfirmationModal(false);
         } catch (e) {
             console.error(e); // jangan kosongin catch, bantu debug
             showToast("gagal", "Gagal menyimpan pemesanan!");
@@ -387,7 +388,6 @@ const Table = ({
     }, [unitQtyMap, selectedProduct]);
 
 
-
     return (
         <div className={!isAlgoliaTable ? 'table-wrapper' : ''} ref={tableRef}>
             <table>
@@ -469,17 +469,31 @@ const Table = ({
                                     {tableType === "customers" && (
                                         <td>
                                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                <IconButton
-                                                    icon={<Plus size={20} />}
-                                                    onclick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedProduct(item);
-                                                        setModalOpen(true);
-                                                    }}
-                                                    background="#007bff"
-                                                    color="#fff"
-                                                    padding="5px"
-                                                />
+                                                {qtyMap[item.id || item.objectID] ? (
+                                                    <Tippy content="Item sudah ada dipesanan.">
+                                                        <span>
+                                                            <IconButton
+                                                                icon={<Check size={20} />}
+                                                                background="#28a745" // hijau
+                                                                color="#fff"
+                                                                padding="5px"
+                                                                disabled={true} // nonaktifkan supaya tidak bisa klik lagi
+                                                            />
+                                                        </span>
+                                                    </Tippy>
+                                                ) : (
+                                                    <IconButton
+                                                        icon={<Plus size={20} />}
+                                                        onclick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedProduct(item);
+                                                            setModalOpen(true);
+                                                        }}
+                                                        background="#007bff"
+                                                        color="#fff"
+                                                        padding="5px"
+                                                    />
+                                                )}
                                             </div>
                                         </td>
                                     )}
@@ -524,10 +538,8 @@ const Table = ({
                         <div
                             className={`order-details-button ${totalQty === 0 ? "disabled" : ""}`}
                             onClick={() => {
-                                if (totalQty > 0) {
-                                    // lanjut ke proses pemesanan
-                                    setOrderConfirmationModal(true);
-                                }
+                                handleCreateOrder
+                                setOrderConfirmationModal(true);
                             }}
                         >
                             Pesan Sekarang
@@ -780,7 +792,7 @@ const Table = ({
 
                         <div className="order-modal-buttons">
                             <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
-                            <button onClick={checkStockBeforeOrder}>Pesan</button>
+                            <button onClick={() => {}}>Pesan</button>
                         </div>
                     </div>
                 </div>
@@ -833,54 +845,84 @@ const Table = ({
                 showOrderModal && (
                     <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
                         <div className="modal-content" style={{ maxWidth: '90%' }} onClick={(e) => e.stopPropagation()}>
-                            <h3>Detail Pesanan</h3>
-                            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
+                            <h3 style={{ marginBottom: "16px", fontSize: "20px" }}>🧾 Detail Pesanan</h3>
+
+                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
                                 <thead>
-                                    <tr>
-                                        <th style={{ textAlign: "left" }}>Produk</th>
-                                        <th>Qty</th>
-                                        <th>Harga</th>
-                                        <th>Total</th>
+                                    <tr style={{ backgroundColor: "#f5f5f5" }}>
+                                        <th style={{ textAlign: "center", padding: "8px" }}>Produk</th>
+                                        <th style={{ textAlign: "center", padding: "8px" }}>Qty</th>
+                                        <th style={{ textAlign: "center", padding: "8px" }}>Harga</th>
+                                        <th style={{ textAlign: "center", padding: "8px" }}>Total</th>
+                                        <th style={{ padding: "8px" }}></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {Object.entries(qtyMap)
-                                        .filter(([, entry]) => entry.qty > 0 || true) // tampilkan semua produk yang pernah dipilih
+                                        .filter(([, entry]) => entry.qty > 0 || true)
                                         .map(([id, entry]) => (
-                                            <tr key={id}>
-                                                <td>{entry.category.name || '-'} - {entry.name || ''} ({entry.brand || ''})</td>
-                                                <td style={{ textAlign: "center" }}>
+                                            <tr key={id} style={{ borderBottom: "1px solid #ddd" }}>
+                                                <td style={{ padding: "8px" }}>
+                                                    <strong>{entry.name}</strong><br />
+                                                    <small>{entry.category?.name || '-'} • {entry.brand || '-'}</small>
+                                                </td>
+
+                                                <td style={{ textAlign: "center", padding: "8px" }}>
                                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                                                         <span>{entry.totalQty}</span>
-                                                        <button onClick={() => handleEditFromQtyMap(id)}>
+                                                        <button
+                                                            onClick={() => handleEditFromQtyMap(id)}
+                                                            style={{ background: "none", border: "none", cursor: "pointer" }}
+                                                            title="Edit"
+                                                        >
                                                             ✏️
                                                         </button>
-
                                                     </div>
                                                 </td>
 
-                                                <td style={{ textAlign: "right" }}>Rp. {entry.price.toLocaleString("id-ID")}</td>
-                                                <td style={{ textAlign: "right" }}>Rp. {(entry.totalQty * entry.price).toLocaleString("id-ID")}</td>
-                                                <td style={{ textAlign: "center" }}>
+                                                <td style={{ textAlign: "center", padding: "8px" }}>
+                                                    Rp {entry.price.toLocaleString("id-ID")}
+                                                </td>
+                                                <td style={{ textAlign: "center", padding: "8px" }}>
+                                                    Rp {(entry.totalQty * entry.price).toLocaleString("id-ID")}
+                                                </td>
+                                                <td style={{ textAlign: "center", padding: "8px" }}>
                                                     <button
-                                                        style={{ backgroundColor: "transparent", border: "none", cursor: "pointer", color: "red" }}
                                                         onClick={() => handleDeleteFromQtyMap(id)}
                                                         title="Hapus Item"
+                                                        style={{
+                                                            background: "none",
+                                                            border: "none",
+                                                            color: "red",
+                                                            cursor: "pointer",
+                                                            fontSize: "16px",
+                                                        }}
                                                     >
                                                         🗑️
                                                     </button>
                                                 </td>
-
                                             </tr>
                                         ))}
                                 </tbody>
-
                             </table>
 
                             <div style={{ textAlign: "right", marginTop: "20px" }}>
-                                <button onClick={() => setShowOrderModal(false)}>Tutup</button>
+                                <button
+                                    onClick={() => setShowOrderModal(false)}
+                                    style={{
+                                        padding: "8px 16px",
+                                        backgroundColor: "#007bff",
+                                        border: "none",
+                                        color: "white",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Tutup
+                                </button>
                             </div>
                         </div>
+
                     </div>
                 )
             }

@@ -47,6 +47,7 @@ const CustomAlgoliaContainer = ({
     onTableClick,
     tableType = 'default',
     enableDateRange = false,
+    enablePriceFilter = false,
 }) => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [accessDenied, setAccessDenied] = useState(false);
@@ -267,6 +268,7 @@ const CustomAlgoliaContainer = ({
                     )}
                 </div>
 
+                {enablePriceFilter && (
                 <div className='price-filter'>
                     <PriceFilter
                     indexName={indexName}
@@ -274,6 +276,7 @@ const CustomAlgoliaContainer = ({
                     onFilterChange={setPriceFilter}
                     />
                 </div>
+                )}
 
                 {/* Checkbox */}
                 <div className='checkbox-container'>
