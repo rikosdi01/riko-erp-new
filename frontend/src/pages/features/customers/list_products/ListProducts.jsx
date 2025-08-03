@@ -13,10 +13,13 @@ const ListProducts = () => {
         {
             header: "Stok",
             accessor: "stock",
-            renderCell: (_, value) => {
-                const totalStock = value.stock ? value.stock : 0
-                const sets = Array.isArray(value?.set) ? value.set : [];
+            renderCell: (_, item) => {
+                const stock = item.stock ?? {};
+                const totalStock = Object.values(stock).reduce((sum, val) => sum + val, 0);
+
+                const sets = Array.isArray(item?.set) ? item.set : [];
                 const unit = sets.find((s) => s?.set)?.set ?? "";
+
                 return `${totalStock} ${unit}`;
             }
         },

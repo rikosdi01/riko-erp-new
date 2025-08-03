@@ -34,8 +34,17 @@ const Express = () => {
     const columns = [
         { header: "Nama Pengangkutan", accessor: "name" },
         { header: "Alamat Pengangkutan", accessor: "address" },
-        { header: "Biaya (kg)", accessor: "price" },
-        { header: "Jasa Pengangkutan", accessor: "service" },
+        { header: "Tarif Dasar", accessor: "basePrice" },
+        { header: "Tarif tambahan (per item)", accessor: "itemPerPrice" },
+        {
+            header: 'Estimasi',
+            accessor: 'estimation',
+            renderCell: (_, estimation) => {
+                const estimationStart = estimation?.estimationStart ?? 0;
+                const estimationEnd = estimation?.estimationEnd ?? 0;
+                return estimationStart + ' hari - ' + estimationEnd + ' hari';
+            }
+        },
         { header: "Nomor Telpon", accessor: "phone" },
     ]
 

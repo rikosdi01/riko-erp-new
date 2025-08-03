@@ -1,0 +1,177 @@
+.customer-profile {
+  background-color: #fff;
+  padding: 24px;
+}
+
+.customer-profile h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #333;
+}
+
+.profile-section {
+  margin-bottom: 30px;
+}
+
+.profile-section h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #333;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 6px;
+}
+
+.profile-section label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.profile-section input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 6px;
+  box-sizing: border-box;
+  transition: border 0.3s;
+}
+
+.profile-section input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.customer-profile p {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+
+button {
+  font-size: 14px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+.modal-content h3 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+.address-box {
+  background-color: #f8f9fa;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+}
+
+.address-box:hover {
+  border-color: #007bff;
+  background-color: #eef6ff;
+}
+
+.address-box.selected {
+  border: 2px solid #28a745;
+  background-color: #eaf9ed;
+}
+
+.add-address-form {
+  margin-top: 20px;
+}
+
+.add-address-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.add-address-form input:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #fefeff;
+}
+
+.close-btn {
+  margin-top: 24px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #c82333;
+}
+
+select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.customer-profil-button {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}

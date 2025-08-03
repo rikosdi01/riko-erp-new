@@ -92,6 +92,7 @@ import ListOrders from "./pages/features/customers/list_orders/ListOrders";
 import DetailListOrder from "./pages/features/customers/list_orders/detail_list_orders/DetailListOrder";
 import ForgotPassword from "./pages/authentication/forgot_password/ForgotPassword";
 import { RolesProvider } from "./context/auth/RolesContext";
+import CustomerProfile from "./pages/features/customers/profil/CustomerProfile";
 
 function AppContent() {
   const location = useLocation();
@@ -225,6 +226,7 @@ function AppContent() {
           <Route path="/customer/list-products" element={<ProtectedRoute><ListProducts /></ProtectedRoute>} />
           <Route path="/customer/list-orders" element={<ProtectedRoute><ListOrders /></ProtectedRoute>} />
           <Route path="/customer/list-orders/:id" element={<ProtectedRoute><DetailListOrder /></ProtectedRoute>} />
+          <Route path="/customer/profile" element={<ProtectedRoute><CustomerProfile /></ProtectedRoute>} />
 
 
 

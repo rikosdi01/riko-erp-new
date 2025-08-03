@@ -58,9 +58,6 @@ const Table = ({
     const [unitQtyMap, setUnitQtyMap] = useState({}); // simpan jumlah per satuan
     const [isEditingQty, setIsEditingQty] = useState(false);
 
-    const [outOfStockItems, setOutOfStockItems] = useState([]);
-    const [showOutOfStockModal, setShowOutOfStockModal] = useState(false);
-
 
     const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0);
 
@@ -147,6 +144,10 @@ const Table = ({
         setAccessDenied(true);
     }
 
+    const getTotalStock = (stockObj) => {
+        if (!stockObj || typeof stockObj !== 'object') return 0;
+        return Object.values(stockObj).reduce((sum, val) => sum + val, 0);
+    };
 
     useEffect(() => {
         const fetchRack = async () => {
@@ -169,79 +170,6 @@ const Table = ({
 
         fetchRack();
     }, [formattedSO]);
-
-    const handleBackOrderDecision = async (mode = 'bo') => {
-        const updatedQtyMap = {};
-        const boQtyMap = {};
-
-
-        const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
-
-        Object.entries(qtyMap).forEach(([id, entry]) => {
-            const stock = entry.stock;
-            const totalQty = entry.totalQty;
-
-            if (totalQty > stock) {
-                if (mode === 'bo') {
-                    if (stock > 0) {
-                        updatedQtyMap[id] = { ...entry, totalQty: stock };
-                    }
-                    boQtyMap[id] = { ...entry, totalQty: totalQty - stock };
-                } else if (mode === 'cancel') {
-                    if (stock > 0) {
-                        updatedQtyMap[id] = { ...entry, totalQty: stock };
-                    }
-                    // Item dengan 0 stock tidak disimpan
-                }
-            } else {
-                updatedQtyMap[id] = entry;
-            }
-        });
-
-        setQtyMap(updatedQtyMap);
-        setShowOutOfStockModal(false);
-        setOrderConfirmationModal(true);
-
-        if (mode === 'bo' && Object.keys(boQtyMap).length > 0) {
-            const boItems = Object.entries(boQtyMap).map(([id, entry]) => ({
-                item: {
-                    id,
-                    code: entry.code,
-                    name: entry.name,
-                },
-                price: entry.price,
-                qty: entry.totalQty,
-                discount: 0,
-            }));
-
-            const totalBOPrice = boItems.reduce((sum, item) => sum + item.qty * item.price, 0);
-
-            const boData = {
-                code: newCode,
-                customer: {
-                    id: loginUser.id,
-                    name: loginUser.username,
-                },
-                description: description || "Pesanan kekurangan stok, dipindahkan ke BO.",
-                status: "tertunda",
-                warehouse: selectedWarehouse,
-                items: boItems,
-                totalPrice: totalBOPrice,
-                isCustomerOrder: true,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-            };
-
-            try {
-                await SalesOrderRepository.createSalesOrder(boData);
-                showToast("berhasil", "Pesanan BO berhasil dibuat!");
-            } catch (e) {
-                console.error("Gagal menyimpan BO:", e);
-                showToast("gagal", "Gagal menyimpan pesanan BO.");
-            }
-        }
-    };
-
 
 
     const handleCreateOrder = async () => {
@@ -538,8 +466,10 @@ const Table = ({
                         <div
                             className={`order-details-button ${totalQty === 0 ? "disabled" : ""}`}
                             onClick={() => {
-                                handleCreateOrder
-                                setOrderConfirmationModal(true);
+                                if (totalQty > 0) {
+                                    // lanjut ke proses pemesanan
+                                    setOrderConfirmationModal(true);
+                                }
                             }}
                         >
                             Pesan Sekarang
@@ -553,7 +483,9 @@ const Table = ({
                     <div className="modal-content">
                         <h2>{selectedProduct.category.name} - {selectedProduct.name} ({selectedProduct.brand})
                         </h2>
-                        <p>Stok Tersedia: {selectedProduct.stock || 0}</p>
+                        <p>
+                            {`Stok Tersedia: ${getTotalStock(selectedProduct.stock)}`}
+                        </p>
 
                         <table>
                             <thead>
@@ -594,8 +526,9 @@ const Table = ({
                                                         }, 0) || 0;
 
                                                         const totalIfChanged = otherQty + (val * additionalQty);
+                                                        const totalStock = getTotalStock(selectedProduct.stock);
 
-                                                        if (totalIfChanged <= (selectedProduct.stock || 0)) {
+                                                        if (totalIfChanged <= totalStock) {
                                                             setUnitQtyMap((prev) => ({
                                                                 ...prev,
                                                                 [satuan.set]: val
@@ -635,8 +568,9 @@ const Table = ({
                                                             }, 0) || 0;
 
                                                             const totalIfAdded = otherQty + ((currentCount + 1) * additionalQty);
+                                                            const totalStock = getTotalStock(selectedProduct.stock);
 
-                                                            return totalIfAdded > (selectedProduct.stock || 0);
+                                                            return totalIfAdded > totalStock;
                                                         })()
                                                     }
                                                 >
@@ -646,7 +580,7 @@ const Table = ({
 
                                             {showLimitWarningMap[satuan.set] && (
                                                 <p style={{ color: "red", marginTop: "4px", fontSize: "12px" }}>
-                                                    Melebihi stok! Maksimal {selectedProduct.stock} pcs.
+                                                    Melebihi stok! Maksimal {getTotalStock(selectedProduct.stock)} pcs.
                                                 </p>
                                             )}
 
@@ -708,7 +642,7 @@ const Table = ({
                                                 code: selectedProduct.code,
                                                 qty: selectedProduct.qty,
                                                 totalQty: Object.values(satuanMap).reduce((sum, item) => sum + (item.qty * item.content), 0),
-                                                stock: selectedProduct.stock || 0,
+                                                stock: selectedProduct.stock,
                                                 units: satuanMap,
                                                 price: selectedProduct.salePrice,
                                             }
@@ -758,8 +692,8 @@ const Table = ({
                                     <label style={{ fontWeight: 500 }}>Alamat Saya:</label>
                                     <div>
                                         <div>{loginUser.address}</div>
-                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.city}</div>
-                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.province}</div>
+                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.selectedAddress?.city || '-'}</div>
+                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.selectedAddress?.province || '-'}</div>
                                     </div>
                                 </div>
                                 <div>
@@ -792,7 +726,7 @@ const Table = ({
 
                         <div className="order-modal-buttons">
                             <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
-                            <button onClick={() => {}}>Pesan</button>
+                            <button onClick={() => { }}>Pesan</button>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
+import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, User, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import { useUsers } from "../../context/auth/UsersContext";
 import roleAccess from "../../utils/helper/roleAccess";
@@ -40,6 +40,7 @@ const SidebarPages = () => {
     const customerSubItems = filterSubItems([
         { text: "Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-daftar-list-barang-pelanggan" },
         { text: "Pesanan", to: "/customer/list-orders", icon: <ListOrdered size={20} />, permission: "melihat-daftar-pesanan-pelanggan" },
+        { text: "Profil", to: "/customer/profil", icon: <User size={20} />, permission: "melihat-profil-pelanggan" },
     ]);
 
     const salesSubItems = filterSubItems([
@@ -96,6 +97,16 @@ const SidebarPages = () => {
                             icon={<ListOrdered size={20} />}
                             text="Pesanan"
                             to="/customer/list-orders"
+                        />
+                    )}
+
+                    <hr></hr>
+
+                    {customerSubItems.length > 0 && (
+                        <SidebarItem
+                            icon={<User size={20} />}
+                            text="Profil"
+                            to="/customer/profile"
                         />
                     )}
                 </>

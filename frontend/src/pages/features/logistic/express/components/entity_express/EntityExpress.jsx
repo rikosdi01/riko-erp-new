@@ -3,7 +3,7 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityExpress.css';
-import { HandPlatter, MapPin, Phone, Receipt, Scale, Ship } from "lucide-react";
+import { Calendar1, CalendarCheck, HandPlatter, MapPin, Phone, Receipt, Scale, Ship } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -29,9 +29,10 @@ const EntityExpress = ({
     const [name, setName] = useState(initialData.name || "");
     const [address, setAddress] = useState(initialData.address || "");
     const [phone, setPhone] = useState(initialData.phone || "");
-    const [service, setService] = useState(initialData.service || '');
-    const [price, setPrice] = useState(initialData.price || 0);
-    const [set, setSet] = useState(initialData.set || '');
+    const [basePrice, setBasePrice] = useState(initialData.basePrice || '');
+    const [itemPerPrice, setItemPerPrice] = useState(initialData.itemPerPrice || '');
+    const [estimationStart, setEstimationStart] = useState(initialData.estimationStart || '');
+    const [estimationEnd, setEstimationEnd] = useState(initialData.estimationEnd || '');
     const [nameError, setNameError] = useState("");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(
@@ -54,9 +55,10 @@ const EntityExpress = ({
         setName(initialData.name || "");
         setAddress(initialData.address || "");
         setPhone(initialData.phone || "");
-        setService(initialData.service || "");
-        setPrice(initialData.price || 0);
-        setSet(initialData.set || "");
+        setBasePrice(initialData.basePrice || 0);
+        setItemPerPrice(initialData.itemPerPrice || 0);
+        setEstimationStart(initialData.estimationStart || 0);
+        setEstimationEnd(initialData.estimationEnd || 0);
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`)
     }, [initialData]);
@@ -79,9 +81,10 @@ const EntityExpress = ({
                 name: name.trim(),
                 address,
                 phone,
-                service,
-                price: parseInt(price.toString().replace(/[^0-9]/g, ""), 10) || 0,
-                set,
+                basePrice,
+                itemPerPrice,
+                estimationStart,
+                estimationEnd,
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
                 userId: userId,
@@ -110,9 +113,10 @@ const EntityExpress = ({
         setName("");
         setAddress('');
         setPhone('');
-        setService('');
-        setPrice(0);
-        setSet('');
+        setBasePrice('');
+        setItemPerPrice('');
+        setEstimationStart('');
+        setEstimationEnd('');
         setNameError("");
     }
     // handler delete
@@ -120,9 +124,9 @@ const EntityExpress = ({
         try {
             await ExpressRepository.deleteExpress(initialData.id);
             showToast("berhasil", "Pengangkutan berhasil dihapus!");
-            navigate("/sales/salesman");
+            navigate("/logistic/express");
         } catch (error) {
-            console.error("Error deleting salesman: ", error);
+            console.error("Error deleting express: ", error);
             showToast("gagal", "Gagal menghapus Pengangkutan!");
         }
     }
@@ -154,8 +158,8 @@ const EntityExpress = ({
                     }}
                 />
                 <InputLabel
-                    label="No. Telpon"
-                    icon={<Phone className='input-icon' size={20} />}
+                    label="Nomor Telpon"
+                    icon={<Phone className='input-icon' />}
                     value={phone}
                     onChange={(e) => {
                         setPhone(e.target.value);
@@ -163,30 +167,44 @@ const EntityExpress = ({
                 />
             </div>
 
-            <div className='add-container-input'>
+            <div className='add-container-input-attribute'>
                 <InputLabel
-                    label="Jasa"
+                    label="Harga Dasar"
                     icon={<HandPlatter className='input-icon' size={20} />}
-                    value={service}
-                    onChange={(e) => {
-                        setService(e.target.value);
-                    }}
-                />
-                <InputLabel
-                    label="Harga"
-                    icon={<Receipt className='input-icon' size={20} />}
-                    value={price}
+                    value={basePrice}
                     onChange={(e) => {
                         const rawValue = e.target.value.replace(/\D/g, "");
-                        setPrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
+                        setBasePrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
                     }}
                 />
                 <InputLabel
-                    label="Satuan"
-                    icon={<Scale className='input-icon' size={20} />}
-                    value={set}
+                    label="Harga Per Item"
+                    icon={<Receipt className='input-icon' size={20} />}
+                    value={itemPerPrice}
                     onChange={(e) => {
-                        setSet(e.target.value);
+                        const rawValue = e.target.value.replace(/\D/g, "");
+                        setItemPerPrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
+                    }}
+                />
+            </div>
+
+            <div className='add-container-input-attribute'>
+                <InputLabel
+                type={'number'}
+                    label="Estimasi Awal"
+                    icon={<Calendar1 className='input-icon' />}
+                    value={estimationStart}
+                    onChange={(e) => {
+                        setEstimationStart(e.target.value);
+                    }}
+                />
+                <InputLabel
+                type={'number'}
+                    label="Estimasi Akhir"
+                    icon={<CalendarCheck className='input-icon' size={20} />}
+                    value={estimationEnd}
+                    onChange={(e) => {
+                        setEstimationEnd(e.target.value);
                     }}
                 />
             </div>
