@@ -51,6 +51,7 @@ const Table = ({
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState('');
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+    const [showLimitWarningMap, setShowLimitWarningMap] = useState({});
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -61,14 +62,12 @@ const Table = ({
     const [showOutOfStockModal, setShowOutOfStockModal] = useState(false);
 
 
-
-
     const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0);
 
 
     const { formats } = useFormats();
     const formatCode = formats.presets?.sales?.code;
-        const formattedSO = formats?.presets?.sales?.rackMedan || '';
+    const formattedSO = formats?.presets?.sales?.rackMedan || '';
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
@@ -82,6 +81,10 @@ const Table = ({
     }, [qtyMap]);
 
     console.log('Formats: ', formats);
+
+    useEffect(() => {
+        console.log('Selected Products: ', selectedProduct);
+    }, [selectedProduct]);
 
 
     useEffect(() => {
@@ -144,32 +147,8 @@ const Table = ({
         setAccessDenied(true);
     }
 
-    const checkStockBeforeOrder = () => {
-        const outOfStock = [];
 
-        Object.entries(qtyMap).forEach(([id, entry]) => {
-            if (entry.totalQty > entry.stock) {
-                outOfStock.push({
-                    id,
-                    name: entry.name,
-                    totalQty: entry.totalQty,
-                    stock: entry.stock,
-                    shortage: entry.totalQty - entry.stock,
-                    price: entry.price,
-                    code: entry.code
-                });
-            }
-        });
-
-        if (outOfStock.length > 0) {
-            setOutOfStockItems(outOfStock);
-            setShowOutOfStockModal(true);
-        } else {
-            handleCreateOrder(qtyMap); // semua stok cukup
-        }
-    };
-
-        useEffect(() => {
+    useEffect(() => {
         const fetchRack = async () => {
             if (!formattedSO) return;
 
@@ -385,6 +364,29 @@ const Table = ({
         });
     };
 
+    useEffect(() => {
+        if (!selectedProduct?.set) return;
+
+        const newWarnings = {};
+
+        selectedProduct.set.forEach((satuan) => {
+            const val = unitQtyMap[satuan.set] || 0;
+            const additionalQty = satuan.qty;
+
+            const otherQty = selectedProduct.set.reduce((total, s) => {
+                const count = unitQtyMap[s.set] || 0;
+                return total + (s.set === satuan.set ? 0 : count * s.qty);
+            }, 0);
+
+            const totalIfChanged = otherQty + val * additionalQty;
+
+            newWarnings[satuan.set] = totalIfChanged > (selectedProduct.stock || 0);
+        });
+
+        setShowLimitWarningMap(newWarnings);
+    }, [unitQtyMap, selectedProduct]);
+
+
 
     return (
         <div className={!isAlgoliaTable ? 'table-wrapper' : ''} ref={tableRef}>
@@ -539,7 +541,7 @@ const Table = ({
                     <div className="modal-content">
                         <h2>{selectedProduct.category.name} - {selectedProduct.name} ({selectedProduct.brand})
                         </h2>
-                        <p>Stok Tersedia: {selectedProduct.stock}</p>
+                        <p>Stok Tersedia: {selectedProduct.stock || 0}</p>
 
                         <table>
                             <thead>
@@ -572,12 +574,34 @@ const Table = ({
                                                     value={unitQtyMap[satuan.set] || 0}
                                                     onChange={(e) => {
                                                         const val = Math.max(0, parseInt(e.target.value) || 0);
-                                                        setUnitQtyMap((prev) => ({
-                                                            ...prev,
-                                                            [satuan.set]: val
-                                                        }));
+                                                        const additionalQty = satuan.qty;
+
+                                                        const otherQty = selectedProduct.set?.reduce((total, s) => {
+                                                            const count = unitQtyMap[s.set] || 0;
+                                                            return total + (s.set === satuan.set ? 0 : (count * s.qty));
+                                                        }, 0) || 0;
+
+                                                        const totalIfChanged = otherQty + (val * additionalQty);
+
+                                                        if (totalIfChanged <= (selectedProduct.stock || 0)) {
+                                                            setUnitQtyMap((prev) => ({
+                                                                ...prev,
+                                                                [satuan.set]: val
+                                                            }));
+                                                            setShowLimitWarningMap((prev) => ({
+                                                                ...prev,
+                                                                [satuan.set]: false
+                                                            }));
+                                                        } else {
+                                                            setShowLimitWarningMap((prev) => ({
+                                                                ...prev,
+                                                                [satuan.set]: true
+                                                            }));
+                                                        }
                                                     }}
+
                                                 />
+
 
                                                 <button
                                                     className="counter-button"
@@ -587,8 +611,33 @@ const Table = ({
                                                             [satuan.set]: (prev[satuan.set] || 0) + 1
                                                         }));
                                                     }}
-                                                >+</button>
+                                                    disabled={
+                                                        (() => {
+                                                            const currentCount = unitQtyMap[satuan.set] || 0;
+                                                            const additionalQty = satuan.qty;
+
+                                                            // Hitung total tanpa memasukkan satuan yang sedang ditekan
+                                                            const otherQty = selectedProduct.set?.reduce((total, s) => {
+                                                                const count = unitQtyMap[s.set] || 0;
+                                                                return total + (s.set === satuan.set ? 0 : (count * s.qty));
+                                                            }, 0) || 0;
+
+                                                            const totalIfAdded = otherQty + ((currentCount + 1) * additionalQty);
+
+                                                            return totalIfAdded > (selectedProduct.stock || 0);
+                                                        })()
+                                                    }
+                                                >
+                                                    +
+                                                </button>
                                             </div>
+
+                                            {showLimitWarningMap[satuan.set] && (
+                                                <p style={{ color: "red", marginTop: "4px", fontSize: "12px" }}>
+                                                    Melebihi stok! Maksimal {selectedProduct.stock} pcs.
+                                                </p>
+                                            )}
+
                                         </td>
                                     </tr>
                                 ))}
@@ -608,6 +657,8 @@ const Table = ({
                                 title={"Batal"}
                                 onclick={() => {
                                     setModalOpen(false);
+                                    setUnitQtyMap({});
+                                    setShowLimitWarningMap({});
                                     if (isEditingQty) {
                                         setShowOrderModal(true); // kembali ke modal pesanan
                                         setIsEditingQty(false);
@@ -735,27 +786,6 @@ const Table = ({
                 </div>
             )
             }
-
-            {showOutOfStockModal && (
-                <div className="modal-overlay" onClick={() => setShowOutOfStockModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <h3>Beberapa item kehabisan stok:</h3>
-                        {outOfStockItems.map((item) => (
-                            <div key={item.id} className="confirmation-products">
-                                <div>{item.name} ({item.totalQty} diminta, stok tersedia {item.stock})</div>
-                                <div style={{ color: 'red' }}>Kekurangan: {item.shortage}</div>
-                            </div>
-                        ))}
-                        <div className="order-modal-bo-buttons">
-                            <button onClick={() => setShowOutOfStockModal(false)}>Tutup</button>
-                            <button onClick={() => handleBackOrderDecision('cancel')}>Batalkan Item</button>
-                            <button onClick={() => handleBackOrderDecision('bo')}>Pindah ke Pesanan Tertunda</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-
 
 
             {/* Pagination */}

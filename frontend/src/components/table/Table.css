@@ -326,3 +326,10 @@ tbody tr:nth-child(n + 3) {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
+.counter-button:disabled {
+  background-color: #ccc; /* ubah warna latar */
+  color: #888;            /* ubah warna icon/text */
+  cursor: not-allowed;    /* tanda cursor */
+  opacity: 0.6;
+}

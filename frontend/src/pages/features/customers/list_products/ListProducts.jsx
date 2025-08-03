@@ -6,8 +6,6 @@ import './ListProducts.css';
 
 const ListProducts = () => {
     // Hooks
-
-
     const columns = [
         { header: "Nama Item", accessor: "name" },
         { header: "Kategori", accessor: "category.name" },
@@ -44,8 +42,13 @@ const ListProducts = () => {
             enableCreate={false}
             enableDropdown={true}
             dropdownAttribute={'category.name'}
+            dropdownTitle={'Kategori'}
             enableDropdown2={true}
             dropdownAttribute2={'brand'}
+            dropdownTitle2={'Motor'}
+            enableDropdown3={true}
+            dropdownAttribute3={'name'}
+            dropdownTitle3={'Model'}
             onTableClick={() => {}}
             tableType='customers'
         />

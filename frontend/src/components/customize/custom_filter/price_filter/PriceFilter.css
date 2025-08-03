@@ -1,0 +1,51 @@
+.filter-container {
+  display: flex;
+  justify-content: end;
+}
+
+.price-filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  width: 300px; /* agar tidak full width */
+  font-family: sans-serif;
+}
+
+.price-filter-container label {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+.price-values {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-values input {
+  padding: 8px 12px;
+  width: 100px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.price-filter-container button {
+  padding: 8px 16px;
+  background: #0d82ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.3s;
+}
+
+.price-filter-container button:hover {
+  background: #005fcc;
+}

@@ -1,0 +1,112 @@
+.custom-dropdown-wrapper {
+    position: relative;
+    font-size: 14px;
+}
+
+.custom-dropdown-toggle {
+    padding: 12px 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    color: grey;
+}
+
+.custom-dropdown-toggle:hover {
+    border-color: #007bff;
+}
+
+.custom-dropdown-toggle:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.custom-dropdown-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-dropdown-title span {
+    display: flex;
+    align-items: center;
+}
+
+.custom-checkbox-filter {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    z-index: 100;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    max-height: 250px;
+    width: 250px;
+    overflow-y: auto;
+}
+
+.search-box {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: white;
+    color: grey;
+    transition: 0.3s all;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: rgb(155, 155, 155);
+}
+
+.checkbox-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.checkbox-list li {
+    margin-bottom: 6px;
+}
+
+.checkbox-list label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgb(59, 59, 59);
+    padding: 4px 6px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.checkbox-list label:hover {
+    background-color: rgb(239, 239, 239);
+}
+
+.checkbox-list input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #007bff;
+}
+
+.show-more-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 8px;
+    font-size: 14px;
+    text-align: left;
+}

@@ -12,6 +12,8 @@ import AccessAlertModal from '../../modal/access_alert_modal/AccessAlertModal';
 import { history } from 'instantsearch.js/es/lib/routers';
 import { singleIndex } from 'instantsearch.js/es/lib/stateMappings';
 import CustomCheckbox from '../custom_checkbox/CustomCheckbox';
+import CustomDropdownCheckbox from '../custom_dropdown/CustomDropdown';
+import PriceFilter from '../custom_filter/price_filter/PriceFilter';
 
 const CustomAlgoliaContainer = ({
     pageLabel,
@@ -22,10 +24,13 @@ const CustomAlgoliaContainer = ({
     createOnclick,
     enableDropdown = false,
     dropdownAttribute,
+    dropdownTitle,
     enableDropdown2 = false,
-    dropdownAttribute3,
-    enableDropdown3 = false,
     dropdownAttribute2,
+    dropdownTitle2,
+    enableDropdown3 = false,
+    dropdownAttribute3,
+    dropdownTitle3,
     enableCheckbox1 = false,
     checkbox1Label,
     checkbox1Attribute,  // Add ID prop
@@ -43,7 +48,7 @@ const CustomAlgoliaContainer = ({
     tableType = 'default',
     enableDateRange = false,
 }) => {
-    const [itemsPerPage, setItemsPerPage] = useState(8);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const [accessDenied, setAccessDenied] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
 
@@ -57,9 +62,7 @@ const CustomAlgoliaContainer = ({
 
     const [startDate, setStartDate] = useState(initialStartDate);
     const [endDate, setEndDate] = useState(initialEndDate);
-
-
-
+    const [priceFilter, setPriceFilter] = useState(null);
 
     useEffect(() => {
         console.log('Selected Value adasd:', selectedValue);
@@ -75,6 +78,7 @@ const CustomAlgoliaContainer = ({
 
     const ItemsHit = () => {
         const { items } = useHits();
+        console.log('Items: ', items);
 
         return (
             <Table
@@ -132,28 +136,60 @@ const CustomAlgoliaContainer = ({
     };
 
     const formattedDateFilter = useMemo(() => {
-        if (!enableDateRange) return filters; // ⬅️ kunci solusi
+        if (!enableDateRange) return null;
 
-        if (!startDate && !endDate) return filters;
+        if (!startDate && !endDate) return null;
 
         const start = startDate ? new Date(`${startDate}T00:00:00+07:00`).getTime() : null;
         const end = endDate ? new Date(`${endDate}T23:59:59.999+07:00`).getTime() : null;
 
-
-        let dateFilter = "";
-
         if (start && end) {
-            dateFilter = `createdAt >= ${start} AND createdAt <= ${end}`;
+            return `createdAt >= ${start} AND createdAt <= ${end}`;
         } else if (start) {
-            dateFilter = `createdAt >= ${start}`;
+            return `createdAt >= ${start}`;
         } else if (end) {
-            dateFilter = `createdAt <= ${end}`;
+            return `createdAt <= ${end}`;
         }
 
-        return filters ? `${filters} AND ${dateFilter}` : dateFilter;
-    }, [enableDateRange, startDate, endDate, filters]);
+        return null;
+    }, [enableDateRange, startDate, endDate]);
+
+    const finalFilterString = useMemo(() => {
+        const allFilters = [];
+
+        if (filters) {
+            allFilters.push(filters);
+        }
+
+        if (formattedDateFilter) {
+            allFilters.push(formattedDateFilter);
+        }
+
+        if (priceFilter) {
+            allFilters.push(priceFilter);
+        }
+
+        return allFilters.length > 0 ? allFilters.join(' AND ') : undefined;
+    }, [filters, formattedDateFilter, priceFilter]);
 
 
+    const allFilters = [];
+
+    if (formattedDateFilter) {
+        allFilters.push(formattedDateFilter); // contoh: "createdAt >= 1690828800 AND createdAt <= 1693497199"
+    }
+
+    if (filters) {
+        allFilters.push(filters); // contoh: "customer.name:'Budi'"
+    }
+
+    useEffect(() => {
+        console.log('Price Filter: ', priceFilter);
+    }, [priceFilter]);
+
+    if (priceFilter) {
+        allFilters.push(priceFilter); // contoh: "salePrice >= 50000 AND salePrice <= 100000"
+    }
 
 
     // ================================================================================
@@ -172,7 +208,7 @@ const CustomAlgoliaContainer = ({
                 <AlgoliaListener subscribeFn={subscribeFn} />
                 <Configure
                     hitsPerPage={itemsPerPage}
-                    filters={enableDateRange ? formattedDateFilter : filters}
+                    filters={finalFilterString}
                 />
 
 
@@ -182,19 +218,22 @@ const CustomAlgoliaContainer = ({
                     />
 
                     {enableDropdown && (
-                        <CustomAlgoliaDropdown
+                        <CustomDropdownCheckbox
+                            title={dropdownTitle}
                             attribute={dropdownAttribute}
                         />
                     )}
 
                     {enableDropdown2 && (
-                        <CustomAlgoliaDropdown
+                        <CustomDropdownCheckbox
+                            title={dropdownTitle2}
                             attribute={dropdownAttribute2}
                         />
                     )}
 
                     {enableDropdown3 && (
-                        <CustomAlgoliaDropdown
+                        <CustomDropdownCheckbox
+                            title={dropdownTitle3}
                             attribute={dropdownAttribute3}
                         />
                     )}
@@ -226,6 +265,14 @@ const CustomAlgoliaContainer = ({
                             color='white'
                         />
                     )}
+                </div>
+
+                <div className='price-filter'>
+                    <PriceFilter
+                    indexName={indexName}
+                    searchClient={searchClient}
+                    onFilterChange={setPriceFilter}
+                    />
                 </div>
 
                 {/* Checkbox */}
