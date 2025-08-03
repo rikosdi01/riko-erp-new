@@ -10,7 +10,7 @@ import AdjustmentRepository from '../../../../repository/warehouse/AdjustmentRep
 const Adjustment = () => {
     // Hooks
     const navigate = useNavigate();
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
 
 
     // ================================================================================
@@ -47,6 +47,8 @@ const Adjustment = () => {
             subscribeFn={AdjustmentRepository.subscribeToAdjustmentChanges}
             enableExport={false}
             enableImport={false}
+            filters={`location: ${loginUser.location}`}
+            enableDateRange={true}
             canEdit={roleAccess(accessList, 'mengedit-data-penyesuaian-pesanan')}
             canAdd={roleAccess(accessList, 'menambah-data-penyesuaian-pesanan')}
         />

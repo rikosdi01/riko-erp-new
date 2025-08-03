@@ -265,6 +265,7 @@ const EntityAdjustment = ({
                 code: finalCode,
                 description,
                 items: filteredItems,
+                location: loginUser?.location || 'unknown',
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             };
