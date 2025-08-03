@@ -34,7 +34,7 @@ const Adjustment = () => {
     // Navigation
     // Navigation to Create
     const navigateToCreateAdjustment = () => {
-        navigate('/inventory/adustment/new');
+        navigate('/inventory/adjustment/new');
     }
 
     return (

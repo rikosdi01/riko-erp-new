@@ -10,7 +10,7 @@ import { useUsers } from '../../../../context/auth/UsersContext';
 const Items = () => {
     // Hooks
     const navigate = useNavigate();
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
 
 
     const columns = [
@@ -28,6 +28,23 @@ const Items = () => {
         { header: "Motor", accessor: "brand" },
         {
             header: "Stok",
+            accessor: `stock`,
+            renderCell: (_, item) => {
+                const stock = item?.stock?.[loginUser.location] ?? 0;
+
+                const sets = Array.isArray(item?.set) ? item.set : [];
+                const unit = sets.find((s) => s?.set)?.set ?? "";
+
+                return `${stock} ${unit}`;
+            }
+        },
+        {
+            header: "Harga Jual",
+            accessor: "salePrice",
+            renderCell: (value) => Formatting.formatCurrencyIDR(value)
+        },
+        {
+            header: "Stok Global",
             accessor: "stock",
             renderCell: (_, item) => {
                 const stock = item.stock ?? {};
@@ -38,11 +55,6 @@ const Items = () => {
 
                 return `${totalStock} ${unit}`;
             }
-        },
-        {
-            header: "Harga Jual",
-            accessor: "salePrice",
-            renderCell: (value) => Formatting.formatCurrencyIDR(value)
         },
     ]
 

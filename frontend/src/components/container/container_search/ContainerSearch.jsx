@@ -18,28 +18,16 @@ const ContainerSearch = ({
     value,
     setValues,
     enableStock = false,
-    stocks = [],
-    stockSelectedId = '',
+    location,
 }) => {
-    console.log('Stocks : ', stocks);
-    console.log('Selected ID:', stockSelectedId);
-
     const [selectedValue, setSelectedValue] = useState([]);
-    const [selectedRack, setSelectedRack] = useState(stockSelectedId || '');
 
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [openContainerSearch, setOpenContainerSearch] = useState(false);
 
     useEffect(() => {
-        if (stocks?.length > 0 && stockSelectedId) {
-            setSelectedRack(stockSelectedId);
-        }
-    }, [stocks, stockSelectedId]);
-
-
-    useEffect(() => {
-        console.log('Selected ID:', stockSelectedId);
-    }, [stockSelectedId]);
+        console.log('Selected Value: ', selectedValue);
+    }, [selectedValue]);
 
     const cleanMappers = {
         item: (item) => ({
@@ -158,37 +146,8 @@ const ContainerSearch = ({
 
                         {enableStock && (
                             <div className="container-search-stock">
-                                <div>Stok di gudang</div>
-                                <div className="container-dropdown-wrapper">
-                                    <Dropdown
-                                        values={stocks}
-                                        selectedId={selectedRack}
-                                        setSelectedId={setSelectedRack}
-                                        icon={<Search size={18} className='input-icon' />}
-                                        marginBottom={0}
-                                    />
-                                </div>
-                                <div>:</div>
-                                <div>
-                                    {
-                                        (() => {
-                                            console.log('Selected Value:', selectedValue);
-                                            console.log('stockSelectedId:', stockSelectedId);
-
-                                            const rackQty = selectedValue?.racks?.find(
-                                                (rack) => rack.rackId === selectedRack
-                                            )?.stock;
-
-                                            console.log('Rack Quantity:', rackQty);
-
-                                            return (
-                                                (rackQty ?? 0) + ' ' + (Array.isArray(selectedValue?.set) && selectedValue.set.length > 0
-                                                    ? selectedValue.set[0].set
-                                                    : 'Item')
-                                            );
-                                        })()
-                                    }
-                                </div>
+                                <div>Stok saat ini:</div>
+                                {selectedValue?.stock?.[location] ?? 0}
                             </div>
                         )}
                     </div>

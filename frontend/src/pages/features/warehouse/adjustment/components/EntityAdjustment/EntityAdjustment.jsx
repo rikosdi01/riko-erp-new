@@ -271,7 +271,7 @@ const EntityAdjustment = ({
 
             console.log('New Adjustment Data: ', newAdj);
 
-                console.log('Login User: ', loginUser);
+            console.log('Login User: ', loginUser);
 
             try {
                 await onSubmit(newAdj, handleReset); // Eksekusi yang berisiko error
@@ -280,7 +280,7 @@ const EntityAdjustment = ({
                     // console.log('New Code: ', newCode);
                     setCode(newCode);
                 }
-                
+
                 for (const adjItem of filteredItems) {
                     const itemId = adjItem.item.id;
                     const newQty = parseInt(adjItem.qty);
@@ -429,8 +429,7 @@ const EntityAdjustment = ({
                             }
                             setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
                             enableStock={true}
-                            stocks={racks || []}
-                            stockSelectedId={selectedWarehouse}
+                            location={loginUser?.location || 'medan'}
                             mode="item"
                         />
                         <InputLabel
