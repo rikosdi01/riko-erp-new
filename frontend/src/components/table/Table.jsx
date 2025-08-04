@@ -7,13 +7,17 @@ import { useFormats } from "../../context/personalization/FormatContext";
 import CounterRepository from "../../repository/personalization/CounterRepository";
 import { useRacks } from "../../context/warehouse/RackWarehouseContext";
 import { serverTimestamp } from "firebase/firestore";
-import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
 import { useToast } from "../../context/ToastContext";
 import { Check, Plus } from "lucide-react";
 import IconButton from "../button/icon_button/IconButton";
 import ActionButton from "../button/actionbutton/ActionButton";
-import { rackIndex } from "../../../config/algoliaConfig";
+import { expressIndex, rackIndex } from "../../../config/algoliaConfig";
 import Tippy from "@tippyjs/react";
+import ItemsRepository from "../../repository/warehouse/ItemsRepository";
+import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
+import TransferRepository from "../../repository/warehouse/TransferRepository";
+
+const DEFAULT_TIMER_SECONDS = 24 * 60 * 60;
 
 const Table = ({
     isAlgoliaTable = false,
@@ -48,15 +52,91 @@ const Table = ({
     const [qtyMap, setQtyMap] = useState({});
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [orderConfirmationModal, setOrderConfirmationModal] = useState(false);
+    const [timerModal, setTimerModal] = useState(false);
+    const [addressModal, setAddressModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState('');
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [showLimitWarningMap, setShowLimitWarningMap] = useState({});
+    const [soID, setSOID] = useState('');
+    const [SOCreatedDate, setSOCreatedDate] = useState('');
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [unitQtyMap, setUnitQtyMap] = useState({}); // simpan jumlah per satuan
     const [isEditingQty, setIsEditingQty] = useState(false);
+    const [express, setExpress] = useState(null);
+    const [selectedShipping, setSelectedShipping] = useState(null);
+    const [selectedAddressIndex, setSelectedAddressIndex] = useState(() => {
+        if (
+            loginUser &&
+            loginUser.addresses &&
+            loginUser.selectedAddress
+        ) {
+            const foundIndex = loginUser.addresses.findIndex(
+                (addr) =>
+                    addr.address === loginUser.selectedAddress.address &&
+                    addr.city === loginUser.selectedAddress.city
+            );
+            return foundIndex !== -1 ? foundIndex : 0;
+        }
+        return 0;
+    });
+
+    useEffect(() => {
+        if (express && express.length > 0 && !selectedShipping) {
+            setSelectedShipping(express[0]);
+        }
+    }, [express]);
+
+
+    const handleOpenTimerModal = (id) => {
+        const existingStartTime = localStorage.getItem(`startTime_${id}`);
+        if (!existingStartTime) {
+            const now = Date.now();
+            localStorage.setItem(`startTime_${id}`, now.toString());
+        }
+        setTimerModal(true);
+    };
+
+    const orderIdRef = useRef(null);
+    const [timers, setTimers] = useState({});
+    const [transferProof, setTransferProof] = useState(null);
+
+    useEffect(() => {
+        if (!soID || !timerModal) return;
+
+        const startTimeStr = localStorage.getItem(`startTime_${soID}`);
+        if (!startTimeStr) return;
+
+        const startTime = parseInt(startTimeStr, 10);
+
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - startTime) / 1000);
+            const timeLeft = Math.max(DEFAULT_TIMER_SECONDS - elapsedSeconds, 0);
+
+            setTimers((prev) => ({ ...prev, [soID]: timeLeft }));
+
+            if (timeLeft === 0) {
+                clearInterval(interval);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [soID, timerModal]);
+
+    const currentTime = soID && timers[soID] !== undefined
+        ? timers[soID]
+        : DEFAULT_TIMER_SECONDS;
+
+
+    const formatTime = (seconds) => {
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    };
 
 
     const totalQty = Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0);
@@ -68,6 +148,29 @@ const Table = ({
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
+
+    useEffect(() => {
+        const loadExpressOptions = async (inputValue) => {
+            const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
+            const { hits } = await expressIndex.search(searchTerm, {
+                hitsPerPage: 10,
+            });
+
+            console.log('Hits: ', hits);
+
+            const hitsData = hits.map(hit => ({
+                id: hit.id || hit.objectID,
+                name: hit.name,
+                price: hit.price,
+                estimationStart: hit.estimationStart,
+                estimationEnd: hit.estimationEnd,
+            }));
+
+            setExpress(hitsData);
+        };
+
+        loadExpressOptions();
+    }, [])
 
     useEffect(() => {
         console.log('Safe Data: ', safeData);
@@ -177,17 +280,17 @@ const Table = ({
 
         try {
             const newCode = await CounterRepository.getNextCode(formatCode, uniqueFormat, monthFormat, yearFormat);
-            const customerData = {
-                name: loginUser.username,
-                id: loginUser.id,
-            }
+            const clientCreatedDate = Date.now(); // dipakai untuk timer
+            const SOCreatedDate = serverTimestamp(); // disimpan ke Firestore
+
+            setSOCreatedDate(clientCreatedDate);
 
             const transformedItems = Object.entries(qtyMap).map(([id, data]) => ({
                 discount: 0,
                 item: {
                     id,
-                    code: data.code,
-                    name: data.name,
+                    code: data.category?.code + '-' + data.code,
+                    name: data.category?.name + ' - ' + data.name,
                 },
                 price: data.price,
                 qty: data.totalQty,
@@ -200,32 +303,97 @@ const Table = ({
 
             const orderData = {
                 code: newCode,
-                customer: customerData,
+                customer: loginUser,
                 description,
                 isPrint: false,
-                status: "menunggu",
+                express: selectedShipping,
+                status: "menunggu pembayaran",
                 statusPayment: "menunggu pembayaran",
-                warehouse: selectedWarehouse,
                 items: transformedItems,
-                totalPrice,
-                isCustomerOrder: true,
-                createdAt: serverTimestamp(),
+                totalPayment: totalPrice + selectedShipping?.price || 0,
+                createdAt: SOCreatedDate, // untuk backend
                 udpatedAt: serverTimestamp(),
             }
 
-            console.log('Order Data: ', orderData);
 
-            // try {
-            //     await SalesOrderRepository.createSalesOrder(orderData);
-            // } catch (submitError) {
-            //     console.error("Error during onSubmit: ", submitError);
-            //     showToast("gagal", "Gagal menyimpan pemesanan!");
-            //     return;
-            // }
+            try {
+                const soID = await SalesOrderRepository.createSalesOrder(orderData);
+                localStorage.setItem(`startTime_${soID}`, clientCreatedDate.toString());
+                setSOID(soID); // trigger useEffect timer
+
+                const userCity = loginUser.selectedAddress?.city?.toLowerCase(); // 'medan' / 'jakarta'
+                const otherCity = userCity === 'medan' ? 'jakarta' : 'medan';
+
+                const transferItems = [];
+
+                for (const item of transformedItems) {
+                    const itemId = item.item.id;
+                    const qtyNeeded = item.qty;
+
+                    const itemData = await ItemsRepository.getItemsById(itemId);
+                    console.log('Table || Item Data: ', itemData);
+                    const stock = itemData.stock || {};
+                    console.log('Table || Stock - 265: ', stock);
+
+                    let remainingQty = qtyNeeded;
+
+                    // Step 1: Kurangi stok dari kota pelanggan dulu
+                    let fromUserCityStock = stock[userCity] || 0;
+                    const deductFromUserCity = Math.min(fromUserCityStock, remainingQty);
+                    if (deductFromUserCity > 0) {
+                        stock[userCity] = fromUserCityStock - deductFromUserCity;
+                        remainingQty -= deductFromUserCity;
+                    }
+
+                    // Step 2: Jika masih kurang, kurangi dari cabang lain
+                    if (remainingQty > 0) {
+                        const fromOtherCityStock = stock[otherCity] || 0;
+                        const deductFromOtherCity = Math.min(fromOtherCityStock, remainingQty);
+
+                        if (deductFromOtherCity > 0) {
+                            stock[otherCity] = fromOtherCityStock - deductFromOtherCity;
+                            remainingQty -= deductFromOtherCity;
+
+                            // Simpan item ini untuk keperluan transfer
+                            transferItems.push({
+                                itemId: itemId,
+                                code: item.item.code,
+                                name: item.item.name,
+                                qty: deductFromOtherCity,
+                                price: item.price
+                            });
+                        }
+                    }
+
+                    console.log('Table || Item ID: ', itemId);
+                    console.log('Table || Stock: ', stock);
+
+                    await ItemsRepository.updateStockOrder(itemId, stock)
+                }
+
+                const transferData = {
+                    soCode: newCode,
+                    locationFrom: otherCity,
+                    locationTo: userCity,
+                    items: transferItems,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                }
+
+                if (transferItems.length > 0) {
+                    await TransferRepository.createTransfer(transferData);
+                }
+
+            } catch (submitError) {
+                console.error("Error during onSubmit: ", submitError);
+                showToast("gagal", "Gagal menyimpan pemesanan!");
+                return;
+            }
 
             showToast('berhasil', 'Pemesanan berhasil dilakukan!');
-            // resetForm();
-            // setOrderConfirmationModal(false);
+            resetForm();
+            handleOpenTimerModal(soID);
+            setOrderConfirmationModal(false);
         } catch (e) {
             console.error(e); // jangan kosongin catch, bantu debug
             showToast("gagal", "Gagal menyimpan pemesanan!");
@@ -233,6 +401,13 @@ const Table = ({
             setLoading(false);
         }
     };
+
+
+    const handleSelectAddress = (index) => {
+        setSelectedAddressIndex(index);
+        setModalOpen(false);
+    };
+
 
     const resetForm = () => {
         setQtyMap({});
@@ -676,10 +851,12 @@ const Table = ({
                         <h3>Apakah pesanan anda sudah sesuai?</h3>
                         {Object.entries(qtyMap).filter(([, entry]) => entry.qty > 0 || true).map(([id, entry]) => (
                             <div key={id} className="confirmation-products">
-                                <div className="confirmation-sub-header-products" style={{ display: 'flex', justifyContent: 'center', alignItems: 'end' }}>
-                                    <div>{entry.category?.name} - {entry.name || "-"} ({entry.brand})</div>
-                                    <div>X{entry.totalQty || 0}</div>
-                                    <div style={{ fontSize: '14px' }}>Rp. {entry.price.toLocaleString("id-ID")}</div>
+                                <div className="confirmation-sub-header-products">
+                                    <div className="confirmation-items-order">
+                                        <div>{entry.category?.name} - {entry.name || "-"} ({entry.brand})</div>
+                                        <div>x{entry.totalQty || 0}</div>
+                                    </div>
+                                    <div style={{ fontSize: '14px', color: 'grey' }}>Rp. {entry.price.toLocaleString("id-ID")}</div>
                                 </div>
                                 <div>Rp. {(entry.totalQty * entry.price).toLocaleString("id-ID")}</div>
                             </div>
@@ -688,15 +865,58 @@ const Table = ({
 
                         <div className="confirmation-foooter-products">
                             <div className="confirmation-footer-sub-header">
-                                <div>
-                                    <label style={{ fontWeight: 500 }}>Alamat Saya:</label>
-                                    <div>
-                                        <div>{loginUser.address}</div>
-                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.selectedAddress?.city || '-'}</div>
-                                        <div style={{ fontSize: "16px", color: 'grey' }}>{loginUser.selectedAddress?.province || '-'}</div>
+                                <div className="confirmation-address">
+                                    <div className="form-group">
+                                        <div className="order-confirmation-title">Alamat Pengiriman:</div>
+                                        {selectedAddressIndex !== null && loginUser.addresses[selectedAddressIndex] && (
+                                            <div className="address-box selected" onClick={() => setAddressModal(true)}>
+                                                <div>
+                                                    Alamat: {loginUser.addresses[selectedAddressIndex].address},
+                                                </div>
+                                                <div>
+                                                    Kota: {loginUser.addresses[selectedAddressIndex].city},
+                                                </div>
+                                                <div>
+                                                    Provinsi: {loginUser.addresses[selectedAddressIndex].province}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {/* <select
+                                            value={selectedAddressIndex}
+                                            onChange={(e) => setSelectedAddressIndex(parseInt(e.target.value))}
+                                        >
+                                            {loginUser.addresses.map((addr, idx) => (
+                                                <option key={idx} value={idx}>
+                                                    {addr.address}, {addr.city}, {addr.province}
+                                                </option>
+                                            ))}
+                                        </select> */}
                                     </div>
                                 </div>
-                                <div>
+
+                                <div className="shipping-options">
+                                    <div className="order-confirmation-title">Pilih Pengiriman:</div>
+                                    {express.map((exp) => (
+                                        <div
+                                            key={exp.id}
+                                            className={`shipping-option ${selectedShipping?.id === exp.id ? 'selected' : ''}`}
+                                            onClick={() => setSelectedShipping(exp)}
+                                            style={{
+                                                border: selectedShipping?.id === exp.id ? '2px solid #007bff' : '1px solid #ccc',
+                                                padding: '10px',
+                                                marginBottom: '10px',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            <div style={{ fontWeight: 'bold' }}>{exp.name}</div>
+                                            <div>Rp. {exp.price.toLocaleString("id-ID")}</div>
+                                            <div>Estimasi: {exp.estimationStart}–{exp.estimationEnd} Hari</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="order-payment">
                                     <div className="order-row">
                                         <span>Jumlah Pesanan:</span>
                                         <span>{Object.values(qtyMap).reduce((sum, entry) => sum + entry.totalQty, 0)} Produk</span>
@@ -709,11 +929,29 @@ const Table = ({
                                                 .toLocaleString("id-ID")}
                                         </span>
                                     </div>
+                                    <div className="order-row">
+                                        <span>Biaya Pengiriman:</span>
+                                        <span>
+                                            Rp. {selectedShipping?.price?.toLocaleString("id-ID") || 0}
+                                        </span>
+                                    </div>
+
+                                    <div className="order-row" style={{ fontWeight: "bold" }}>
+                                        <span>Total Pembayaran:</span>
+                                        <span>
+                                            Rp. {(
+                                                Object.values(qtyMap).reduce(
+                                                    (total, entry) => total + entry.totalQty * entry.price,
+                                                    0
+                                                ) + (selectedShipping?.price || 0)
+                                            ).toLocaleString("id-ID")}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="order-description">
-                                <label>Keterangan Tambahan:</label>
+                                <label>Catatan Tambahan:</label>
                                 <textarea
                                     rows="4"
                                     value={description}
@@ -726,7 +964,7 @@ const Table = ({
 
                         <div className="order-modal-buttons">
                             <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
-                            <button onClick={() => { }}>Pesan</button>
+                            <button onClick={handleCreateOrder}>Pesan</button>
                         </div>
                     </div>
                 </div>
@@ -792,52 +1030,59 @@ const Table = ({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Object.entries(qtyMap)
-                                        .filter(([, entry]) => entry.qty > 0 || true)
-                                        .map(([id, entry]) => (
-                                            <tr key={id} style={{ borderBottom: "1px solid #ddd" }}>
-                                                <td style={{ padding: "8px" }}>
-                                                    <strong>{entry.name}</strong><br />
-                                                    <small>{entry.category?.name || '-'} • {entry.brand || '-'}</small>
-                                                </td>
-
-                                                <td style={{ textAlign: "center", padding: "8px" }}>
-                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-                                                        <span>{entry.totalQty}</span>
+                                    {Object.entries(qtyMap).filter(([, entry]) => entry.totalQty > 0).length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" style={{ textAlign: "center", padding: "16px" }}>
+                                                Tidak ada data
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        Object.entries(qtyMap)
+                                            .filter(([, entry]) => entry.totalQty > 0)
+                                            .map(([id, entry]) => (
+                                                <tr key={id} style={{ borderBottom: "1px solid #ddd" }}>
+                                                    <td style={{ padding: "8px" }}>
+                                                        <strong>{entry.name}</strong><br />
+                                                        <small>{entry.category?.name || '-'} • {entry.brand || '-'}</small>
+                                                    </td>
+                                                    <td style={{ textAlign: "center", padding: "8px" }}>
+                                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                                                            <span>{entry.totalQty}</span>
+                                                            <button
+                                                                onClick={() => handleEditFromQtyMap(id)}
+                                                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                                                title="Edit"
+                                                            >
+                                                                ✏️
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ textAlign: "center", padding: "8px" }}>
+                                                        Rp {entry.price.toLocaleString("id-ID")}
+                                                    </td>
+                                                    <td style={{ textAlign: "center", padding: "8px" }}>
+                                                        Rp {(entry.totalQty * entry.price).toLocaleString("id-ID")}
+                                                    </td>
+                                                    <td style={{ textAlign: "center", padding: "8px" }}>
                                                         <button
-                                                            onClick={() => handleEditFromQtyMap(id)}
-                                                            style={{ background: "none", border: "none", cursor: "pointer" }}
-                                                            title="Edit"
+                                                            onClick={() => handleDeleteFromQtyMap(id)}
+                                                            title="Hapus Item"
+                                                            style={{
+                                                                background: "none",
+                                                                border: "none",
+                                                                color: "red",
+                                                                cursor: "pointer",
+                                                                fontSize: "16px",
+                                                            }}
                                                         >
-                                                            ✏️
+                                                            🗑️
                                                         </button>
-                                                    </div>
-                                                </td>
-
-                                                <td style={{ textAlign: "center", padding: "8px" }}>
-                                                    Rp {entry.price.toLocaleString("id-ID")}
-                                                </td>
-                                                <td style={{ textAlign: "center", padding: "8px" }}>
-                                                    Rp {(entry.totalQty * entry.price).toLocaleString("id-ID")}
-                                                </td>
-                                                <td style={{ textAlign: "center", padding: "8px" }}>
-                                                    <button
-                                                        onClick={() => handleDeleteFromQtyMap(id)}
-                                                        title="Hapus Item"
-                                                        style={{
-                                                            background: "none",
-                                                            border: "none",
-                                                            color: "red",
-                                                            cursor: "pointer",
-                                                            fontSize: "16px",
-                                                        }}
-                                                    >
-                                                        🗑️
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                    )}
                                 </tbody>
+
                             </table>
 
                             <div style={{ textAlign: "right", marginTop: "20px" }}>
@@ -860,6 +1105,113 @@ const Table = ({
                     </div>
                 )
             }
+
+            {addressModal && (
+                <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+                    <div
+                        className="modal-content"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 id="modal-title">Daftar Alamat</h3>
+
+                        {loginUser?.addresses?.length === 0 ? (
+                            <p style={{ textAlign: 'center', margin: '20px 0', color: '#888' }}>
+                                Tidak ada alamat yang tersedia
+                            </p>
+                        ) : (
+                            loginUser?.addresses?.length === 0 ? (
+                                <p style={{ textAlign: 'center', margin: '20px 0', color: '#888' }}>
+                                    Tidak ada alamat yang tersedia
+                                </p>
+                            ) : (
+                                loginUser?.addresses?.map((addr, idx) => {
+                                    const isSelected = idx === selectedAddressIndex;
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className="address-box"
+                                            style={{
+                                                position: 'relative',
+                                                padding: '10px 40px 10px 10px',
+                                                border: isSelected ? '2px solid #007bff' : '1px solid #ccc',
+                                                borderRadius: '8px',
+                                                marginBottom: '10px',
+                                                backgroundColor: isSelected ? '#e9f3ff' : '#fff',
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={() => handleSelectAddress(idx)}
+                                        >
+                                            <div><strong>Alamat:</strong> {addr.address}</div>
+                                            <div><strong>Kota:</strong> {addr.city}</div>
+                                            <div><strong>Provinsi:</strong> {addr.province}</div>
+                                        </div>
+                                    );
+                                })
+                            )
+                        )}
+
+                        <div className="customer-profil-button">
+                            <ActionButton
+                                title="Tutup"
+                                background="red"
+                                onclick={() => setAddressModal(false)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            {timerModal && (
+                <div className="modal-overlay" onClick={() => setTimerModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="modal-title">Silakan Lakukan Pembayaran</h2>
+                        <p className="modal-subtitle">Waktu tersisa untuk melakukan pembayaran:</p>
+                        <h3 className="countdown-timer">{formatTime(currentTime)}</h3>
+
+                        <div className="bank-info">
+                            <h4>Transfer ke Rekening:</h4>
+                            <p><strong>Bank:</strong> BCA</p>
+                            <p><strong>No Rek:</strong> 1234567890</p>
+                            <p><strong>Atas Nama:</strong> PT. RIKO Parts</p>
+                        </div>
+
+                        <div className="upload-proof">
+                            <label htmlFor="proof">Upload Bukti Transfer:</label><br />
+                            <input
+                                type="file"
+                                id="proof"
+                                accept="image/*,application/pdf"
+                                onChange={(e) => setTransferProof(e.target.files[0])}
+                            />
+                            {transferProof && <p className="uploaded-file">File: {transferProof.name}</p>}
+                        </div>
+
+                        <div className="modal-actions">
+                            <button className="btn btn-secondary" onClick={() => setTimerModal(false)}>Tutup</button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                    if (!transferProof) {
+                                        showToast("gagal", "Harap upload bukti transfer");
+                                        return;
+                                    }
+
+                                    console.log("Bukti transfer: ", transferProof);
+                                    showToast("berhasil", "Bukti transfer telah diupload!");
+                                    setTimerModal(false);
+                                }}
+                            >
+                                Submit Bukti Transfer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

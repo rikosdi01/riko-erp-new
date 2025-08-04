@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useExpress } from '../../../../context/logistic/ExpressContext';
 import roleAccess from '../../../../utils/helper/roleAccess';
 import { useUsers } from '../../../../context/auth/UsersContext';
+import Formatting from '../../../../utils/format/Formatting';
 
 const Express = () => {
     // Hooks
@@ -34,8 +35,11 @@ const Express = () => {
     const columns = [
         { header: "Nama Pengangkutan", accessor: "name" },
         { header: "Alamat Pengangkutan", accessor: "address" },
-        { header: "Tarif Dasar", accessor: "basePrice" },
-        { header: "Tarif tambahan (per item)", accessor: "itemPerPrice" },
+        {
+            header: "Tarif Pengangkutan",
+            accessor: "price",
+            renderCell: (value) => Formatting.formatCurrencyIDR(value)
+        },
         {
             header: 'Estimasi',
             accessor: 'estimation',

@@ -66,45 +66,17 @@ export default class TransferRepository {
         }
     }
 
-
     static async createTransfer(transfer) {
-        console.log("Creating transfer:", transfer);
         try {
-            const { items, ...transferData } = transfer;
-
-            transferData.warehouseFrom = transfer.warehouseFrom || null;
-            transferData.warehouseTo = transfer.warehouseTo || null;
-            transferData.code = transfer.code || '';
-
-            const docRef = await addDoc(collection(db, "Transfer"), transferData);
-
+            const docRef = await addDoc(collection(db, "Transfer"), transfer);
             await updateDoc(doc(db, "Transfer", docRef.id), { id: docRef.id });
-            transferData.id = docRef.id;
-            console.log('Transfer Data: ', transferData);
-
-            const itemsRef = collection(docRef, "Items");
-            const batch = writeBatch(db);
-
-            items.forEach(item => {
-                const itemDoc = doc(itemsRef);
-                const itemWithCategory = {
-                    ...item,
-                    secondaryId: docRef.id,
-                    warehouseFrom: transfer.warehouseFrom || null,
-                    warehouseTo: transfer.warehouseTo || null,
-                    transferCode: transfer.code || '',
-                };
-                batch.set(itemDoc, itemWithCategory);
-            });
-
-            await batch.commit();
-
             return docRef.id;
         } catch (error) {
             console.error("Error creating transfer: ", error);
             throw error;
         }
     }
+
 
 
     static async updateTransfer(transferId, updatedTransfer) {

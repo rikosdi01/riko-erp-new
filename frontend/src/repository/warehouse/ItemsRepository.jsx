@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, limit, onSnapshot, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, limit, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc, where } from "firebase/firestore"
 import { db } from "../../firebase";
 
 export default class ItemsRepository {
@@ -78,6 +78,19 @@ export default class ItemsRepository {
         try {
             const docRef = doc(db, "Items", itemId);
             await updateDoc(docRef, updatedItem);
+        } catch (error) {
+            console.error("Error updating items: ", error);
+            throw error;
+        }
+    }
+
+    static async updateStockOrder(itemId, updatedStock) {
+        try {
+            const docRef = doc(db, 'Items', itemId);
+            await updateDoc(docRef, {
+                stock: updatedStock,
+                updatedAt: serverTimestamp(),
+            })
         } catch (error) {
             console.error("Error updating items: ", error);
             throw error;

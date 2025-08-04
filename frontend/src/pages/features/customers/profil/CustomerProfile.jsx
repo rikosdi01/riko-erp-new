@@ -18,6 +18,13 @@ const CustomerProfile = () => {
     const [editedPhone, setEditedPhone] = useState('');
     const [selectedAddress, setSelectedAddress] = useState('');
 
+    useEffect(() => {
+        console.log('Selected Address: ', selectedAddress);
+    }, [selectedAddress])
+        ;
+    useEffect(() => {
+        console.log('Address Index: ', selectedAddressIndex);
+    }, [selectedAddressIndex]);
 
     useEffect(() => {
         if (loginUser) {
@@ -28,12 +35,19 @@ const CustomerProfile = () => {
             if (Array.isArray(loginUser.addresses)) {
                 setAddresses(loginUser.addresses);
 
+                console.log('login User Addresses', loginUser.addresses);
+
                 const index = loginUser.addresses.findIndex(addr =>
-                    JSON.stringify(addr) === JSON.stringify(loginUser.selectedAddress)
+                    addr.address === loginUser.selectedAddress?.address &&
+                    addr.city === loginUser.selectedAddress?.city &&
+                    addr.province === loginUser.selectedAddress?.province
                 );
 
                 if (index !== -1) {
                     setSelectedAddressIndex(index);
+                    console.log('Selected address index:', index);
+                } else {
+                    console.warn('Selected address not found in address list.');
                 }
             }
         }
@@ -59,6 +73,45 @@ const CustomerProfile = () => {
 
             setNewAddress({ address: '', city: '', province: '' });
         }
+    };
+
+    const handleDeleteAddress = async (indexToDelete) => {
+        const updatedAddresses = addresses.filter((_, idx) => idx !== indexToDelete);
+
+        let newSelectedAddress = selectedAddress;
+        let newSelectedIndex = selectedAddressIndex;
+
+        // Jika alamat yang dihapus adalah alamat terpilih, ubah selectedAddress
+        if (indexToDelete === selectedAddressIndex) {
+            if (updatedAddresses.length > 0) {
+                newSelectedAddress = updatedAddresses[0];
+                newSelectedIndex = 0;
+            } else {
+                newSelectedAddress = null;
+                newSelectedIndex = null;
+            }
+        } else if (indexToDelete < selectedAddressIndex) {
+            newSelectedIndex = selectedAddressIndex - 1;
+        }
+
+        // Simpan ke Firestore
+        await UserRepository.updateUserData(loginUser.id, {
+            addresses: updatedAddresses,
+            selectedAddress: newSelectedAddress
+        });
+
+        showToast('berhasil', 'Alamat berhasil dihapus!');
+        // Update state
+        setAddresses(updatedAddresses);
+        setSelectedAddress(newSelectedAddress);
+        setSelectedAddressIndex(newSelectedIndex);
+
+        // Update loginUser context
+        setLoginUser((prev) => ({
+            ...prev,
+            addresses: updatedAddresses,
+            selectedAddress: newSelectedAddress
+        }));
     };
 
 
@@ -106,7 +159,10 @@ const CustomerProfile = () => {
                             </p>
                         </div>
                     )}
-                    <button onClick={() => setModalOpen(true)}>Pilih / Tambah Alamat</button>
+                    <ActionButton
+                        title={'Pilih / Tambah Alamat'}
+                        onclick={() => setModalOpen(true)}
+                    />
                 </div>
             </div>
 
@@ -126,10 +182,27 @@ const CustomerProfile = () => {
                                 <div
                                     key={idx}
                                     className="address-box"
-                                    onClick={() => handleSelectAddress(idx)}
-                                    style={{ cursor: 'pointer' }}
+                                    style={{ position: 'relative', paddingRight: 40 }}
                                 >
-                                    <p>{addr.address}, {addr.city}, {addr.province}</p>
+                                    <p onClick={() => handleSelectAddress(idx)} style={{ cursor: 'pointer' }}>
+                                        {addr.address}, {addr.city}, {addr.province}
+                                    </p>
+                                    <button
+                                        onClick={() => handleDeleteAddress(idx)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 10,
+                                            right: 10,
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: 'red',
+                                            fontSize: 16,
+                                            cursor: 'pointer'
+                                        }}
+                                        title="Hapus alamat"
+                                    >
+                                        🗑️
+                                    </button>
                                 </div>
                             ))
                         )}
@@ -203,8 +276,9 @@ const CustomerProfile = () => {
                 </div>
             )}
 
-            <button
-                onClick={async () => {
+            <ActionButton
+                title={'Simpan'}
+                onclick={async () => {
                     try {
                         await UserRepository.updateUserData(loginUser.id, {
                             username: editedName,
@@ -226,11 +300,7 @@ const CustomerProfile = () => {
                         showToast('gagal', 'Profile anda gagal diperbarui')
                     }
                 }}
-            >
-                Simpan
-            </button>
-
-
+            />
         </div>
     );
 };

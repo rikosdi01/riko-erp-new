@@ -69,16 +69,16 @@ const Navbar = () => {
                             display: 'flex',
                             gap: '0.5rem',
                             alignItems: 'center',
-                            cursor: 'pointer',
+                            // cursor: 'pointer',
                         }}
-                        onClick={() => {
-                            if (loginUser?.role === 'Customer') {
-                                setEditedUser(loginUser); // Reset nilai
-                                setShowProfileModal(true);
-                            } else {
-                                navigate('/settings');
-                            }
-                        }}
+                        // onClick={() => {
+                        //     if (loginUser?.role === 'Customer') {
+                        //         setEditedUser(loginUser); // Reset nilai
+                        //         setShowProfileModal(true);
+                        //     } else {
+                        //         navigate('/settings');
+                        //     }
+                        // }}
                     >
                         <div className="circle-avatar">{initials}</div>
                         <div className="user-details">
@@ -94,7 +94,7 @@ const Navbar = () => {
 
 
 
-            {showProfileModal && (
+            {/* {showProfileModal && (
                 <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <h3>Edit Profil</h3>
@@ -151,7 +151,7 @@ const Navbar = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
         </>
     );
 };

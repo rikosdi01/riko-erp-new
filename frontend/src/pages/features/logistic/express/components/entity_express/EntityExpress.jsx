@@ -29,8 +29,7 @@ const EntityExpress = ({
     const [name, setName] = useState(initialData.name || "");
     const [address, setAddress] = useState(initialData.address || "");
     const [phone, setPhone] = useState(initialData.phone || "");
-    const [basePrice, setBasePrice] = useState(initialData.basePrice || '');
-    const [itemPerPrice, setItemPerPrice] = useState(initialData.itemPerPrice || '');
+    const [basePrice, setBasePrice] = useState(initialData.price || '');
     const [estimationStart, setEstimationStart] = useState(initialData.estimationStart || '');
     const [estimationEnd, setEstimationEnd] = useState(initialData.estimationEnd || '');
     const [nameError, setNameError] = useState("");
@@ -55,8 +54,7 @@ const EntityExpress = ({
         setName(initialData.name || "");
         setAddress(initialData.address || "");
         setPhone(initialData.phone || "");
-        setBasePrice(initialData.basePrice || 0);
-        setItemPerPrice(initialData.itemPerPrice || 0);
+        setBasePrice(initialData.price || 0);
         setEstimationStart(initialData.estimationStart || 0);
         setEstimationEnd(initialData.estimationEnd || 0);
         setCreatedAt(initialData.createdAt || Timestamp.now());
@@ -81,10 +79,9 @@ const EntityExpress = ({
                 name: name.trim(),
                 address,
                 phone,
-                basePrice,
-                itemPerPrice,
-                estimationStart,
-                estimationEnd,
+                price: parseInt(price.replace(/\D/g, ""), 10) || 0,
+                estimationStart: parseInt(estimationStart),
+                estimationEnd: parseInt(estimationEnd),
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
                 userId: userId,
@@ -114,7 +111,6 @@ const EntityExpress = ({
         setAddress('');
         setPhone('');
         setBasePrice('');
-        setItemPerPrice('');
         setEstimationStart('');
         setEstimationEnd('');
         setNameError("");
@@ -177,18 +173,6 @@ const EntityExpress = ({
                         setBasePrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
                     }}
                 />
-                <InputLabel
-                    label="Harga Per Item"
-                    icon={<Receipt className='input-icon' size={20} />}
-                    value={itemPerPrice}
-                    onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\D/g, "");
-                        setItemPerPrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
-                    }}
-                />
-            </div>
-
-            <div className='add-container-input-attribute'>
                 <InputLabel
                 type={'number'}
                     label="Estimasi Awal"

@@ -14,16 +14,16 @@ const ListOrders = () => {
     console.log('Login User: ', loginUser);
 
     const columns = [
+        { header: "No. Pesanan", accessor: "code" },
         {
             header: "Tanggal",
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
-        { header: "Nama Pelanggan", accessor: "customer.name" },
         { header: "Keterangan", accessor: "description" },
         {
             header: "Harga",
-            accessor: "totalPrice",
+            accessor: "totalPayment",
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
         },
         {
@@ -62,7 +62,7 @@ const ListOrders = () => {
             canEdit={true}
             enableDropdown={true}
             dropdownAttribute={'status'}
-            filters={`customer.name: "${loginUser.username}"`}
+            filters={`customer.username: "${loginUser.username}"`}
             enableDateRange={true}
         />
     )

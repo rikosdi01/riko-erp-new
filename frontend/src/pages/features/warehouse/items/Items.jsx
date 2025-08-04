@@ -30,7 +30,7 @@ const Items = () => {
             header: "Stok",
             accessor: `stock`,
             renderCell: (_, item) => {
-                const stock = item?.stock?.[loginUser.location] ?? 0;
+                const stock = loginUser?.location ? item?.stock?.[loginUser.location] ?? 0 : 0;
 
                 const sets = Array.isArray(item?.set) ? item.set : [];
                 const unit = sets.find((s) => s?.set)?.set ?? "";
