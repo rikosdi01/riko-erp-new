@@ -16,6 +16,7 @@ import Tippy from "@tippyjs/react";
 import ItemsRepository from "../../repository/warehouse/ItemsRepository";
 import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
 import TransferRepository from "../../repository/warehouse/TransferRepository";
+import uploadFileAndGetURL from "../../utils/helper/uploadImage";
 
 const DEFAULT_TIMER_SECONDS = 24 * 60 * 60;
 
@@ -60,6 +61,11 @@ const Table = ({
     const [showLimitWarningMap, setShowLimitWarningMap] = useState({});
     const [soID, setSOID] = useState('');
     const [SOCreatedDate, setSOCreatedDate] = useState('');
+    const [showFullImage, setShowFullImage] = useState(false);
+    const [transferProofPreview, setTransferProofPreview] = useState(null);
+
+    const [timers, setTimers] = useState({});
+    const [transferProof, setTransferProof] = useState(null);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -84,6 +90,18 @@ const Table = ({
     });
 
     useEffect(() => {
+        if (transferProof) {
+            const objectUrl = URL.createObjectURL(transferProof);
+            setTransferProofPreview(objectUrl);
+
+            // Cleanup
+            return () => URL.revokeObjectURL(objectUrl);
+        } else {
+            setTransferProofPreview(null);
+        }
+    }, [transferProof]);
+
+    useEffect(() => {
         if (express && express.length > 0 && !selectedShipping) {
             setSelectedShipping(express[0]);
         }
@@ -98,10 +116,6 @@ const Table = ({
         }
         setTimerModal(true);
     };
-
-    const orderIdRef = useRef(null);
-    const [timers, setTimers] = useState({});
-    const [transferProof, setTransferProof] = useState(null);
 
     useEffect(() => {
         if (!soID || !timerModal) return;
@@ -408,6 +422,30 @@ const Table = ({
         setModalOpen(false);
     };
 
+
+    const handleUpdateTransferProof = async () => {
+        if (!transferProof) {
+            showToast("gagal", "Harap upload bukti transfer");
+            return;
+        }
+
+        try {
+            const path = `bukti_transfer/${soID}/${transferProof.name}`;
+            const url = await uploadFileAndGetURL(transferProof, path);
+
+            // Update field di Firestore
+            await SalesOrderRepository.updateSalesOrder(soID, {
+                transferProof: url,
+                statusPayment: "sudah dibayar",
+            });
+
+            showToast("berhasil", "Bukti transfer berhasil diupload!");
+            setTimerModal(false);
+        } catch (err) {
+            showToast("gagal", "Upload bukti transfer gagal");
+            console.error("Upload error: ", err);
+        }
+    }
 
     const resetForm = () => {
         setQtyMap({});
@@ -1146,9 +1184,9 @@ const Table = ({
 
                         <div className="bank-info">
                             <h4>Transfer ke Rekening:</h4>
-                            <p><strong>Bank:</strong> BCA</p>
-                            <p><strong>No Rek:</strong> 1234567890</p>
-                            <p><strong>Atas Nama:</strong> PT. RIKO Parts</p>
+                            <div><strong>Bank:</strong> BCA</div>
+                            <div><strong>No Rek:</strong> 1234567890</div>
+                            <div><strong>Atas Nama:</strong> PT. RIKO Parts</div>
                         </div>
 
                         <div className="upload-proof">
@@ -1159,28 +1197,68 @@ const Table = ({
                                 accept="image/*,application/pdf"
                                 onChange={(e) => setTransferProof(e.target.files[0])}
                             />
+
                             {transferProof && <p className="uploaded-file">File: {transferProof.name}</p>}
+
+                            {transferProofPreview && (
+                                <div style={{ marginTop: "10px" }}>
+                                    <img
+                                        src={transferProofPreview}
+                                        alt="Preview Bukti Transfer"
+                                        style={{
+                                            maxWidth: "200px",
+                                            maxHeight: "200px",
+                                            borderRadius: "8px",
+                                            border: "1px solid #ccc",
+                                            cursor: "pointer",
+                                            transition: "transform 0.2s ease-in-out"
+                                        }}
+                                        title="Klik untuk lihat ukuran penuh"
+                                        onClick={() => setShowFullImage(true)}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="modal-actions">
                             <button className="btn btn-secondary" onClick={() => setTimerModal(false)}>Tutup</button>
                             <button
                                 className="btn btn-primary"
-                                onClick={() => {
-                                    if (!transferProof) {
-                                        showToast("gagal", "Harap upload bukti transfer");
-                                        return;
-                                    }
-
-                                    console.log("Bukti transfer: ", transferProof);
-                                    showToast("berhasil", "Bukti transfer telah diupload!");
-                                    setTimerModal(false);
-                                }}
+                                onClick={handleUpdateTransferProof}
                             >
                                 Submit Bukti Transfer
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {showFullImage && (
+                <div
+                    onClick={() => setShowFullImage(false)}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999,
+                    }}
+                >
+                    <img
+                        src={transferProofPreview}
+                        alt="Bukti Transfer Full"
+                        style={{
+                            maxWidth: "90%",
+                            maxHeight: "90%",
+                            borderRadius: "8px",
+                            boxShadow: "0 0 15px rgba(255,255,255,0.5)"
+                        }}
+                    />
                 </div>
             )}
         </div >
