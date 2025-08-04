@@ -62,63 +62,77 @@ const SalesDashboard = () => {
 
     return (
         <div className="main-container">
-            <h1>Sales Dashboard</h1>
+            <div className='dashboard-page'>
+                <h1>Dashboard Penjualan</h1>
 
-            {/* Summary Cards */}
-            <div className="summary-cards">
-                <div className="card">Total Pesanan: {totalOrders}</div>
-                <div className="card">Total Customer: {totalCustomers}</div>
-                <div className="card">Total Salesman: {salesmen?.length || 0}</div>
-                <div className="card">Total Retur: {totalReturns}</div>
-            </div>
-
-            {/* Chart Status Pesanan */}
-            <div className="charts">
-                <div className="chart-container">
-                    <h3>Status Pesanan</h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                        <PieChart>
-                            <Pie
-                                data={orderStatusData}
-                                dataKey="count"
-                                nameKey="status"
-                                outerRadius={80}
-                                label
-                            >
-                                {orderStatusData.map((entry, index) => (
-                                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Legend />
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
+                {/* Summary Cards */}
+                <div className="summary-cards-container">
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Pesanan</div>
+                        <div className="summary-card-value">{totalOrders}</div>
+                    </div>
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Pelanggan</div>
+                        <div className="summary-card-value">{totalCustomers}</div>
+                    </div>
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Sales</div>
+                        <div className="summary-card-value">{salesmen?.length || 0}</div>
+                    </div>
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Returan</div>
+                        <div className="summary-card-value">{totalReturns}</div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Tabel Pesanan Terbaru */}
-            <div className="recent-orders">
-                <h3>Pesanan Terbaru</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Kode</th>
-                            <th>Customer</th>
-                            <th>Status</th>
-                            <th>Tanggal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {latestOrders.map(order => (
-                            <tr key={order.objectID}>
-                                <td>{order.code || '-'}</td>
-                                <td>{order.customer?.name || '-'}</td>
-                                <td>{order.status}</td>
-                                <td>{Formatting.formatDateByTimestamp(order.createdAt)}</td>
+                {/* Chart Status Pesanan */}
+                <div className="charts-section">
+                    <div className="chart-card">
+                        <h3>Status Pesanan</h3>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <PieChart>
+                                <Pie
+                                    data={orderStatusData}
+                                    dataKey="count"
+                                    nameKey="status"
+                                    outerRadius={80}
+                                    label
+                                >
+                                    {orderStatusData.map((entry, index) => (
+                                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Legend />
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Tabel Pesanan Terbaru */}
+                <div className="recent-orders-section">
+                    <h3>Pesanan Terbaru</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kode</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {latestOrders.map(order => (
+                                <tr key={order.objectID}>
+                                    <td>{order.code || '-'}</td>
+                                    <td>{order.customer?.name || '-'}</td>
+                                    <td>{order.status}</td>
+                                    <td>{Formatting.formatDateByTimestamp(order.createdAt)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

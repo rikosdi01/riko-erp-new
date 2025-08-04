@@ -39,6 +39,29 @@ export default class TransferRepository {
         }
     }
 
+    static async getTransferBySOCode(soCode) {
+        try {
+            const transferQuery = query(
+                collection(db, "Transfer"),
+                where("soCode", "==", soCode)
+            );
+
+            const querySnapshot = await getDocs(transferQuery);
+
+            if (querySnapshot.empty) return null;
+
+            // Asumsikan hanya satu transfer per soCode
+            const doc = querySnapshot.docs[0];
+            return {
+                id: doc.id,
+                ...doc.data(),
+            };
+        } catch (error) {
+            console.error("Error getting transfer by SO code: ", error);
+            return null;
+        }
+    }
+
     static async getTransferById(transferId) {
         try {
             const docRef = doc(db, "Transfer", transferId);

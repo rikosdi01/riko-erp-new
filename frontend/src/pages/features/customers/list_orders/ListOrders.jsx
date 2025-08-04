@@ -29,21 +29,7 @@ const ListOrders = () => {
         {
             header: "Status",
             accessor: "status",
-            renderCell: (_, order) => {
-                let finalStatus = '';
-                const status = order.status;
-                const statusPayment = order.statusPayment;
-
-                if (status === 'menunggu' && statusPayment === 'menunggu pembayaran') {
-                    finalStatus = 'menunggu pembayaran';
-                } else if (status === 'menunggu' && statusPayment === 'sudah dibayar') {
-                    finalStatus = 'mengantri';
-                } else {
-                    finalStatus = status;
-                }
-
-                return finalStatus.charAt(0).toUpperCase() + finalStatus.slice(1);
-            }
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
         }
     ]
 

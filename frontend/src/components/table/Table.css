@@ -213,6 +213,10 @@ tbody tr:nth-child(n + 3) {
   justify-content: space-between;
 }
 
+.order-summary-card {
+  margin-bottom: 20px;
+}
+
 .confirmation-sub-header-products {
   display: flex;
   gap: 10px;

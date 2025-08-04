@@ -251,3 +251,56 @@
 .status-badge.cancelled {
     background-color: #dc3545;
 }
+
+
+/* Confirmation Delete Modal */
+.confirmation-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.confirmation-modal-subtitle {
+    font-size: 16px;
+    color: #6c757d; /* Warna abu-abu yang lebih netral */
+    margin-bottom: 30px;
+}
+
+/* --- Grup Tombol Aksi --- */
+.confirmation-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Jarak antar tombol */
+}
+
+/* Tombol akan mengandalkan komponen ActionButton dengan kelas baru */
+.action-button.secondary {
+    background-color: #e9ecef;
+    color: #6c757d;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-button.secondary:hover {
+    background-color: #d6d9dc;
+}
+
+.action-button.danger {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-button.danger:hover {
+    background-color: #c82333;
+}

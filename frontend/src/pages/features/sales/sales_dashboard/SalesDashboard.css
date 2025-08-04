@@ -99,3 +99,38 @@
     align-items: center;
     padding-bottom: 20px;
 }
+
+/* --- Recent Orders Table --- */
+.recent-orders-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    overflow-x: auto;
+}
+
+.recent-orders-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-orders-section thead tr {
+    background-color: #f8f9fa;
+}
+
+.recent-orders-section th,
+.recent-orders-section td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.recent-orders-section th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.recent-orders-section tbody tr:last-child td {
+    border-bottom: none;
+}

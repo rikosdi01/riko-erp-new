@@ -1,44 +1,109 @@
-.main-container {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+/* --- Global Styling --- */
+.dashboard-page {
+    padding: 30px;
+    font-family: 'Inter', sans-serif; /* Ganti dengan font yang Anda suka */
+    background-color: #f8f9fa; /* Latar belakang abu-abu muda */
+    color: #343a40;
 }
 
-h1 {
-  margin-bottom: 20px;
-  text-align: center;
+.dashboard-page h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #212529;
 }
 
-.summary-cards {
-  display: flex;
-  gap: 20px;
-  justify-content: space-around;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
+.dashboard-page h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #495057;
 }
 
-.card {
-  background-color: #f1f3f5;
-  padding: 20px;
-  border-radius: 10px;
-  flex: 1;
-  min-width: 150px;
-  text-align: center;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* --- Summary Cards --- */
+.summary-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
 }
 
-.charts {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: space-between;
+.summary-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+    border: 1px solid #e9ecef;
 }
 
-.chart-container {
-  flex: 1;
-  min-width: 300px;
-  background-color: #fdfdfd;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgb
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.summary-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.summary-card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #212529;
+}
+
+/* --- Charts Section --- */
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.chart-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+/* --- Recent Transfers Table --- */
+.recent-transfers-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    overflow-x: auto; /* Untuk responsivitas tabel */
+}
+
+.recent-transfers-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-transfers-section thead tr {
+    background-color: #f8f9fa;
+}
+
+.recent-transfers-section th,
+.recent-transfers-section td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0; /* Garis pemisah halus */
+}
+
+.recent-transfers-section th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.recent-transfers-section tbody tr:last-child td {
+    border-bottom: none;
 }

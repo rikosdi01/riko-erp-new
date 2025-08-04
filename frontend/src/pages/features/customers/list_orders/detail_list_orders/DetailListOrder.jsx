@@ -7,6 +7,8 @@ import ActionButton from '../../../../../components/button/actionbutton/ActionBu
 import { useToast } from '../../../../../context/ToastContext';
 import Formatting from '../../../../../utils/format/Formatting';
 import uploadFileAndGetURL from '../../../../../utils/helper/uploadImage';
+import TransferRepository from '../../../../../repository/warehouse/TransferRepository';
+import ItemsRepository from '../../../../../repository/warehouse/ItemsRepository';
 
 const DEFAULT_TIMER_SECONDS = 24 * 60 * 60;
 
@@ -23,7 +25,11 @@ const DetailListOrder = () => {
     const [transferProof, setTransferProof] = useState(null);
     const [transferProofPreview, setTransferProofPreview] = useState(null);
     const [showFullImage, setShowFullImage] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        console.log('List Order || Sales Order: ', salesOrder);
+    }, [salesOrder]);
 
     const handleOpenTimerModal = () => {
         const existingStartTime = localStorage.getItem(`startTime_${id}`);
@@ -107,17 +113,6 @@ const DetailListOrder = () => {
         }
     };
 
-    const handleDeleteSalesOrder = async () => {
-        try {
-            await SalesOrderRepository.deleteSalesOrder(id);
-            showToast('berhasil', 'Pesanan berhasil dibatalkan');
-            localStorage.removeItem(`startTime_${id}`);
-            navigate('/customer/list-orders')
-        } catch (error) {
-            showToast('gagal', 'Gagal membatalkan pesanan');
-            console.log('Error when cancelling order : ', error);
-        }
-    };
 
     const handleUpdateTransferProof = async () => {
         if (!transferProof) {
@@ -157,7 +152,76 @@ const DetailListOrder = () => {
 
     if (!salesOrder) return <div>Loading...</div>;
 
-    const { customer, items, description, status, express, createdAt } = salesOrder;
+    const { customer, items, description, status, express, createdAt, code } = salesOrder;
+
+    const handleCancelOrder = async () => {
+        setLoading(true);
+        console.log('Itemss: ', items);
+
+        try {
+            const transfer = await TransferRepository.getTransferBySOCode(code);
+            const transferItems = transfer?.items || [];
+            const location = salesOrder.customer?.selectedAddress?.city?.toLowerCase();
+
+            const processedIds = new Set();
+
+            // Step 1: Proses transfer item jika ada
+            if (transfer) {
+                const { locationFrom, locationTo } = transfer;
+
+                for (const item of transferItems) {
+                    const itemData = await ItemsRepository.getItemsById(item.id);
+                    const stock = itemData.stock || {};
+
+                    // Tambah kembali ke asal
+                    stock[locationFrom] = (stock[locationFrom] || 0) + item.qty;
+
+                    // Kurangi dari tujuan
+                    stock[locationTo] = Math.max((stock[locationTo] || 0) - item.qty, 0);
+
+                    console.log('Transfer item:', item.id);
+                    console.log('Stock:', stock);
+
+                    await ItemsRepository.updateStockOrder(item.id, stock);
+                    processedIds.add(item.id); // tandai item sudah diproses
+                }
+            }
+
+            // Step 2: Proses sisa item yang tidak ada di transfer
+            for (const item of items) {
+                const itemId = item.item.id;
+
+                if (processedIds.has(itemId)) continue; // sudah diproses via transfer
+
+                const itemData = await ItemsRepository.getItemsById(itemId);
+                const stock = itemData.stock || {};
+
+                stock[location] = (stock[location] || 0) + item.qty;
+
+                console.log('Non-transfer item:', itemId);
+                console.log('Stock:', stock);
+
+                await ItemsRepository.updateStockOrder(itemId, stock);
+            }
+
+            setConfirmationModal(false);
+
+            if (transfer?.id) {
+                await TransferRepository.deleteTransfer(transfer.id);
+            }
+
+            await SalesOrderRepository.deleteSalesOrder(id);
+            navigate('/customer/list-orders');
+            showToast("berhasil", "Stok berhasil dikembalikan dari pembatalan pesanan.");
+        } catch (error) {
+            console.error("Gagal melakukan pengembalian stok: ", error);
+            showToast("gagal", "Terjadi kesalahan saat mengembalikan stok.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
 
     const totalItemPrice = items.reduce((sum, { price, qty }) => sum + price * qty, 0);
     const shippingCost = express?.price || 0;
@@ -268,10 +332,13 @@ const DetailListOrder = () => {
             {confirmationModal && (
                 <div className='modal-overlay'>
                     <div className="modal-content">
-                        <div className='modal-title' style={{ marginBottom: '40px', fontSize: '20px' }}>
+                        <div className='confirmation-modal-title'>
+                            Batal Pesanan
+                        </div>
+                        <div className='confirmation-modal-subtitle'>
                             Apakah Anda yakin ingin membatalkan pesanan ini?
                         </div>
-                        <div className='modal-actions'>
+                        <div className='confirmation-modal-actions'>
                             <ActionButton
                                 type="button"
                                 title="Tidak"
@@ -283,7 +350,7 @@ const DetailListOrder = () => {
                             <ActionButton
                                 type="button"
                                 title="Iya, batalkan pesanan"
-                                onclick={handleDeleteSalesOrder}
+                                onclick={handleCancelOrder}
                                 background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                                 color="white"
                                 padding='10px 30px'

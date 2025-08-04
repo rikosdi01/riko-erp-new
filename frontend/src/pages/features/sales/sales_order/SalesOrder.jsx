@@ -24,7 +24,7 @@ const SalesOrder = () => {
         { header: "Keterangan", accessor: "description" },
         {
             header: "Harga",
-            accessor: "totalPrice",
+            accessor: "totalPayment",
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
         },
         // {
@@ -59,6 +59,7 @@ const SalesOrder = () => {
             subscribeFn={SalesOrderRepository.subscribeToSalesOrderChanges}
             enableExport={false}
             enableImport={false}
+            enableCreate={false}
             enableDropdown={true}
             dropdownAttribute={"status"}
             canAdd={roleAccess(accessList, 'menambah-data-pesanan-penjualan')}

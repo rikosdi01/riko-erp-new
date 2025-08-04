@@ -321,8 +321,7 @@ const Table = ({
                 description,
                 isPrint: false,
                 express: selectedShipping,
-                status: "menunggu",
-                statusPayment: "menunggu pembayaran",
+                status: "menunggu pembayaran",
                 items: transformedItems,
                 totalPayment: totalPrice + selectedShipping?.price || 0,
                 createdAt: SOCreatedDate, // untuk backend
@@ -370,7 +369,7 @@ const Table = ({
 
                             // Simpan item ini untuk keperluan transfer
                             transferItems.push({
-                                itemId: itemId,
+                                id: itemId,
                                 code: item.item.code,
                                 name: item.item.name,
                                 qty: deductFromOtherCity,
