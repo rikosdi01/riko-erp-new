@@ -848,9 +848,9 @@ const Table = ({
             {orderConfirmationModal && (
                 <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
                     <div className="modal-content" style={{ maxWidth: "90%" }} onClick={(e) => e.stopPropagation()}>
-                        <h3>Apakah pesanan anda sudah sesuai?</h3>
+                        <div className="order-confirmation-title">Apakah pesanan anda sudah sesuai?</div>
                         {Object.entries(qtyMap).filter(([, entry]) => entry.qty > 0 || true).map(([id, entry]) => (
-                            <div key={id} className="confirmation-products">
+                            <div key={id} className="order-summary-card">
                                 <div className="confirmation-sub-header-products">
                                     <div className="confirmation-items-order">
                                         <div>{entry.category?.name} - {entry.name || "-"} ({entry.brand})</div>
@@ -863,9 +863,9 @@ const Table = ({
                         ))
                         }
 
-                        <div className="confirmation-foooter-products">
+                        <div className="confirmation-container">
                             <div className="confirmation-footer-sub-header">
-                                <div className="confirmation-address">
+                                <div className="order-summary-card">
                                     <div className="form-group">
                                         <div className="order-confirmation-title">Alamat Pengiriman:</div>
                                         {selectedAddressIndex !== null && loginUser.addresses[selectedAddressIndex] && (
@@ -881,33 +881,16 @@ const Table = ({
                                                 </div>
                                             </div>
                                         )}
-                                        {/* <select
-                                            value={selectedAddressIndex}
-                                            onChange={(e) => setSelectedAddressIndex(parseInt(e.target.value))}
-                                        >
-                                            {loginUser.addresses.map((addr, idx) => (
-                                                <option key={idx} value={idx}>
-                                                    {addr.address}, {addr.city}, {addr.province}
-                                                </option>
-                                            ))}
-                                        </select> */}
                                     </div>
                                 </div>
 
-                                <div className="shipping-options">
+                                <div className="order-summary-card">
                                     <div className="order-confirmation-title">Pilih Pengiriman:</div>
                                     {express.map((exp) => (
                                         <div
                                             key={exp.id}
                                             className={`shipping-option ${selectedShipping?.id === exp.id ? 'selected' : ''}`}
                                             onClick={() => setSelectedShipping(exp)}
-                                            style={{
-                                                border: selectedShipping?.id === exp.id ? '2px solid #007bff' : '1px solid #ccc',
-                                                padding: '10px',
-                                                marginBottom: '10px',
-                                                borderRadius: '8px',
-                                                cursor: 'pointer'
-                                            }}
                                         >
                                             <div style={{ fontWeight: 'bold' }}>{exp.name}</div>
                                             <div>Rp. {exp.price.toLocaleString("id-ID")}</div>
@@ -962,9 +945,15 @@ const Table = ({
                             </div>
                         </div>
 
-                        <div className="order-modal-buttons">
-                            <button onClick={() => setOrderConfirmationModal(false)}>Tutup</button>
-                            <button onClick={handleCreateOrder}>Pesan</button>
+                        <div className="modal-actions">
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setOrderConfirmationModal(false)}
+                            >Tutup</button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleCreateOrder}
+                            >Pesan</button>
                         </div>
                     </div>
                 </div>
@@ -1017,9 +1006,9 @@ const Table = ({
                 showOrderModal && (
                     <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
                         <div className="modal-content" style={{ maxWidth: '90%' }} onClick={(e) => e.stopPropagation()}>
-                            <h3 style={{ marginBottom: "16px", fontSize: "20px" }}>🧾 Detail Pesanan</h3>
+                            <div className="modal-content-header">🧾 Detail Pesanan</div>
 
-                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                            <table table className="order-table">
                                 <thead>
                                     <tr style={{ backgroundColor: "#f5f5f5" }}>
                                         <th style={{ textAlign: "center", padding: "8px" }}>Produk</th>
@@ -1032,9 +1021,7 @@ const Table = ({
                                 <tbody>
                                     {Object.entries(qtyMap).filter(([, entry]) => entry.totalQty > 0).length === 0 ? (
                                         <tr>
-                                            <td colSpan="5" style={{ textAlign: "center", padding: "16px" }}>
-                                                Tidak ada data
-                                            </td>
+                                            <td colSpan="5" className="empty-table-message">Tidak ada data</td>
                                         </tr>
                                     ) : (
                                         Object.entries(qtyMap)
@@ -1050,7 +1037,7 @@ const Table = ({
                                                             <span>{entry.totalQty}</span>
                                                             <button
                                                                 onClick={() => handleEditFromQtyMap(id)}
-                                                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                                                className="edit-btn"
                                                                 title="Edit"
                                                             >
                                                                 ✏️
@@ -1067,13 +1054,6 @@ const Table = ({
                                                         <button
                                                             onClick={() => handleDeleteFromQtyMap(id)}
                                                             title="Hapus Item"
-                                                            style={{
-                                                                background: "none",
-                                                                border: "none",
-                                                                color: "red",
-                                                                cursor: "pointer",
-                                                                fontSize: "16px",
-                                                            }}
                                                         >
                                                             🗑️
                                                         </button>
@@ -1082,20 +1062,11 @@ const Table = ({
                                             ))
                                     )}
                                 </tbody>
-
                             </table>
 
-                            <div style={{ textAlign: "right", marginTop: "20px" }}>
-                                <button
+                            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
+                                <button className="btn btn-secondary"
                                     onClick={() => setShowOrderModal(false)}
-                                    style={{
-                                        padding: "8px 16px",
-                                        backgroundColor: "#007bff",
-                                        border: "none",
-                                        color: "white",
-                                        borderRadius: "4px",
-                                        cursor: "pointer",
-                                    }}
                                 >
                                     Tutup
                                 </button>
@@ -1154,10 +1125,10 @@ const Table = ({
                             )
                         )}
 
-                        <div className="customer-profil-button">
+                        <div className="modal-actions-footer">
                             <ActionButton
                                 title="Tutup"
-                                background="red"
+                                classname={'btn btn-secondary'}
                                 onclick={() => setAddressModal(false)}
                             />
                         </div>

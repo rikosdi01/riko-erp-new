@@ -10,13 +10,14 @@ const ActionButton = ({
     color,
     disabled,
     padding = "10px 18px",
-    fontSize = "16px"
+    fontSize = "16px",
+    classname,
 }) => {
     return (
         <button
             type="button"
             onClick={onclick}
-            className="action-button"
+            className={classname || "action-button"}
             style={{
                 background: disabled ? "gray" : background, 
                 color: disabled ? "white" : color,
