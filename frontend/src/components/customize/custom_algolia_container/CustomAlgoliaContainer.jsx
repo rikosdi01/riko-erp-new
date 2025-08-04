@@ -49,6 +49,7 @@ const CustomAlgoliaContainer = ({
     enableDateRange = false,
     enablePriceFilter = false,
 }) => {
+
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [accessDenied, setAccessDenied] = useState(false);
     const [selectedValue, setSelectedValue] = useState(null);
@@ -192,6 +193,7 @@ const CustomAlgoliaContainer = ({
         allFilters.push(priceFilter); // contoh: "salePrice >= 50000 AND salePrice <= 100000"
     }
 
+    console.log("Final filters:", finalFilterString);
 
     // ================================================================================
 

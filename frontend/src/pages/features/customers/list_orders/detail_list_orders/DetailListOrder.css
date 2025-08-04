@@ -304,3 +304,12 @@
 .action-button.danger:hover {
     background-color: #c82333;
 }
+
+.payment-declined-description {
+    font-size: 18px;
+}
+
+.payment-declined-description span {
+    color: red;
+    font-weight: 500;
+}

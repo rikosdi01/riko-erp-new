@@ -1,0 +1,123 @@
+/* Tombol Tutup */
+.payment-modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.payment-modal-close-button:hover {
+    color: #333;
+}
+
+/* Kontainer Gambar */
+.payment-modal-image-container {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.payment-modal-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    cursor: zoom-in; /* Beri indikasi bisa diperbesar */
+}
+
+/* Tanggal Pembayaran */
+.payment-modal-date {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+/* Grup Tombol Aksi */
+.payment-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Jarak antar tombol */
+    margin-top: 25px;
+}
+
+.order-detail-payment {
+    padding: 8px 12px;
+    border-radius: 20px;
+    background-color: #007bff;
+    color: white;
+    width: fit-content;      /* ⬅️ Ini membuat lebar mengikuti panjang teks */
+    cursor: pointer;         /* Opsional: buat kelihatan bisa diklik */
+}
+
+
+/* Cancel Modal */
+.cancel-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+}
+
+.cancel-reason-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin-top: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical; /* Pengguna bisa mengubah tinggi textarea */
+    min-height: 100px;
+    transition: border-color 0.2s ease;
+}
+
+.cancel-reason-textarea:focus {
+    outline: none;
+    border-color: #007bff; /* Border biru saat fokus */
+}
+
+/* Grup Tombol Aksi */
+.cancel-modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Letakkan tombol di kanan */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Gaya tombol */
+.action-button.secondary {
+    background-color: #e9ecef;
+    color: #6c757d;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-button.secondary:hover {
+    background-color: #d6d9dc;
+}
+
+.action-button.danger {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-button.danger:hover {
+    background-color: #c82333;
+}

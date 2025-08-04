@@ -650,6 +650,13 @@ const Table = ({
                 </tbody>
             </table>
 
+            {/* <div style={{ marginTop: '40px', marginLeft: '20px' }}>
+                <div>Rincian Pesanan:</div>
+                <div>As Kick Stater RIKO - Astrea (Honda) x10</div>
+                <div>As Kick Stater RIKO - Beat (Honda) x10</div>
+                <div>As Kick Stater RIKO - CB-150R LED (Honda) x10</div>
+            </div> */}
+
             {tableType === "customers" && (
                 <div className="order-details">
                     <div>

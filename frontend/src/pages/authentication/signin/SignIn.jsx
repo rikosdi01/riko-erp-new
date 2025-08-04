@@ -198,6 +198,9 @@ const SignIn = () => {
 
                         {/* Submit Button */}
                         <button type="submit" className="signin-button">Sign In</button>
+                        <div className="signin-link" onClick={() => navigate('/signup')}>
+                            Belum punya akun? <span>Sign Up</span> disini
+                        </div>
                     </form>
                 </div>
             </div>

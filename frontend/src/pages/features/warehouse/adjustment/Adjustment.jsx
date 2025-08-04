@@ -37,6 +37,8 @@ const Adjustment = () => {
         navigate('/inventory/adjustment/new');
     }
 
+    const filters = loginUser?.location ? `location: ${loginUser.location}` : '';
+
     return (
         <CustomAlgoliaContainer
             pageLabel="Penyesuaian"
@@ -47,7 +49,7 @@ const Adjustment = () => {
             subscribeFn={AdjustmentRepository.subscribeToAdjustmentChanges}
             enableExport={false}
             enableImport={false}
-            filters={`location: ${loginUser.location}`}
+            filters={filters}
             enableDateRange={true}
             canEdit={roleAccess(accessList, 'mengedit-data-penyesuaian-pesanan')}
             canAdd={roleAccess(accessList, 'menambah-data-penyesuaian-pesanan')}

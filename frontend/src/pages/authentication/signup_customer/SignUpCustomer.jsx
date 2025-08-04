@@ -8,11 +8,12 @@ import "./SignUpCustomer.css";
 
 import { useToast } from "../../../context/ToastContext";
 import InputGroup from "../../../components/input/input_group/InputGroup";
-import { Eye, EyeOff, FlagTriangleRight, Hotel, LockKeyhole, Mail, MapPin, Phone, Store, UserCheck } from "lucide-react";
+import { Eye, EyeOff, FlagTriangleRight, Hotel, LockKeyhole, Mail, MapPin, Phone, Store, User, UserCheck } from "lucide-react";
 import ContentHeader from "../../../components/content_header/ContentHeader";
 import { useUsers } from "../../../context/auth/UsersContext";
 import Dropdown from "../../../components/select/Dropdown";
 import { useSalesman } from "../../../context/sales/SalesmanContext";
+import ImagePath from "../../../Utils/Constants/ImagePath";
 
 const SignUpCustomer = () => {
     const navigate = useNavigate();
@@ -29,7 +30,7 @@ const SignUpCustomer = () => {
     const [formData, setFormData] = useState({
         email: "",
         password: "Pelanggan123",
-        name: "",
+        username: "",
         phone: "",
         address: "",
         city: "",
@@ -62,7 +63,7 @@ const SignUpCustomer = () => {
             await UserRepository.createUser({
                 uid: user.uid,
                 email: formData.email,
-                username: formData.name,
+                username: formData.username,
                 role: "Customer",
                 type: "customer",
                 status: "active",
@@ -86,100 +87,106 @@ const SignUpCustomer = () => {
 
     return (
         <div className="signin-container">
-            <div className="signin-customer-content">
-                <form onSubmit={handleSubmit}>
-                    <ContentHeader
-                        title="Daftar Pelanggan"
-                        enableBack={loginUser && loginUser?.type !== 'customer'}
-                    />
-
-                    <InputGroup
-                        label={"Email"}
-                        icon={<Mail className="input-icon" />}
-                        value={formData.email}
-                        handleChange={handleChange}
-                        type={"email"}
-                        name={"email"}
-                    />
-
-                    <InputGroup
-                        label={"Password"}
-                        icon={<LockKeyhole className="input-icon" />}
-                        value={formData.password}
-                        handleChange={handleChange}
-                        type={showPassword ? "text" : "password"}
-                        name={"password"}
-                        leadingIcon={
-                            <span className="toggle-password" onClick={togglePasswordVisibility} style={{ cursor: "pointer" }}>
-                                {showPassword ? <Eye /> : <EyeOff />} {/* Bisa ganti jadi Eye/EyeOff */}
-                            </span>}
-                    />
-
-                    <InputGroup
-                        label={"Nama Toko"}
-                        icon={<Store className="input-icon" />}
-                        value={formData.name}
-                        handleChange={handleChange}
-                        type={"text"}
-                        name={"name"}
-                    />
-
-                    {loginUser && loginUser?.type !== 'customer' && (
-                        <Dropdown
-                            values={salesman}
-                            selectedId={selectedSalesman}
-                            setSelectedId={setSelectedSalesman}
-                            label={"Pilih Sales"}
-                            icon={<UserCheck className="input-icon" />}
-                        />
-                    )}
-
-                    <div className="signup-customer-form-flex">
-                        <InputGroup
-                            label={"Nomor HP"}
-                            icon={<Phone className="input-icon" />}
-                            value={formData.phone}
-                            handleChange={handleChange}
-                            type={"text"}
-                            name={"phone"}
-                            isRequired={false}
+            <div className="signin-content">
+                <div className="signin-left">
+                    <img src={ImagePath.logoRIKO} className="signin-image" alt="RIKO Parts Logo" />
+                    <div className="signin-image-title">RIKO Motorcycle Parts</div>
+                </div>
+                <div className="signin-right">
+                    <form onSubmit={handleSubmit}>
+                        <ContentHeader
+                            title="Daftar Pelanggan"
+                            enableBack={loginUser && loginUser?.type !== 'customer'}
                         />
 
                         <InputGroup
-                            label={"Alamat"}
-                            icon={<MapPin className="input-icon" />}
-                            value={formData.address}
+                            label={"Nama"}
+                            icon={<User className="input-icon" />}
+                            value={formData.username}
                             handleChange={handleChange}
                             type={"text"}
-                            name={"address"}
-                            isRequired={false}
-                        />
-                    </div>
-
-                    <div className="signup-customer-form-flex">
-                        <InputGroup
-                            label={"Kota"}
-                            icon={<Hotel className="input-icon" />}
-                            value={formData.city}
-                            handleChange={handleChange}
-                            type={"text"}
-                            name={"city"}
-                            isRequired={false}
+                            name={"username"}
                         />
 
                         <InputGroup
-                            label={"Provinsi"}
-                            icon={<FlagTriangleRight className="input-icon" />}
-                            value={formData.province}
+                            label={"Email"}
+                            icon={<Mail className="input-icon" />}
+                            value={formData.email}
                             handleChange={handleChange}
-                            type={"text"}
-                            name={"province"}
-                            isRequired={false}
+                            type={"email"}
+                            name={"email"}
                         />
-                    </div>
 
-                    <button className="submit-button" type="submit">Sign Up</button>
-                </form>
+                        <InputGroup
+                            label={"Password"}
+                            icon={<LockKeyhole className="input-icon" />}
+                            value={formData.password}
+                            handleChange={handleChange}
+                            type={showPassword ? "text" : "password"}
+                            name={"password"}
+                            leadingIcon={
+                                <span className="toggle-password" onClick={togglePasswordVisibility} style={{ cursor: "pointer" }}>
+                                    {showPassword ? <Eye /> : <EyeOff />} {/* Bisa ganti jadi Eye/EyeOff */}
+                                </span>}
+                        />
+
+                        {loginUser && loginUser?.type !== 'customer' && (
+                            <Dropdown
+                                values={salesman}
+                                selectedId={selectedSalesman}
+                                setSelectedId={setSelectedSalesman}
+                                label={"Pilih Sales"}
+                                icon={<UserCheck className="input-icon" />}
+                            />
+                        )}
+
+                        <div className="signup-customer-form-flex">
+                            <InputGroup
+                                label={"Nomor HP"}
+                                icon={<Phone className="input-icon" />}
+                                value={formData.phone}
+                                handleChange={handleChange}
+                                type={"text"}
+                                name={"phone"}
+                                isRequired={false}
+                            />
+
+                            <InputGroup
+                                label={"Alamat"}
+                                icon={<MapPin className="input-icon" />}
+                                value={formData.address}
+                                handleChange={handleChange}
+                                type={"text"}
+                                name={"address"}
+                                isRequired={false}
+                            />
+                        </div>
+
+                        <div className="signup-customer-form-flex">
+                            <InputGroup
+                                label={"Kota"}
+                                icon={<Hotel className="input-icon" />}
+                                value={formData.city}
+                                handleChange={handleChange}
+                                type={"text"}
+                                name={"city"}
+                                isRequired={false}
+                            />
+
+                            <InputGroup
+                                label={"Provinsi"}
+                                icon={<FlagTriangleRight className="input-icon" />}
+                                value={formData.province}
+                                handleChange={handleChange}
+                                type={"text"}
+                                name={"province"}
+                                isRequired={false}
+                            />
+                        </div>
+
+                        <button className="submit-button" type="submit">Sign Up</button>
+                    </form>
+                </div>
             </div>
         </div>
     );

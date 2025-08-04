@@ -2,6 +2,13 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot,
 import { db } from "../../firebase";
 
 export default class TransferRepository {
+    static subscribeToTransferChanges(callback) {
+        const unsub = onSnapshot(collection(db, 'Transfer'), (snapshot) => {
+            callback(snapshot);
+        });
+
+        return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
+    }
     static async checkTransferExists(transferCode, excludeId = null) {
         try {
             const q = query(

@@ -11,6 +11,7 @@ const Items = () => {
     // Hooks
     const navigate = useNavigate();
     const { loginUser, accessList } = useUsers();
+    console.log('Access List: ', accessList);
 
 
     const columns = [

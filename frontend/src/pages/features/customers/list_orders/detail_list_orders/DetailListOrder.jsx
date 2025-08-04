@@ -9,6 +9,7 @@ import Formatting from '../../../../../utils/format/Formatting';
 import uploadFileAndGetURL from '../../../../../utils/helper/uploadImage';
 import TransferRepository from '../../../../../repository/warehouse/TransferRepository';
 import ItemsRepository from '../../../../../repository/warehouse/ItemsRepository';
+import { serverTimestamp } from 'firebase/firestore';
 
 const DEFAULT_TIMER_SECONDS = 24 * 60 * 60;
 
@@ -127,16 +128,20 @@ const DetailListOrder = () => {
             // Update field di Firestore
             await SalesOrderRepository.updateSalesOrder(id, {
                 transferProof: url,
-                statusPayment: "sudah dibayar",
+                status: "mengantri",
+                paymentDate: serverTimestamp(),
             });
 
             showToast("berhasil", "Bukti transfer berhasil diupload!");
             setTimerModal(false);
             setSalesOrder((prev) => ({
                 ...prev,
-                buktiTransfer: url,
-                statusPayment: "sudah dibayar",
+                transferProof: url,
+                paymentDate: serverTimestamp(),
+                status: "mengantri",
             }));
+
+
         } catch (err) {
             showToast("gagal", "Upload bukti transfer gagal");
             console.error("Upload error: ", err);
@@ -276,9 +281,11 @@ const DetailListOrder = () => {
                         <strong>Total Pembayaran: Rp {totalPayment.toLocaleString('id-ID')}</strong>
                     </div>
                 </div>
+
+                {salesOrder.status === 'pembayaran ditolak' && <div className='payment-declined-description'>Alasan pembayaran ditolak: <span>{salesOrder.paymentCancelDescription}</span></div>}
             </div>
 
-            {salesOrder.statusPayment === 'menunggu pembayaran' && (
+            {(salesOrder.status === 'menunggu pembayaran' || salesOrder.status === 'pembayaran ditolak') && (
                 <div className='detail-order-button'>
                     <ActionButton
                         title={'Batalkan Pesanan'}

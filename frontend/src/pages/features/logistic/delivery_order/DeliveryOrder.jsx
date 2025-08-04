@@ -20,13 +20,21 @@ const DeliveryOrder = () => {
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
-        { header: "Pelanggan", accessor: "customer.name" },
-        { header: "Pengangkutan", accessor: "express.name" },
+        {
+            header: "Alamat",
+            accessor: "address",
+            renderCell: (_, so) => {
+                const address = so?.customer?.selectedAddress?.address ?? "";
+                const city = so?.customer?.selectedAddress?.city ?? "";
+                const province = so?.customer?.selectedAddress?.province ?? "";
+                return address + ', ' + city + ', ' + province;
+            }
+        },
         { header: "Kurir", accessor: "courier.name" },
-        { header: "Keterangan", accessor: "description" },
+        { header: "Keterangan", accessor: "soData.description" },
         {
             header: "Status",
-            accessor: "status",
+            accessor: "soData.status",
             renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
         }
         // {

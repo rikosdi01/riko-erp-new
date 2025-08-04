@@ -20,7 +20,17 @@ const SalesOrder = () => {
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
-        { header: "Nama Pelanggan", accessor: "customer.name" },
+        { header: "Nama Pelanggan", accessor: "customer.username" },
+        {
+            header: "Alamat",
+            accessor: "address",
+            renderCell: (_, so) => {
+                const address = so?.customer?.selectedAddress?.address ?? "";
+                const city = so?.customer?.selectedAddress?.city ?? "";
+                const province = so?.customer?.selectedAddress?.province ?? "";
+                return address + ', ' + city + ', ' + province;
+            }
+        },
         { header: "Keterangan", accessor: "description" },
         {
             header: "Harga",
@@ -49,6 +59,15 @@ const SalesOrder = () => {
         navigate('/sales/sales-order/new');
     }
 
+    const userLocation = loginUser?.location;
+    const formattedLocation = userLocation
+        ? userLocation.charAt(0).toUpperCase() + userLocation.slice(1)
+        : '';
+
+    const filters = userLocation
+        ? `customer.selectedAddress.city: ${formattedLocation}`
+        : '';
+
     return (
         <CustomAlgoliaContainer
             pageLabel="SO"
@@ -62,6 +81,7 @@ const SalesOrder = () => {
             enableCreate={false}
             enableDropdown={true}
             dropdownAttribute={"status"}
+            filters={filters}
             canAdd={roleAccess(accessList, 'menambah-data-pesanan-penjualan')}
             canEdit={roleAccess(accessList, 'mengedit-data-pesanan-penjualan')}
             enableDateRange={true}

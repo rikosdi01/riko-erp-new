@@ -38,7 +38,7 @@ const SidebarPages = () => {
         );
 
     const customerSubItems = filterSubItems([
-        { text: "Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-daftar-list-barang-pelanggan" },
+        { text: "List Barang", to: "/customer/list-products", icon: <Computer size={20} />, permission: "melihat-daftar-list-barang-pelanggan" },
         { text: "Pesanan", to: "/customer/list-orders", icon: <ListOrdered size={20} />, permission: "melihat-daftar-pesanan-pelanggan" },
         { text: "Profil", to: "/customer/profil", icon: <User size={20} />, permission: "melihat-profil-pelanggan" },
     ]);
@@ -87,7 +87,7 @@ const SidebarPages = () => {
                     {customerSubItems.length > 0 && (
                         <SidebarItem
                             icon={<Computer size={20} />}
-                            text="Barang"
+                            text="List Barang"
                             to="/customer/list-products"
                         />
                     )}
@@ -114,7 +114,7 @@ const SidebarPages = () => {
                 customerSubItems.length > 0 && (
                     <SidebarItem
                         icon={<ListOrdered size={20} />}
-                        text="Pelanggan"
+                        text="Transaksi"
                         to="/customer"
                         subItems={customerSubItems}
                     />

@@ -20,6 +20,7 @@ import { useFormats } from '../../../../../../context/personalization/FormatCont
 import CounterRepository from '../../../../../../repository/personalization/CounterRepository';
 import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
 import DeliveryOrderRepository from '../../../../../../repository/logistic/DeliveryOrderRepository';
+import { useNavigate } from 'react-router-dom';
 
 const EntitySalesOrder = ({
     mode,
@@ -30,6 +31,7 @@ const EntitySalesOrder = ({
     console.log('Login User: ', loginUser);
     console.log('Initial Data: ', initialData);
     // Context
+    const navigate = useNavigate();
     const { showToast } = useToast();
     const { racks } = useRacks();
     const { formats } = useFormats();
@@ -452,6 +454,7 @@ const EntitySalesOrder = ({
             await SalesOrderRepository.updateStatusValue(initialData.id || initialData.objectID, 'diproses')
             setStatus('diproses');
             showToast('berhasil', 'Berhasil memproses pesanan baru!')
+            navigate('/logistic/delivery-order')
         } catch (error) {
             console.error('Terjadi kesalahan: ', error);
             showToast('gagal', 'Gagal memproses pesanan baru!');

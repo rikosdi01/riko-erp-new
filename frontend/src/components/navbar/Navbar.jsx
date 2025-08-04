@@ -84,6 +84,9 @@ const Navbar = () => {
                         <div className="user-details">
                             <div className="username">{loginUser?.username || 'User'}</div>
                             <div className="email">{loginUser?.email || '-'}</div>
+                            {loginUser?.type === 'internal' && loginUser?.location && (
+                                <div className="location">Lokasi: <span>{loginUser?.location.charAt(0).toUpperCase() + loginUser?.location.slice(1)}</span></div>
+                            )}
                         </div>
                     </div>
                     <button className="logout-button" onClick={handleLogOut}>

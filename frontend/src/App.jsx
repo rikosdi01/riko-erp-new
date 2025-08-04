@@ -109,6 +109,7 @@ function AppContent() {
         <Routes>
           {/* Authentication */}
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUpCustomer />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Protected Routes */}
@@ -245,8 +246,7 @@ function AppContent() {
           <Route path="/settings/manage-account/roles" element={<ProtectedRoute><ManageRoles /></ProtectedRoute>} />
 
 
-          <Route path="/signup" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
-          <Route path="/signup-customer" element={<SignUpCustomer />} />
+          <Route path="/signup-admin" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
 
           {/* Not Found Page */}
           <Route path="*" element={<NotFound />} />

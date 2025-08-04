@@ -199,3 +199,45 @@
         padding: 2rem;
     }
 }
+
+.signin-link {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: #555; /* Warna teks utama */
+}
+
+.signin-link span {
+    color: #007bff; /* Warna link atau highlight */
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.signin-link span:hover {
+    color: #0056b3; /* Warna saat hover */
+}
+
+.signin-link span {
+    color: #007bff;
+    cursor: pointer;
+    position: relative;
+}
+
+.signin-link span::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background-color: #007bff;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.signin-link span:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
