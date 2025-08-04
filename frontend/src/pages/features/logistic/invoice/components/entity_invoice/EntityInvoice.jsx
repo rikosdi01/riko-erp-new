@@ -10,17 +10,6 @@ import InvoiceRepository from '../../../../../../repository/sales/InvoiceReposit
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../../../../context/ToastContext';
 
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '../../../../context/ToastContext';
-import CustomersRepository from '../../../../repositories/CustomersRepository';
-import DeliveryOrderRepository from '../../../../repositories/DeliveryOrderRepository';
-import SalesOrderRepository from '../../../../repositories/SalesOrderRepository';
-import InvoiceRepository from '../../../../repositories/InvoiceRepository';
-import Formatting from '../../../../utils/Formatting';
-import ActionButton from '../../../../components/Button/ActionButton';
-import './EntityInvoice.css';
-
 const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
     // Destrukturisasi data dari initialData. Gunakan optional chaining untuk menghindari error
     const {
@@ -47,7 +36,7 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
         const fetchCustomer = async () => {
             if (initialData.doData?.soData?.customer?.uid) {
                 try {
-                    const data = await CustomersRepository.getCustomersById(initialData.doData.soData.customer.uid);
+                    const data = await CustomersRepository.getCustomersById(initialData.doData.soData.customer.id);
                     setCustomerData(data);
                 } catch (error) {
                     console.error("Gagal mengambil data pelanggan:", error);
@@ -106,108 +95,110 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
     }
 
     return (
-        <div className="invoice-container">
-            <h2 className="invoice-title">Detail Faktur Pembelian</h2>
+        <div className='main-container'>
+            <div className="invoice-container">
+                <h2 className="invoice-title">Detail Faktur Pembelian</h2>
 
-            {/* Informasi Umum */}
-            <div className="invoice-info-grid">
-                <div className="info-card">
-                    <h3 className="card-title">Informasi Pesanan</h3>
-                    <div className="info-item"><strong>No. Faktur:</strong><span>{code}</span></div>
-                    <div className="info-item"><strong>Kode DO:</strong><span>{doDataFetched?.code}</span></div>
-                    <div className="info-item"><strong>Gudang:</strong><span>{doDataFetched?.warehouse?.name} - {doDataFetched?.warehouse?.location}</span></div>
-                </div>
+                {/* Informasi Umum */}
+                <div className="invoice-info-grid">
+                    <div className="info-card">
+                        <h3 className="card-title">Informasi Pesanan</h3>
+                        <div className="info-item"><strong>No. Faktur:</strong><span>{code}</span></div>
+                        <div className="info-item"><strong>Kode DO:</strong><span>{doDataFetched?.code}</span></div>
+                        <div className="info-item"><strong>Gudang:</strong><span>{doDataFetched?.warehouse?.name} - {doDataFetched?.warehouse?.location}</span></div>
+                    </div>
 
-                <div className="info-card">
-                    <h3 className="card-title">Informasi Pelanggan</h3>
-                    <div className="info-item"><strong>Nama:</strong><span>{customerData?.username}</span></div>
-                    <div className="info-item"><strong>Telepon:</strong><span>{customerData?.phone}</span></div>
-                    <div className="info-item"><strong>Alamat:</strong><span>{customerData?.selectedAddress?.address}</span></div>
-                    <div className="info-item"><strong>Kota / Provinsi:</strong><span>{customerData?.selectedAddress?.city}, {customerData?.selectedAddress?.province}</span></div>
-                </div>
-            </div>
-
-            {/* Informasi Ekspedisi dan Kurir */}
-            <div className="invoice-info-grid">
-                <div className="info-card">
-                    <h3 className="card-title">Pengiriman</h3>
-                    <div className="info-item"><strong>Kurir:</strong><span>{courier?.name} ({courier?.phone})</span></div>
-                    <div className="info-item"><strong>Ekspedisi:</strong><span>{express?.name} - {express?.service} ({express?.set})</span></div>
-                    <div className="info-item"><strong>Telepon Ekspedisi:</strong><span>{express?.phone}</span></div>
-                    <div className="info-item"><strong>Keterangan:</strong><span>{description || '-'}</span></div>
-                </div>
-                
-                <div className="info-card">
-                    <h3 className="card-title">Tanggal</h3>
-                    <div className="info-item"><strong>Pesanan (SO):</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.soData?.createdAt)}</span></div>
-                    <div className="info-item"><strong>Pengiriman (DO):</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.createdAt)}</span></div>
-                    <div className="info-item"><strong>Pembayaran:</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.paymentDate)}</span></div>
-                </div>
-            </div>
-
-            {/* Item yang Dipesan */}
-            {doDataFetched?.items?.length > 0 && (
-                <div className="invoice-items-card">
-                    <h3 className="card-title">Detail Barang</h3>
-                    <div className="table-responsive">
-                        <table className="invoice-table">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Kode Barang</th>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Harga</th>
-                                    <th>Diskon</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {doDataFetched.items.map((item, index) => {
-                                    const subtotal = item.qty * item.price * (1 - (item.discount || 0));
-                                    return (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{item.item?.code}</td>
-                                            <td>{item.item?.name}</td>
-                                            <td>{item.qty}</td>
-                                            <td>{Formatting.formatCurrencyIDR(item.price)}</td>
-                                            <td>{item.discount ? `${item.discount * 100}%` : '0%'}</td>
-                                            <td>{Formatting.formatCurrencyIDR(subtotal)}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                    <div className="info-card">
+                        <h3 className="card-title">Informasi Pelanggan</h3>
+                        <div className="info-item"><strong>Nama:</strong><span>{customerData?.username}</span></div>
+                        <div className="info-item"><strong>Telepon:</strong><span>{customerData?.phone}</span></div>
+                        <div className="info-item"><strong>Alamat:</strong><span>{customerData?.selectedAddress?.address}</span></div>
+                        <div className="info-item"><strong>Kota / Provinsi:</strong><span>{customerData?.selectedAddress?.city}, {customerData?.selectedAddress?.province}</span></div>
                     </div>
                 </div>
-            )}
 
-            {/* Total dan Status */}
-            <div className="invoice-summary-section">
-                <h3 className="card-title">Ringkasan Pembayaran</h3>
-                <div className="summary-details">
-                    <div className="summary-item"><strong>Total Harga:</strong><span>{Formatting.formatCurrencyIDR(calculatedTotals?.totalPrice)}</span></div>
-                    <div className="summary-item"><strong>Total Diskon:</strong><span>{Formatting.formatCurrencyIDR(calculatedTotals?.totalDiscount)}</span></div>
-                    <div className="summary-item"><strong>Total Pembayaran:</strong><span>{Formatting.formatCurrencyIDR(totalPayment)}</span></div>
-                    <div className="summary-item status-item">
-                        <strong>Status Pembayaran:</strong>
-                        <span className={`status-badge ${statusPayment ? statusPayment.toLowerCase().replace(/\s/g, '-') : ''}`}>
-                            {statusPayment ? statusPayment.charAt(0).toUpperCase() + statusPayment.slice(1) : '-'}
-                        </span>
+                {/* Informasi Ekspedisi dan Kurir */}
+                <div className="invoice-info-grid">
+                    <div className="info-card">
+                        <h3 className="card-title">Pengiriman</h3>
+                        <div className="info-item"><strong>Kurir:</strong><span>{courier?.name} ({courier?.phone})</span></div>
+                        <div className="info-item"><strong>Ekspedisi:</strong><span>{express?.name} - {express?.service} ({express?.set})</span></div>
+                        <div className="info-item"><strong>Telepon Ekspedisi:</strong><span>{express?.phone}</span></div>
+                        <div className="info-item"><strong>Keterangan:</strong><span>{description || '-'}</span></div>
+                    </div>
+
+                    <div className="info-card">
+                        <h3 className="card-title">Tanggal</h3>
+                        <div className="info-item"><strong>Pesanan (SO):</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.soData?.createdAt)}</span></div>
+                        <div className="info-item"><strong>Pengiriman (DO):</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.createdAt)}</span></div>
+                        <div className="info-item"><strong>Pembayaran:</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.paymentDate)}</span></div>
                     </div>
                 </div>
-            </div>
 
-            {statusPayment === 'menunggu pembayaran' && (
-                <div className="action-button-container">
-                    <ActionButton
-                        title={'Selesaikan Faktur'}
-                        onclick={handleFinishOrder}
-                        className={'action-button primary'}
-                    />
+                {/* Item yang Dipesan */}
+                {doDataFetched?.items?.length > 0 && (
+                    <div className="invoice-items-card">
+                        <h3 className="card-title">Detail Barang</h3>
+                        <div className="table-responsive">
+                            <table className="invoice-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th>Qty</th>
+                                        <th>Harga</th>
+                                        <th>Diskon</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {doDataFetched.items.map((item, index) => {
+                                        const subtotal = item.qty * item.price * (1 - (item.discount || 0));
+                                        return (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{item.item?.code}</td>
+                                                <td>{item.item?.name}</td>
+                                                <td>{item.qty}</td>
+                                                <td>{Formatting.formatCurrencyIDR(item.price)}</td>
+                                                <td>{item.discount ? `${item.discount * 100}%` : '0%'}</td>
+                                                <td>{Formatting.formatCurrencyIDR(subtotal)}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Total dan Status */}
+                <div className="invoice-summary-section">
+                    <h3 className="card-title">Ringkasan Pembayaran</h3>
+                    <div className="summary-details">
+                        <div className="summary-item"><strong>Total Harga:</strong><span>{Formatting.formatCurrencyIDR(calculatedTotals?.totalPrice)}</span></div>
+                        <div className="summary-item"><strong>Total Diskon:</strong><span>{Formatting.formatCurrencyIDR(calculatedTotals?.totalDiscount)}</span></div>
+                        <div className="summary-item"><strong>Total Pembayaran:</strong><span>{Formatting.formatCurrencyIDR(totalPayment)}</span></div>
+                        <div className="summary-item status-item">
+                            <strong>Status Pembayaran:</strong>
+                            <span className={`status-badge ${statusPayment ? statusPayment.toLowerCase().replace(/\s/g, '-') : ''}`}>
+                                {statusPayment ? statusPayment.charAt(0).toUpperCase() + statusPayment.slice(1) : '-'}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            )}
+
+                {statusPayment === 'menunggu pembayaran' && (
+                    <div className="action-button-container">
+                        <ActionButton
+                            title={'Selesaikan Faktur'}
+                            onclick={handleFinishOrder}
+                            className={'action-button primary'}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
