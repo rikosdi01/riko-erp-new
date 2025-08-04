@@ -6,6 +6,7 @@ import ContentHeader from '../../../../../components/content_header/ContentHeade
 import ActionButton from '../../../../../components/button/actionbutton/ActionButton';
 import { useToast } from '../../../../../context/ToastContext';
 import Formatting from '../../../../../utils/format/Formatting';
+import uploadFileAndGetURL from '../../../../../utils/helper/uploadImage';
 
 const DEFAULT_TIMER_SECONDS = 24 * 60 * 60;
 
@@ -20,6 +21,9 @@ const DetailListOrder = () => {
     const orderIdRef = useRef(null);
     const [timers, setTimers] = useState({});
     const [transferProof, setTransferProof] = useState(null);
+    const [transferProofPreview, setTransferProofPreview] = useState(null);
+    const [showFullImage, setShowFullImage] = useState(false);
+
 
     const handleOpenTimerModal = () => {
         const existingStartTime = localStorage.getItem(`startTime_${id}`);
@@ -38,6 +42,18 @@ const DetailListOrder = () => {
 
         setTimerModal(true);
     };
+
+    useEffect(() => {
+        if (transferProof) {
+            const objectUrl = URL.createObjectURL(transferProof);
+            setTransferProofPreview(objectUrl);
+
+            // Cleanup
+            return () => URL.revokeObjectURL(objectUrl);
+        } else {
+            setTransferProofPreview(null);
+        }
+    }, [transferProof]);
 
 
     useEffect(() => {
@@ -91,6 +107,47 @@ const DetailListOrder = () => {
         }
     };
 
+    const handleDeleteSalesOrder = async () => {
+        try {
+            await SalesOrderRepository.deleteSalesOrder(id);
+            showToast('berhasil', 'Pesanan berhasil dibatalkan');
+            localStorage.removeItem(`startTime_${id}`);
+            navigate('/customer/list-orders')
+        } catch (error) {
+            showToast('gagal', 'Gagal membatalkan pesanan');
+            console.log('Error when cancelling order : ', error);
+        }
+    };
+
+    const handleUpdateTransferProof = async () => {
+        if (!transferProof) {
+            showToast("gagal", "Harap upload bukti transfer");
+            return;
+        }
+
+        try {
+            const path = `bukti_transfer/${id}/${transferProof.name}`;
+            const url = await uploadFileAndGetURL(transferProof, path);
+
+            // Update field di Firestore
+            await SalesOrderRepository.updateSalesOrder(id, {
+                transferProof: url,
+                statusPayment: "sudah dibayar",
+            });
+
+            showToast("berhasil", "Bukti transfer berhasil diupload!");
+            setTimerModal(false);
+            setSalesOrder((prev) => ({
+                ...prev,
+                buktiTransfer: url,
+                statusPayment: "sudah dibayar",
+            }));
+        } catch (err) {
+            showToast("gagal", "Upload bukti transfer gagal");
+            console.error("Upload error: ", err);
+        }
+    }
+
     const formatTime = (seconds) => {
         const hrs = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
@@ -121,7 +178,7 @@ const DetailListOrder = () => {
                     <div className='order-detail-section'>
                         <div className='order-detail-field'>Tanggal Pesanan: <span>{Formatting.formatDate(createdAt)}</span></div>
                         <div className='order-detail-field'>Status: <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span></div>
-                        <div><strong>Estimasi Pengiriman: </strong>{express ? `${express.estimationStart}-${express.estimationEnd} Hari` : '-'}</div>
+                        <div className='order-detail-field'>Estimasi Pengiriman: <span>{express ? `${express.estimationStart}-${express.estimationEnd} Hari` : '-'}</span></div>
                         <div className='order-detail-field'>Catatan: <span>{description || '-'}</span></div>
                     </div>
                 </div>
@@ -157,7 +214,7 @@ const DetailListOrder = () => {
                 </div>
             </div>
 
-            {salesOrder.status === 'menunggu pembayaran' && (
+            {salesOrder.statusPayment === 'menunggu pembayaran' && (
                 <div className='detail-order-button'>
                     <ActionButton
                         title={'Batalkan Pesanan'}
@@ -171,15 +228,7 @@ const DetailListOrder = () => {
             {salesOrder.status === 'batal' && (
                 <ActionButton
                     title={'Lakukan Pemesanan Ulang'}
-                    onclick={() => {
-                        handleUpdateOrderStatus(
-                            'mengantri',
-                            'Pesanan berhasil dipesan ulang',
-                            'Pesanan gagal dipesan ulang'
-                        )
-                        localStorage.removeItem(`startTime_${id}`);
-                    }
-                    }
+                    onclick={handleDeleteSalesOrder}
                 />
             )}
 
@@ -234,14 +283,7 @@ const DetailListOrder = () => {
                             <ActionButton
                                 type="button"
                                 title="Iya, batalkan pesanan"
-                                onclick={() => {
-                                    handleUpdateOrderStatus(
-                                        'batal',
-                                        'Pesanan berhasil dibatalkan',
-                                        'Pesanan gagal dibatalkan'
-                                    );
-                                    setConfirmationModal(false);
-                                }}
+                                onclick={handleDeleteSalesOrder}
                                 background="linear-gradient(to top right,rgb(241, 66, 66),rgb(245, 51, 51))"
                                 color="white"
                                 padding='10px 30px'
@@ -260,9 +302,9 @@ const DetailListOrder = () => {
 
                         <div className="bank-info">
                             <h4>Transfer ke Rekening:</h4>
-                            <p><strong>Bank:</strong> BCA</p>
-                            <p><strong>No Rek:</strong> 1234567890</p>
-                            <p><strong>Atas Nama:</strong> PT. RIKO Parts</p>
+                            <div><strong>Bank:</strong> BCA</div>
+                            <div><strong>No Rek:</strong> 1234567890</div>
+                            <div><strong>Atas Nama:</strong> PT. RIKO Parts</div>
                         </div>
 
                         <div className="upload-proof">
@@ -273,23 +315,34 @@ const DetailListOrder = () => {
                                 accept="image/*,application/pdf"
                                 onChange={(e) => setTransferProof(e.target.files[0])}
                             />
+
                             {transferProof && <p className="uploaded-file">File: {transferProof.name}</p>}
+
+                            {transferProofPreview && (
+                                <div style={{ marginTop: "10px" }}>
+                                    <img
+                                        src={transferProofPreview}
+                                        alt="Preview Bukti Transfer"
+                                        style={{
+                                            maxWidth: "200px",
+                                            maxHeight: "200px",
+                                            borderRadius: "8px",
+                                            border: "1px solid #ccc",
+                                            cursor: "pointer",
+                                            transition: "transform 0.2s ease-in-out"
+                                        }}
+                                        title="Klik untuk lihat ukuran penuh"
+                                        onClick={() => setShowFullImage(true)}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="modal-actions">
                             <button className="btn btn-secondary" onClick={() => setTimerModal(false)}>Tutup</button>
                             <button
                                 className="btn btn-primary"
-                                onClick={() => {
-                                    if (!transferProof) {
-                                        showToast("gagal", "Harap upload bukti transfer");
-                                        return;
-                                    }
-
-                                    console.log("Bukti transfer: ", transferProof);
-                                    showToast("berhasil", "Bukti transfer telah diupload!");
-                                    setTimerModal(false);
-                                }}
+                                onClick={handleUpdateTransferProof}
                             >
                                 Submit Bukti Transfer
                             </button>
@@ -297,6 +350,36 @@ const DetailListOrder = () => {
                     </div>
                 </div>
             )}
+
+            {showFullImage && (
+                <div
+                    onClick={() => setShowFullImage(false)}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999,
+                    }}
+                >
+                    <img
+                        src={transferProofPreview}
+                        alt="Bukti Transfer Full"
+                        style={{
+                            maxWidth: "90%",
+                            maxHeight: "90%",
+                            borderRadius: "8px",
+                            boxShadow: "0 0 15px rgba(255,255,255,0.5)"
+                        }}
+                    />
+                </div>
+            )}
+
         </div>
     );
 };

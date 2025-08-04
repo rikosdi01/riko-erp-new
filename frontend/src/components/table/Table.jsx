@@ -307,7 +307,7 @@ const Table = ({
                 description,
                 isPrint: false,
                 express: selectedShipping,
-                status: "menunggu pembayaran",
+                status: "menunggu",
                 statusPayment: "menunggu pembayaran",
                 items: transformedItems,
                 totalPayment: totalPrice + selectedShipping?.price || 0,
