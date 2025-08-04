@@ -52,6 +52,7 @@ const ListProducts = () => {
             enableDropdown3={true}
             dropdownAttribute3={'name'}
             dropdownTitle3={'Model'}
+            enablePriceFilter={true}
             onTableClick={() => {}}
             tableType='customers'
         />
