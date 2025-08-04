@@ -81,7 +81,7 @@ const EntityCustomers = ({
             const selectedSalesman = salesman.find(s => s.id === salesmanId);
 
             const customersData = {
-                name: name.trim(),
+                username: name.trim(),
                 address: address.trim(),
                 phone: phone.trim(),
                 city: city.trim(),
@@ -140,6 +140,15 @@ const EntityCustomers = ({
             <ContentHeader title={mode === "create" ? "Tambah Pelanggan" : "Rincian Pelanggan"} />
 
             <div className='add-container-input'>
+                <InputLabel
+                    label="Email Pelanggan"
+                    icon={<Store className='input-icon' />}
+                    value={name}
+                    onChange={(e) => {
+                        setName(e.target.value);
+                    }}
+                    isDisabled={true}
+                />
                 <div>
                     <InputLabel
                         label="Nama Pelanggan"
@@ -151,14 +160,6 @@ const EntityCustomers = ({
                     />
                     {nameError && <div className="error-message">{nameError}</div>}
                 </div>
-
-                <Dropdown
-                    values={salesman}
-                    selectedId={salesmanId}
-                    setSelectedId={setSalesmanId}
-                    label="Pilih Sales"
-                    icon={<UsersRound className="input-icon" />}
-                />
             </div>
 
             <div className='add-container-input'>

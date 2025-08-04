@@ -59,6 +59,8 @@ import Dropdown from '../../../../../../components/select/Dropdown';
 import CourierRepository from '../../../../../../repository/logistic/CourierRepository';
 import { UserCog } from 'lucide-react';
 import { useCourier } from '../../../../../../context/logistic/CourierContext';
+import InvoiceOrderRepository from '../../../../../../repository/logistic/InvoiceOrderRepository';
+import { serverTimestamp } from 'firebase/firestore';
 
 
 const DetailDeliveryOrder = () => {
@@ -66,20 +68,17 @@ const DetailDeliveryOrder = () => {
     const { id } = useParams();
     const { showToast } = useToast();
     const navigate = useNavigate();
-    const { couriers } = useCourier();
     const [deliveryOrder, setDeliveryOrder] = useState(null);
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [paymentModal, setPaymentModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const [transferProofPreview, setTransferProofPreview] = useState(null);
     const [showFullImage, setShowFullImage] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [paymentCancelDescription, setPaymentCancelDescription] = useState('');
-    const [selectedCourier, setSelectedCourier] = useState('');
 
     const { formats } = useFormats();
     const formatCode = formats.presets?.sales?.code;
     const formatDOCode = formats.presets?.delivery?.code;
+    const formatInvCode = formats.presets?.invoice?.code;
 
     useEffect(() => {
         console.log('List Order || Sales Order: ', deliveryOrder);
@@ -157,6 +156,36 @@ const DetailDeliveryOrder = () => {
         }
     };
 
+    const handleCreateInvoice = async () => {
+        try {
+            const invCode = deliveryOrder.code.replace(formatDOCode, formatInvCode);
+
+            // Step 1: Update delivery order, tandai bahwa invoice sudah dibuat
+            await DeliveryOrderRepository.updateDeliveryOrder(id, {
+                invoiceIsCreate: true
+            });
+
+            // Step 2: Ambil data terbaru delivery order setelah update
+            const updated = await DeliveryOrderRepository.getDeliveryOrderById(id);
+            setDeliveryOrder(updated); // update state juga
+
+            // Step 3: Buat invoice dengan data terbaru
+            const newInvoiceData = {
+                code: invCode,
+                doData: updated, // ← sekarang sudah pakai data terbaru
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            };
+
+            await InvoiceOrderRepository.createInvoiceOrder(newInvoiceData);
+
+            showToast('berhasil', 'Faktur pesanan berhasil dibuat.');
+        } catch (error) {
+            console.error('Error when processing order:', error);
+            showToast('gagal', 'Gagal membuat faktur pesanan.');
+        }
+    };
+
 
     if (!deliveryOrder) return <div>Loading...</div>;
 
@@ -172,37 +201,8 @@ const DetailDeliveryOrder = () => {
                         <div className='order-detail-field'>Alamat Pelanggan: <span>{customer?.selectedAddress?.address || '-'}</span></div>
                         <div className='order-detail-field'>Kota: <span>{customer?.selectedAddress?.city || '-'}</span></div>
                         <div className='order-detail-field'>Provinsi: <span>{customer?.selectedAddress?.province || '-'}</span></div>
-                        {status && status === 'mengantri' && transferProof && transferProof.trim() && (
-                            <div
-                                className='order-detail-payment'
-                                onClick={() => setPaymentModal(true)}
-                            >
-                                Tampilkan bukti pembayaran
-                            </div>
-                        )}
-
-                        {status && (status === 'pembayaran ditolak') && (
-                            <div
-                                style={{
-                                    marginTop: '20px'
-                                }}
-                                className='order-detail-field'
-                            >
-                                Keterangan Pembayaran ditolak:
-                                <span style={{ color: 'red', fontWeight: '500', fontSize: '20px' }}>{deliveryOrder.paymentCancelDescription}</span>
-                            </div>
-                        )}
-
-                        {deliveryOrder.paymentCancelDescription && (status !== 'pembayaran ditolak' && deliveryOrder.paymentCancelDescription.trim()) && (
-                            <div
-                                style={{
-                                    marginTop: '20px'
-                                }}
-                                className='order-detail-field'
-                            >
-                                Pembayaran sebelumnya ditolak dengan alasan:
-                                <span style={{ color: 'red', fontWeight: '500', fontSize: '20px' }}>{deliveryOrder.paymentCancelDescription}</span>
-                            </div>
+                        {deliveryOrder.invoiceIsCreate && (
+                            <div className='order-detail-invoice'>Faktur Pesanan telah dibuat</div>
                         )}
 
                     </div>
@@ -235,17 +235,27 @@ const DetailDeliveryOrder = () => {
                 </table>
             </div>
 
-            <div className='courier-choice'>
-            <Dropdown
-                values={couriers}
-                selectedId={selectedCourier}
-                setSelectedId={setSelectedCourier}
-                label={'Pilih Kurir'}
-                icon={<UserCog className="input-icon" />}
-            />
-            </div>
+            {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dikemas' && !deliveryOrder.invoiceIsCreate && (
+                <div className='detail-order-button'>
+                    <div></div>
+                    <ActionButton
+                        title={'Buat Faktur'}
+                        onclick={handleCreateInvoice}
+                    />
+                </div>
+            )}
 
-            {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dikemas' && (
+            {/* <div className='courier-choice'>
+                <Dropdown
+                    values={couriers}
+                    selectedId={selectedCourier}
+                    setSelectedId={setSelectedCourier}
+                    label={'Pilih Kurir'}
+                    icon={<UserCog className="input-icon" />}
+                />
+            </div> */}
+
+            {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dikemas' && deliveryOrder.invoiceIsCreate && (
                 <div className='detail-order-button'>
                     <div></div>
                     <ActionButton

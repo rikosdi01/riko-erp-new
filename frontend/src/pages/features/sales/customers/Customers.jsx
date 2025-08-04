@@ -14,12 +14,11 @@ const Customers = () => {
 
 
     const columns = [
-        { header: "Nama Pelanggan", accessor: "username" },
-        { header: "Alamat", accessor: "address" },
-        { header: "Telepon", accessor: "phone" },
-        { header: "Kota", accessor: "city" },
-        { header: "Provinsi", accessor: "province" },
-        { header: "Sales", accessor: "salesman.name" },
+        { header: "Nama Pelanggan", accessor: "username"},
+        { header: "Alamat", accessor: "selectedAddress.address"},
+        { header: "Telepon", accessor: "phone"},
+        { header: "Kota", accessor: "selectedAddress.city"},
+        { header: "Provinsi", accessor: "selectedAddress.province"},
     ]
 
 
@@ -38,6 +37,9 @@ const Customers = () => {
             searchClient={clientUsers}
             indexName={ALGOLIA_INDEX_USERS}
             columns={columns}
+            enableImport={false}
+            enableExport={false}
+            enableCreate={false}
             createOnclick={navigateToCreateCustomers}
             subscribeFn={UserRepository.subscribeToUsersChanges}
             filters={'type: customer'}

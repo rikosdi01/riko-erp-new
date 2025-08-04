@@ -136,7 +136,7 @@ const SignIn = () => {
 
                 <div className="signin-right">
                     <div className="signin-title">Sign In</div>
-                    <div className="signin-subtitle">RIKO Parts Manajemen Stok</div>
+                    <div className="signin-subtitle">RIKO Parts Premium Motorcycle</div>
 
                     <form onSubmit={handleSubmit}>
                         {/* Email Input */}

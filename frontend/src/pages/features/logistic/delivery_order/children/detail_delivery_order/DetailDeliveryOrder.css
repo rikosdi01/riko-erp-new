@@ -1,3 +1,10 @@
 .courier-choice {
     margin-top: 20px;
 }
+
+.order-detail-invoice {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #007bff;
+}

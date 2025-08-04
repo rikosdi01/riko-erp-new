@@ -132,7 +132,6 @@ const DetailSalesOrder = () => {
 
             // Langkah 2: Buat dokumen baru DeliveryOrder
             const newDeliveryOrder = {
-                customer,
                 code: doCode,
                 soData: updatedSalesOrder,
                 createdAt: serverTimestamp(),

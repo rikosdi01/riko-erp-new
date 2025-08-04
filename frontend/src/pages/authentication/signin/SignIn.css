@@ -16,7 +16,7 @@
     border: 1px solid #e2e2e2;
     border-radius: 12px;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1400px;
     overflow: hidden;
 }
 
@@ -62,19 +62,6 @@
     color: #6b7280;
     margin-top: 0.7rem;
     margin-bottom: 1.5rem;
-}
-
-.input-group {
-    text-align: left;
-    margin-bottom: 1.2rem;
-}
-
-.input-group label {
-    display: block;
-    font-size: 1rem;
-    color: #374151;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
 }
 
 .input-wrapper {
@@ -149,28 +136,6 @@
 
 .signin-checkbox {
     border-radius: 10px;
-}
-
-/* Button Styling */
-.signin-button {
-    width: 100%;
-    padding: 0.85rem;
-    font-size: 1.1rem;
-    letter-spacing: 0.3px;
-    font-weight: 500;
-    color: white;
-    background: linear-gradient(to top right, #9193e7, #675fff);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.signin-button:hover {
-    background: linear-gradient(to top right, #7b7dcc, #554dff);
-
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
 .forgot-password {

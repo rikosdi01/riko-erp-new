@@ -46,10 +46,10 @@ const SidebarPages = () => {
     const salesSubItems = filterSubItems([
         { text: "Dashboard", to: "/sales/sales-dashboard", icon: <Activity size={20} />, permission: "melihat-dashboard-order" },
         { text: "Pesanan Penjualan", to: "/sales/sales-order", icon: <NotebookPen size={20} />, permission: "melihat-data-pesanan-penjualan" },
-        { text: "Retur Penjualan", to: "/sales/return-order", icon: <PackageMinus size={20} />, permission: "melihat-data-retur-order" },
+        // { text: "Retur Penjualan", to: "/sales/return-order", icon: <PackageMinus size={20} />, permission: "melihat-data-retur-order" },
         { type: "divider" },
         { text: "Pelanggan", to: "/sales/customers", icon: <Store size={20} />, permission: "melihat-data-pelanggan" },
-        { text: "Sales", to: "/sales/salesman", icon: <UsersRound size={20} />, permission: "melihat-data-sales" },
+        // { text: "Sales", to: "/sales/salesman", icon: <UsersRound size={20} />, permission: "melihat-data-sales" },
     ]);
 
     const inventorySubItems = filterSubItems([

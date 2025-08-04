@@ -30,7 +30,7 @@ const DeliveryOrder = () => {
                 return address + ', ' + city + ', ' + province;
             }
         },
-        { header: "Kurir", accessor: "courier.name" },
+        // { header: "Kurir", accessor: "courier.name" },
         { header: "Keterangan", accessor: "soData.description" },
         {
             header: "Status",

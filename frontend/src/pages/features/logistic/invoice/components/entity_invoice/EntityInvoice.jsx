@@ -10,68 +10,90 @@ import InvoiceRepository from '../../../../../../repository/sales/InvoiceReposit
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../../../../context/ToastContext';
 
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../../../context/ToastContext';
+import CustomersRepository from '../../../../repositories/CustomersRepository';
+import DeliveryOrderRepository from '../../../../repositories/DeliveryOrderRepository';
+import SalesOrderRepository from '../../../../repositories/SalesOrderRepository';
+import InvoiceRepository from '../../../../repositories/InvoiceRepository';
+import Formatting from '../../../../utils/Formatting';
+import ActionButton from '../../../../components/Button/ActionButton';
+import './EntityInvoice.css';
+
 const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
+    // Destrukturisasi data dari initialData. Gunakan optional chaining untuk menghindari error
     const {
         code,
-        customer,
-        salesman,
+        statusPayment,
         courier,
         express,
         description,
-        totalPrice,
-        totalDiscount,
         totalPayment,
-        statusPayment,
-        soDate,
-        doDate,
-        dueData,
         doId,
+        soId,
     } = initialData;
-    console.log('Initial Data: ', initialData);
 
-    const [customerData, setCustomerData] = useState(null);
-    const [doDataFetched, setDoDataFetched] = useState(null);
     const navigate = useNavigate();
     const { showToast } = useToast();
 
+    // State untuk data yang perlu diambil dari API
+    const [customerData, setCustomerData] = useState(null);
+    const [doDataFetched, setDoDataFetched] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // Effect untuk mengambil data pelanggan
     useEffect(() => {
         const fetchCustomer = async () => {
-            if (customer?.id) {
-                const data = await CustomersRepository.getCustomersById(customer.id);
-                setCustomerData(data);
+            if (initialData.doData?.soData?.customer?.uid) {
+                try {
+                    const data = await CustomersRepository.getCustomersById(initialData.doData.soData.customer.uid);
+                    setCustomerData(data);
+                } catch (error) {
+                    console.error("Gagal mengambil data pelanggan:", error);
+                }
             }
         };
         fetchCustomer();
-    }, [customer]);
+    }, [initialData]);
 
+    // Effect untuk mengambil data Delivery Order
     useEffect(() => {
         const fetchDoData = async () => {
             if (doId) {
-                const data = await DeliveryOrderRepository.getDeliveryOrderById(doId);
-                setDoDataFetched(data);
+                try {
+                    const data = await DeliveryOrderRepository.getDeliveryOrderById(doId);
+                    setDoDataFetched(data);
+                } catch (error) {
+                    console.error("Gagal mengambil data DO:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
             }
         };
         fetchDoData();
     }, [doId]);
 
-    useEffect(() => {
-        console.log('Customer Data: ', customerData);
-    }, [customerData]);
 
-
-
-    useEffect(() => {
-        console.log('Delivery Data: ', doDataFetched);
-    }, [doDataFetched]);
+    // Hitung total harga dan diskon
+    const calculatedTotals = doDataFetched?.items?.reduce((acc, item) => {
+        const subtotal = item.qty * item.price;
+        const subDiscount = subtotal * (item.discount || 0);
+        acc.totalPrice += subtotal;
+        acc.totalDiscount += subDiscount;
+        return acc;
+    }, { totalPrice: 0, totalDiscount: 0 });
 
 
     const handleFinishOrder = async () => {
         try {
-            await SalesOrderRepository.updateStatusValue(initialData.soId, 'selesai');
-            await DeliveryOrderRepository.updateStatusDeliveryOrder(initialData.doId, 'selesai');
-            await InvoiceRepository.updateStatusValue(initialData.id || initialData.objectID, 'selesai');
+            await SalesOrderRepository.updateStatusValue(soId, 'selesai');
+            await DeliveryOrderRepository.updateStatusDeliveryOrder(doId, 'selesai');
+            await InvoiceRepository.updateStatusValue(initialData.id, 'selesai');
             showToast("berhasil", "Faktur berhasil diselesaikan!");
-            navigate('/logistic/invoice-order')
+            navigate('/logistic/invoice-order');
         } catch (error) {
             console.error("Gagal memperbarui status:", error);
             showToast("gagal", "Gagal menyelesaikan Faktur!");
@@ -79,51 +101,55 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
     }
 
 
+    if (loading) {
+        return <div className="loading-container">Memuat detail faktur...</div>;
+    }
+
     return (
-        <div className="main-container">
+        <div className="invoice-container">
             <h2 className="invoice-title">Detail Faktur Pembelian</h2>
 
             {/* Informasi Umum */}
-            <div className="invoice-section">
-                <div>
-                    <h3>Informasi Pesanan</h3>
-                    <div><strong>No. Faktur:</strong> {code}</div>
-                    <div><strong>Kode DO:</strong> {doDataFetched?.code}</div>
-                    <div><strong>Gudang:</strong> {doDataFetched?.warehouse?.name} - {doDataFetched?.warehouse?.location}</div>
+            <div className="invoice-info-grid">
+                <div className="info-card">
+                    <h3 className="card-title">Informasi Pesanan</h3>
+                    <div className="info-item"><strong>No. Faktur:</strong><span>{code}</span></div>
+                    <div className="info-item"><strong>Kode DO:</strong><span>{doDataFetched?.code}</span></div>
+                    <div className="info-item"><strong>Gudang:</strong><span>{doDataFetched?.warehouse?.name} - {doDataFetched?.warehouse?.location}</span></div>
                 </div>
-                <div>
-                    <h3>Informasi Pelanggan</h3>
-                    <div><strong>Nama:</strong> {customerData?.name}</div>
-                    <div><strong>Telepon:</strong> {customerData?.phone}</div>
-                    <div><strong>Alamat:</strong> {customerData?.address}</div>
-                    <div><strong>Kota / Provinsi:</strong> {customerData?.city}, {customerData?.province}</div>
+
+                <div className="info-card">
+                    <h3 className="card-title">Informasi Pelanggan</h3>
+                    <div className="info-item"><strong>Nama:</strong><span>{customerData?.username}</span></div>
+                    <div className="info-item"><strong>Telepon:</strong><span>{customerData?.phone}</span></div>
+                    <div className="info-item"><strong>Alamat:</strong><span>{customerData?.selectedAddress?.address}</span></div>
+                    <div className="info-item"><strong>Kota / Provinsi:</strong><span>{customerData?.selectedAddress?.city}, {customerData?.selectedAddress?.province}</span></div>
                 </div>
             </div>
 
             {/* Informasi Ekspedisi dan Kurir */}
-            <div className="invoice-section">
-                <div>
-                    <h3>Pengiriman</h3>
-                    <div><strong>Kurir:</strong> {courier?.name} ({courier?.phone})</div>
-                    <div><strong>Ekspedisi:</strong> {express?.name} - {express?.service} ({express?.set})</div>
-                    <div><strong>Telepon Ekspedisi:</strong> {express?.phone}</div>
-                    <div><strong>Keterangan:</strong> {description}</div>
+            <div className="invoice-info-grid">
+                <div className="info-card">
+                    <h3 className="card-title">Pengiriman</h3>
+                    <div className="info-item"><strong>Kurir:</strong><span>{courier?.name} ({courier?.phone})</span></div>
+                    <div className="info-item"><strong>Ekspedisi:</strong><span>{express?.name} - {express?.service} ({express?.set})</span></div>
+                    <div className="info-item"><strong>Telepon Ekspedisi:</strong><span>{express?.phone}</span></div>
+                    <div className="info-item"><strong>Keterangan:</strong><span>{description || '-'}</span></div>
                 </div>
-                {/* Tanggal */}
-                <div>
-                    <h3>Tanggal</h3>
-                    <div><strong>Pesanan (SO):</strong> {Formatting.formatDateByTimestamp(soDate)}</div>
-                    <div><strong>Pengiriman (DO):</strong> {Formatting.formatDateByTimestamp(doDate)}</div>
-                    <div><strong>Jatuh Tempo:</strong> {Formatting.formatDateByTimestamp(dueData)}</div>
+                
+                <div className="info-card">
+                    <h3 className="card-title">Tanggal</h3>
+                    <div className="info-item"><strong>Pesanan (SO):</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.soData?.createdAt)}</span></div>
+                    <div className="info-item"><strong>Pengiriman (DO):</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.createdAt)}</span></div>
+                    <div className="info-item"><strong>Pembayaran:</strong><span>{Formatting.formatDateByTimestamp(doDataFetched?.paymentDate)}</span></div>
                 </div>
             </div>
 
-
             {/* Item yang Dipesan */}
             {doDataFetched?.items?.length > 0 && (
-                <div className="invoice-section">
-                    <div>
-                        <h3>Detail Barang</h3>
+                <div className="invoice-items-card">
+                    <h3 className="card-title">Detail Barang</h3>
+                    <div className="table-responsive">
                         <table className="invoice-table">
                             <thead>
                                 <tr>
@@ -138,7 +164,7 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
                             </thead>
                             <tbody>
                                 {doDataFetched.items.map((item, index) => {
-                                    const subtotal = item.qty * item.price * (1 - item.discount);
+                                    const subtotal = item.qty * item.price * (1 - (item.discount || 0));
                                     return (
                                         <tr key={index}>
                                             <td>{index + 1}</td>
@@ -146,7 +172,7 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
                                             <td>{item.item?.name}</td>
                                             <td>{item.qty}</td>
                                             <td>{Formatting.formatCurrencyIDR(item.price)}</td>
-                                            <td>{item.discount * 100}%</td>
+                                            <td>{item.discount ? `${item.discount * 100}%` : '0%'}</td>
                                             <td>{Formatting.formatCurrencyIDR(subtotal)}</td>
                                         </tr>
                                     );
@@ -158,21 +184,29 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
             )}
 
             {/* Total dan Status */}
-            <div className="invoice-section">
-                <div>
-                    <h3>Ringkasan Pembayaran</h3>
-                    <div><strong>Total Harga:</strong> {Formatting.formatCurrencyIDR(totalPrice)}</div>
-                    <div><strong>Total Diskon:</strong> {Formatting.formatCurrencyIDR(totalDiscount)}</div>
-                    <div><strong>Total Pembayaran:</strong> {Formatting.formatCurrencyIDR(totalPayment)}</div>
-                    <div><strong>Status Pembayaran:</strong> {statusPayment ? statusPayment.charAt(0).toUpperCase() + statusPayment.slice(1) : '-'}</div>
+            <div className="invoice-summary-section">
+                <h3 className="card-title">Ringkasan Pembayaran</h3>
+                <div className="summary-details">
+                    <div className="summary-item"><strong>Total Harga:</strong><span>{Formatting.formatCurrencyIDR(calculatedTotals?.totalPrice)}</span></div>
+                    <div className="summary-item"><strong>Total Diskon:</strong><span>{Formatting.formatCurrencyIDR(calculatedTotals?.totalDiscount)}</span></div>
+                    <div className="summary-item"><strong>Total Pembayaran:</strong><span>{Formatting.formatCurrencyIDR(totalPayment)}</span></div>
+                    <div className="summary-item status-item">
+                        <strong>Status Pembayaran:</strong>
+                        <span className={`status-badge ${statusPayment ? statusPayment.toLowerCase().replace(/\s/g, '-') : ''}`}>
+                            {statusPayment ? statusPayment.charAt(0).toUpperCase() + statusPayment.slice(1) : '-'}
+                        </span>
+                    </div>
                 </div>
             </div>
 
             {statusPayment === 'menunggu pembayaran' && (
-                <ActionButton
-                    title={'Selesaikan Faktur'}
-                    onclick={handleFinishOrder}
-                />
+                <div className="action-button-container">
+                    <ActionButton
+                        title={'Selesaikan Faktur'}
+                        onclick={handleFinishOrder}
+                        className={'action-button primary'}
+                    />
+                </div>
             )}
         </div>
     );

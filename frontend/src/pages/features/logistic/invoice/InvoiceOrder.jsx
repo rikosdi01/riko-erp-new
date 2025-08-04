@@ -14,26 +14,25 @@ const InvoiceOrder = () => {
 
     const columns = [
         { header: "No. Pesanan", accessor: "code" },
-        { header: "Pelanggan", accessor: "customer.name" },
         {
-            header: "Tanggal Pesanan",
-            accessor: "soDate",
-            renderCell: (value) => Formatting.formatDateByTimestamp(value),
+            header: "Alamat",
+            accessor: "address",
+            renderCell: (_, so) => {
+                const address = so?.customer?.selectedAddress?.address ?? "";
+                const city = so?.customer?.selectedAddress?.city ?? "";
+                const province = so?.customer?.selectedAddress?.province ?? "";
+                return address + ', ' + city + ', ' + province;
+            }
         },
         {
-            header: "Tanggal Pengiriman",
-            accessor: "doDate",
+            header: "Tanggal Pesanan",
+            accessor: "doData.soData.createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value),
         },
         {
             header: "Total Pesanan",
-            accessor: "totalPayment",
+            accessor: "doData.soData.totalPayment",
             renderCell: (value) => Formatting.formatCurrencyIDR(value),
-        },
-        {
-            header: "Status Pesanan",
-            accessor: "statusPayment",
-            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
         },
     ]
 
