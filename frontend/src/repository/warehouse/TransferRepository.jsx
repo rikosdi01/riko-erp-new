@@ -73,25 +73,13 @@ export default class TransferRepository {
         try {
             const docRef = doc(db, "Transfer", transferId);
             const docSnapshot = await getDoc(docRef);
-
-            if (!docSnapshot.exists()) {
+            if (docSnapshot.exists()) {
+                return { id: docSnapshot.id, ...docSnapshot.data() };
+            } else {
                 return null;
             }
-
-            const transferData = docSnapshot.data();
-
-            // Ambil subkoleksi Items
-            const itemsColRef = collection(db, "Transfer", transferId, "Items");
-            const itemsSnap = await getDocs(itemsColRef);
-            const items = itemsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-            return {
-                id: docSnapshot.id,
-                ...transferData,
-                items, // masukkan items sebagai bagian dari data
-            };
         } catch (error) {
-            console.error("Error fetching transfer: ", error);
+            console.error("Error fetching items: ", error);
             throw error;
         }
     }

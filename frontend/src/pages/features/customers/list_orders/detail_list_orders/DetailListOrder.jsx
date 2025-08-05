@@ -168,7 +168,7 @@ const DetailListOrder = () => {
             const transferItems = transfer?.items || [];
             const location = salesOrder.customer?.selectedAddress?.city?.toLowerCase();
 
-            const processedIds = new Set();
+            const transferQtyMap = new Map(); // <itemId, qtyTransferred>
 
             // Step 1: Proses transfer item jika ada
             if (transfer) {
@@ -184,38 +184,43 @@ const DetailListOrder = () => {
                     // Kurangi dari tujuan
                     stock[locationTo] = Math.max((stock[locationTo] || 0) - item.qty, 0);
 
-                    console.log('Transfer item:', item.id);
-                    console.log('Stock:', stock);
+                    console.log('List Order || Transfer item Transfer:', item.id);
+                    console.log('List Order || Stock Transfer:', stock);
 
-                    await ItemsRepository.updateStockOrder(item.id, stock);
-                    processedIds.add(item.id); // tandai item sudah diproses
+                    // await ItemsRepository.updateStockOrder(item.id, stock);
+
+                    // Catat jumlah yang sudah ditransfer
+                    transferQtyMap.set(item.id, (transferQtyMap.get(item.id) || 0) + item.qty);
                 }
             }
 
             // Step 2: Proses sisa item yang tidak ada di transfer
             for (const item of items) {
                 const itemId = item.item.id;
+                const totalQty = item.qty;
+                const qtyTransferred = transferQtyMap.get(itemId) || 0;
 
-                if (processedIds.has(itemId)) continue; // sudah diproses via transfer
+                const remainingQty = totalQty - qtyTransferred;
+                if (remainingQty <= 0) continue;
 
                 const itemData = await ItemsRepository.getItemsById(itemId);
                 const stock = itemData.stock || {};
 
-                stock[location] = (stock[location] || 0) + item.qty;
+                stock[location] = (stock[location] || 0) + remainingQty;
 
-                console.log('Non-transfer item:', itemId);
-                console.log('Stock:', stock);
+                console.log('List Order || Non-transfer item Transfer:', itemId);
+                console.log('List Order || Stock Transfer:', stock);
 
-                await ItemsRepository.updateStockOrder(itemId, stock);
+                // await ItemsRepository.updateStockOrder(itemId, stock);
             }
 
             setConfirmationModal(false);
 
             if (transfer?.id) {
-                await TransferRepository.deleteTransfer(transfer.id);
+                // await TransferRepository.deleteTransfer(transfer.id);
             }
 
-            await SalesOrderRepository.deleteSalesOrder(id);
+            // await SalesOrderRepository.deleteSalesOrder(id);
             navigate('/customer/list-orders');
             showToast("berhasil", "Stok berhasil dikembalikan dari pembatalan pesanan.");
         } catch (error) {
@@ -225,6 +230,7 @@ const DetailListOrder = () => {
             setLoading(false);
         }
     };
+
 
 
 
@@ -283,14 +289,14 @@ const DetailListOrder = () => {
                 </div>
 
                 {salesOrder.status === 'pembayaran ditolak' && <div className='payment-declined-description'>Alasan pembayaran ditolak: <span>{salesOrder.paymentCancelDescription}</span></div>}
-                
+
                 {salesOrder.status === 'dalam perjalanan' && (
                     <div>
-                    <div>No. Resi <strong>{salesOrder?.expeditionResi || ''}</strong></div>
-                    <div>Pesanan anda dalam perjalanan</div>
-                    <div>Anda dapat memasukkan nomor resi di link berikut.</div>
-                    <a href='https://jne.co.id/tracking-package'>Website JNE</a>
-                </div>
+                        <div>No. Resi <strong>{salesOrder?.expeditionResi || ''}</strong></div>
+                        <div>Pesanan anda dalam perjalanan</div>
+                        <div>Anda dapat memasukkan nomor resi di link berikut.</div>
+                        <a href='https://jne.co.id/tracking-package'>Website JNE</a>
+                    </div>
                 )}
             </div>
 

@@ -63,30 +63,12 @@ const ManageRoles = () => {
                     ]
                 },
                 {
-                    title: 'Retur Order',
-                    items: [
-                        "Melihat data Retur Order",
-                        "Menambah data Retur Order",
-                        "Mengedit data Retur Order",
-                        "Menghapus data Retur Order",
-                    ]
-                },
-                {
                     title: 'Pelanggan',
                     items: [
                         "Melihat data Pelanggan",
                         "Menambah data Pelanggan",
                         "Mengedit data Pelanggan",
                         "Menghapus data Pelanggan",
-                    ]
-                },
-                {
-                    title: 'Sales',
-                    items: [
-                        "Melihat data Sales",
-                        "Menambah data Sales",
-                        "Mengedit data Sales",
-                        "Menghapus data Sales",
                     ]
                 },
             ],
@@ -116,15 +98,6 @@ const ManageRoles = () => {
                         "Menambah data Pemindahan Stok",
                         "Mengedit data Pemindahan Stok",
                         "Menghapus data Pemindahan Stok",
-                    ]
-                },
-                {
-                    title: 'Penyimpanan Stok',
-                    items: [
-                        "Melihat data Penyimpanan Stok",
-                        "Menambah data Penyimpanan Stok",
-                        "Mengedit data Penyimpanan Stok",
-                        "Menghapus data Penyimpanan Stok",
                     ]
                 },
                 {

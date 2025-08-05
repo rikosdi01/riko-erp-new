@@ -140,7 +140,7 @@ const Transfer = () => {
         navigate('/inventory/transfer/new');
     }
 
-    const filters = loginUser?.location ? `location: ${loginUser.location}` : '';
+    // const filters = loginUser?.location ? `location: ${loginUser.location}` : '';
 
     return (
         <CustomAlgoliaContainer
@@ -153,7 +153,7 @@ const Transfer = () => {
             enableExport={false}
             enableImport={false}
             enableCreate={false}
-            filters={filters}
+            // filters={filters}
             enableDateRange={true}
             canEdit={roleAccess(accessList, 'mengedit-data-pemindahan-stok')}
             canAdd={roleAccess(accessList, 'menambah-data-pemindahan-stok')}
