@@ -16,6 +16,7 @@ const DetailInvoice = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [showPreviewModal, setShowPreviewModal] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
 
     const [invoiceOrder, setInvoiceOrder] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -23,6 +24,10 @@ const DetailInvoice = () => {
     useEffect(() => {
         console.log('Invoice Order: ', invoiceOrder);
     }, [invoiceOrder]);
+
+    useEffect(() => {
+        console.log('Show Preview: ', showPreview);
+    })
 
     // Effect untuk mengambil data faktur pesanan
     useEffect(() => {
@@ -74,8 +79,11 @@ const DetailInvoice = () => {
             <div className="invoice-container">
                 <ContentHeader
                     title={'Rincian Faktur Pesanan'}
-                // enablePrint={true}
-                // setShowPreview={setShowPreview}
+                    // enablePrint={true}
+                    // printerClick={() => {
+                    //     setShowPreviewModal(true)
+                    //     setShowPreview(true)
+                    // }}
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
@@ -195,6 +203,8 @@ const DetailInvoice = () => {
                             onClick={(e) => e.stopPropagation()} // Cegah penutupan jika klik di dalam modal
                         >
                             <InvoicePrintPreview
+                                key={showPreview}
+                                printToggle={showPreview}
                                 invoiceOrder={invoiceOrder}
                                 onClose={() => setShowPreviewModal(false)}
                                 calculatedTotals={calculatedTotals}

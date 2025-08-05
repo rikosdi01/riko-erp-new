@@ -60,6 +60,10 @@ const SalesDashboard = () => {
         fetchSalesData();
     }, []);
 
+    useEffect(() => {
+        console.log('latestOrders: ', latestOrders)
+    }, [latestOrders]);
+
     return (
         <div className="main-container">
             <div className='dashboard-page'>
@@ -75,14 +79,14 @@ const SalesDashboard = () => {
                         <div className="summary-card-title">Total Pelanggan</div>
                         <div className="summary-card-value">{totalCustomers}</div>
                     </div>
-                    <div className="summary-card">
+                    {/* <div className="summary-card">
                         <div className="summary-card-title">Total Sales</div>
                         <div className="summary-card-value">{salesmen?.length || 0}</div>
-                    </div>
-                    <div className="summary-card">
+                    </div> */}
+                    {/* <div className="summary-card">
                         <div className="summary-card-title">Total Returan</div>
                         <div className="summary-card-value">{totalReturns}</div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Chart Status Pesanan */}
@@ -125,7 +129,7 @@ const SalesDashboard = () => {
                             {latestOrders.map(order => (
                                 <tr key={order.objectID}>
                                     <td>{order.code || '-'}</td>
-                                    <td>{order.customer?.name || '-'}</td>
+                                    <td>{order.customer?.username || '-'}</td>
                                     <td>{order.status}</td>
                                     <td>{Formatting.formatDateByTimestamp(order.createdAt)}</td>
                                 </tr>

@@ -6,7 +6,7 @@ const ContentHeader = ({
     title,
     enableBack = true,
     enablePrint = false,
-    setShowPreview
+    printerClick
 }) => {
     const navigate = useNavigate();
     
@@ -27,7 +27,7 @@ const ContentHeader = ({
 
             {enablePrint && (
                 <button className="print-page"
-                    onClick={() => setShowPreview(true)}>
+                    onClick={printerClick}>
                     <span><Printer size={20} /></span>
                     Cetak
                 </button>

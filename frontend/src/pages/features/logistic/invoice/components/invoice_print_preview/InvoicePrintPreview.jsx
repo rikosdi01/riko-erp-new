@@ -5,25 +5,27 @@ import { Printer } from 'lucide-react';
 
 const InvoicePrintPreview = ({
     invoiceOrder,
+    printToggle,
     onClose,
     calculatedTotals,
 }) => {
     const printRef = useRef(null);
 
-    // useEffect(() => {
-    //     window.print();
+    useEffect(() => {
+        if (!printToggle) return;
+        window.print();
 
-    //     const handleAfterPrint = () => {
-    //         setTimeout(() => {
-    //             onClose(); // delay kecil agar komponen bisa me-remount di klik berikutnya
-    //         }, 200); // delay 200ms
-    //     };
+        const handleAfterPrint = () => {
+            setTimeout(() => {
+                onClose(); // delay kecil agar komponen bisa me-remount di klik berikutnya
+            }, 200); // delay 200ms
+        };
 
-    //     window.addEventListener('afterprint', handleAfterPrint);
-    //     return () => {
-    //         window.removeEventListener('afterprint', handleAfterPrint);
-    //     };
-    // }, [onClose]);
+        window.addEventListener('afterprint', handleAfterPrint);
+        return () => {
+            window.removeEventListener('afterprint', handleAfterPrint);
+        };
+    }, [onClose]);
 
 
     // Data dari invoiceOrder
