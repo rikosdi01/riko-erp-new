@@ -60,7 +60,7 @@ const Settings = () => {
                             className={`tab-item ${activeTab === 'profile' ? 'active' : ''}`}
                             onClick={() => setActiveTab('profile')}
                         >
-                            <User size={18} /> Kelola Akun
+                            <User size={18} /> Profile
                         </div>
                         {roleAccess(accessList, 'melihat-format-sistem') && (
                             <div

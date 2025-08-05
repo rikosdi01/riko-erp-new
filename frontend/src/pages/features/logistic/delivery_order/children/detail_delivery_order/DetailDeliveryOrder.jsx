@@ -377,7 +377,7 @@ const DetailDeliveryOrder = () => {
                 </div>
             )}
 
-            <div style={{
+            {/* <div style={{
                 fontSize: '24px',
                 color: 'green',
                 fontWeight: 'bold',
@@ -388,7 +388,7 @@ const DetailDeliveryOrder = () => {
                 marginTop: '20px'
             }}>
                 SELESAI
-            </div>
+            </div> */}
 
             {confirmationModal && (
                 <div className='modal-overlay'>

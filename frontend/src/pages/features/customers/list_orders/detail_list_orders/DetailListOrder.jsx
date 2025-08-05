@@ -283,6 +283,15 @@ const DetailListOrder = () => {
                 </div>
 
                 {salesOrder.status === 'pembayaran ditolak' && <div className='payment-declined-description'>Alasan pembayaran ditolak: <span>{salesOrder.paymentCancelDescription}</span></div>}
+                
+                {salesOrder.status === 'dalam perjalanan' && (
+                    <div>
+                    <div>No. Resi <strong>{salesOrder?.expeditionResi || ''}</strong></div>
+                    <div>Pesanan anda dalam perjalanan</div>
+                    <div>Anda dapat memasukkan nomor resi di link berikut.</div>
+                    <a href='https://jne.co.id/tracking-package'>Website JNE</a>
+                </div>
+                )}
             </div>
 
             {(salesOrder.status === 'menunggu pembayaran' || salesOrder.status === 'pembayaran ditolak') && (

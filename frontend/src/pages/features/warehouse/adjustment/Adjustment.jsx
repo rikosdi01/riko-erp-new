@@ -26,6 +26,12 @@ const Adjustment = () => {
             renderCell: (value) => Formatting.formatDateByTimestamp(value)
         },
         { header: "Deskripsi", accessor: "description" },
+        { 
+            header: "Lokasi",
+            accessor: "location",
+        
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        },
     ]
 
     // ================================================================================
