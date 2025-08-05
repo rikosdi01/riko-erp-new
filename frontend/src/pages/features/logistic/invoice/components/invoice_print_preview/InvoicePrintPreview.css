@@ -1,0 +1,157 @@
+/* --- Styling untuk Tampilan Cetak Invoice --- */
+
+/* Aturan untuk media cetak */
+@media print {
+    /* Sembunyikan semua elemen kecuali yang ada di dalam .print-preview */
+    body * {
+        visibility: hidden;
+    }
+    .print-preview, .print-preview * {
+        visibility: visible;
+    }
+    .print-preview {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+        background: white;
+        box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+        font-family: 'Times New Roman', Times, serif; /* Font klasik untuk cetak */
+        color: #000;
+        line-height: 1.5;
+    }
+
+    /* Atur margin halaman untuk pencetakan */
+    @page {
+        margin: 20mm;
+    }
+}
+
+.print-preview {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Header Invoice */
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #000;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.company-info h1 {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+}
+.company-info p {
+    font-size: 12px;
+    margin: 2px 0;
+}
+
+.invoice-title-box {
+    text-align: right;
+}
+.invoice-title-box h2 {
+    font-size: 24px;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+.invoice-title-box p {
+    font-size: 14px;
+    margin: 2px 0;
+}
+
+/* Detail Invoice (Pelanggan & Pesanan) */
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+.customer-info, .order-info {
+    width: 48%;
+}
+.customer-info p, .order-info p {
+    margin: 0;
+    font-size: 14px;
+}
+.customer-info strong, .order-info strong {
+    text-decoration: underline;
+}
+
+/* Tabel Barang */
+.invoice-items-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+.invoice-items-table th,
+.invoice-items-table td {
+    border: 1px solid #000;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 14px;
+}
+.invoice-items-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+/* Menata rata tengah untuk kolom No */
+.invoice-items-table td:nth-child(1),
+.invoice-items-table th:nth-child(1) {
+    text-align: center;
+    width: 5%; /* Lebar tetap untuk kolom nomor */
+}
+/* Menata rata kanan untuk kolom harga dan subtotal */
+.invoice-items-table td:nth-child(4),
+.invoice-items-table th:nth-child(4),
+.invoice-items-table td:nth-child(5),
+.invoice-items-table th:nth-child(5) {
+    text-align: right;
+}
+
+/* Ringkasan & Tanda Tangan */
+.invoice-summary-and-signature {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 30px;
+}
+.invoice-summary {
+    width: 40%;
+    border: 1px solid #000;
+    padding: 10px;
+}
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+.summary-row.grand-total {
+    font-size: 16px;
+    font-weight: bold;
+    border-top: 1px solid #000;
+    padding-top: 5px;
+    margin-top: 5px;
+}
+.invoice-signature {
+    text-align: center;
+    width: 30%;
+}
+.invoice-signature p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Footer Invoice */
+.invoice-footer {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 12px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 10px;
+}

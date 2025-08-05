@@ -45,20 +45,25 @@
     font-weight: 600;
 }
 
+/* Styling baru untuk tombol cetak */
 .print-page {
     position: absolute;
     right: 0;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 8px;
+    padding: 8px 16px;
     border-radius: 8px;
     font-size: 16px;
-    background-color: #e4e4e4;
-    border: 1px solid #040404;
-    font-weight: normal;
+    font-weight: 500;
     cursor: pointer;
     outline: none;
+    
+    /* Perubahan utama: styling yang lebih modern */
+    background-color: #007bff; /* Warna dasar biru */
+    color: #fff; /* Warna teks putih */
+    border: 1px solid #007bff;
+    transition: all 0.2s ease-in-out; /* Transisi halus */
 }
 
 .print-page span {
@@ -67,14 +72,18 @@
 }
 
 .print-page:hover {
-    border: 1px solid #ddd
+    background-color: #0056b3; /* Warna lebih gelap saat hover */
+    border-color: #0056b3;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25); /* Efek bayangan */
 }
 
 .print-page:active {
-    border: 1px solid #ddd
+    background-color: #004085; /* Warna lebih gelap lagi saat diklik */
+    border-color: #004085;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
 }
 
 .print-page:focus {
-    outline: none; /* Mencegah efek fokus browser */
-    border: 1px solid #ddd; /* Opsional: jika ingin ada border saat fokus */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Efek fokus yang lebih baik */
 }

@@ -97,7 +97,8 @@ const EntityInvoice = ({ mode, initialData = {}, onSubmit }) => {
     return (
         <div className='main-container'>
             <div className="invoice-container">
-                <h2 className="invoice-title">Detail Faktur Pembelian</h2>
+                {/* Judul diubah dari "Faktur Pembelian" menjadi "Faktur Pesanan" */}
+                <h2 className="invoice-title">Detail Faktur Pesanan</h2>
 
                 {/* Informasi Umum */}
                 <div className="invoice-info-grid">

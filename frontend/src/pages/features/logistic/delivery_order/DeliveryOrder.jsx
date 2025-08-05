@@ -23,10 +23,10 @@ const DeliveryOrder = () => {
         {
             header: "Alamat",
             accessor: "address",
-            renderCell: (_, so) => {
-                const address = so?.customer?.selectedAddress?.address ?? "";
-                const city = so?.customer?.selectedAddress?.city ?? "";
-                const province = so?.customer?.selectedAddress?.province ?? "";
+            renderCell: (_, doData) => {
+                const address = doData.soData?.customer?.selectedAddress?.address ?? "";
+                const city = doData.soData?.customer?.selectedAddress?.city ?? "";
+                const province = doData.soData?.customer?.selectedAddress?.province ?? "";
                 return address + ', ' + city + ', ' + province;
             }
         },

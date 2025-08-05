@@ -9,6 +9,7 @@ const ContentHeader = ({
     setShowPreview
 }) => {
     const navigate = useNavigate();
+    
 
     const handleBackPage = () => {
         navigate(-1);
