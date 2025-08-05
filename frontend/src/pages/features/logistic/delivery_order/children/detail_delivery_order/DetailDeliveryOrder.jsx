@@ -56,11 +56,11 @@ import ContentHeader from '../../../../../../components/content_header/ContentHe
 import Formatting from '../../../../../../utils/format/Formatting';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import Dropdown from '../../../../../../components/select/Dropdown';
-import CourierRepository from '../../../../../../repository/logistic/CourierRepository';
-import { UserCog } from 'lucide-react';
+import { Ship, UserCog } from 'lucide-react';
 import InvoiceOrderRepository from '../../../../../../repository/logistic/InvoiceOrderRepository';
 import { serverTimestamp } from 'firebase/firestore';
 import { useCourier } from '../../../../../../context/logistic/CourierContext';
+import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 
 
 const DetailDeliveryOrder = () => {
@@ -72,7 +72,9 @@ const DetailDeliveryOrder = () => {
     const [deliveryOrder, setDeliveryOrder] = useState(null);
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [selectedCourier, setSelectedCourier] = useState('');
+    const [expeditionResi, setExpeditionResi] = useState('');
     const [courierError, setCourierError] = useState('');
+    const [expeditionResiError, setExpeditionResiError] = useState('');
 
     const { formats } = useFormats();
     const formatCode = formats.presets?.sales?.code;
@@ -134,7 +136,7 @@ const DetailDeliveryOrder = () => {
             const doData = {
                 courier: courierData,
                 soData: soUpdated,
-                shippingData: serverTimestamp(),
+                shippingDate: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             }
 
@@ -144,7 +146,7 @@ const DetailDeliveryOrder = () => {
             const updated = await DeliveryOrderRepository.getDeliveryOrderById(id);
             setDeliveryOrder(updated);
 
-            showToast('berhasil', 'Staus Pesanan berhasil diubah menjadi "dikirim".');
+            showToast('berhasil', 'Status Pesanan berhasil diubah menjadi "dikirim".');
         } catch (error) {
             console.error('Error when processing order:', error);
             showToast('gagal', 'Gagal mengubah status pesanan.');
@@ -181,6 +183,69 @@ const DetailDeliveryOrder = () => {
         }
     };
 
+    const handleOnTheWayInvoice = async (e) => {
+        e.preventDefault();
+        console.log('Courier:', selectedCourier);
+
+        let valid = true;
+
+        if (!expeditionResi.trim()) {
+            setExpeditionResiError('Nomor Resi Ekspedisi tidak boleh kosong!');
+            valid = false;
+        } else {
+            setExpeditionResiError('');
+        }
+
+        if (!valid) return;
+
+        try {
+            const soUpdated = await SalesOrderRepository.updateStatusValue(deliveryOrder.soData?.id, 'dalam perjalanan');
+
+            // Langkah 1: Update status SalesOrder ke 'dikemas'
+            const doData = {
+                expeditionResi,
+                soData: soUpdated,
+                deliverDate: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            }
+
+            await DeliveryOrderRepository.updateDeliveryOrder(id, doData)
+
+            // Langkah 3: Ambil ulang data SalesOrder terbaru
+            const updated = await DeliveryOrderRepository.getDeliveryOrderById(id);
+            setDeliveryOrder(updated);
+
+            showToast('berhasil', 'Status Pesanan berhasil diubah menjadi "dalam perjalanan".');
+        } catch (error) {
+            console.error('Error when processing order:', error);
+            showToast('gagal', 'Gagal mengubah status pesanan.');
+        }
+    };
+
+    const handleFinishOrder = async () => {
+        try {
+            const soUpdated = await SalesOrderRepository.updateStatusValue(deliveryOrder.soData?.id, 'selesai');
+
+            // Langkah 1: Update status SalesOrder ke 'dikemas'
+            const doData = {
+                soData: soUpdated,
+                finishDate: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            }
+
+            await DeliveryOrderRepository.updateDeliveryOrder(id, doData)
+
+            // Langkah 3: Ambil ulang data SalesOrder terbaru
+            const updated = await DeliveryOrderRepository.getDeliveryOrderById(id);
+            setDeliveryOrder(updated);
+
+            showToast('berhasil', 'Status Pesanan berhasil diselesaikan.');
+        } catch (error) {
+            console.error('Error when processing order:', error);
+            showToast('gagal', 'Gagal menyelesaikan pesanan.');
+        }
+    };
+
 
     if (!deliveryOrder) return <div>Loading...</div>;
 
@@ -196,6 +261,12 @@ const DetailDeliveryOrder = () => {
                         <div className='order-detail-field'>Alamat Pelanggan: <span>{customer?.selectedAddress?.address || '-'}</span></div>
                         <div className='order-detail-field'>Kota: <span>{customer?.selectedAddress?.city || '-'}</span></div>
                         <div className='order-detail-field'>Provinsi: <span>{customer?.selectedAddress?.province || '-'}</span></div>
+                        <div className='order-detail-field'>Ekspedisi: <span>{express.name || '-'}</span></div>
+                        {deliveryOrder.expeditionResi && (
+                            <div className='order-detail-field'>
+                                No. Resi Ekspedisi: <span>{deliveryOrder?.expeditionResi || '-'}</span>
+                            </div>
+                        )}
                         {deliveryOrder.invoiceIsCreate && (
                             <div className='order-detail-invoice'>Faktur Pesanan telah dibuat</div>
                         )}
@@ -206,6 +277,11 @@ const DetailDeliveryOrder = () => {
                         <div className='order-detail-field'>Kode Pesanan: <span>{code}</span></div>
                         <div className='order-detail-field'>Tanggal Pesanan: <span>{Formatting.formatDate(createdAt)}</span></div>
                         <div className='order-detail-field'>Status: <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span></div>
+                        {deliveryOrder?.courier && Object.keys(deliveryOrder.courier).length > 0 && (
+                            <div className='order-detail-field'>
+                                Kurir: <span>{deliveryOrder?.courier?.name || '-'}</span>
+                            </div>
+                        )}
                         <div className='order-detail-field'>Estimasi Pengiriman: <span>{express ? `${express.estimationStart}-${express.estimationEnd} Hari` : '-'}</span></div>
                         <div className='order-detail-field'>Catatan: <span>{description || '-'}</span></div>
                     </div>
@@ -239,16 +315,35 @@ const DetailDeliveryOrder = () => {
                     />
                 </div>
             )}
+
             {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dikemas' && deliveryOrder.invoiceIsCreate && (
-                <div className='courier-choice'>
-                    <Dropdown
-                        values={couriers}
-                        selectedId={selectedCourier}
-                        setSelectedId={setSelectedCourier}
-                        label={'Pilih Kurir'}
-                        icon={<UserCog className="input-icon" />}
-                    />
-                    {courierError && <div className="error-message">{courierError}</div>}
+                <div>
+                    <div className='divider'></div>
+                    <div className='courier-choice'>
+                        <Dropdown
+                            values={couriers}
+                            selectedId={selectedCourier}
+                            setSelectedId={setSelectedCourier}
+                            label={'Pilih Kurir'}
+                            icon={<UserCog className="input-icon" />}
+                        />
+                        {courierError && <div className="error-message">{courierError}</div>}
+                    </div>
+                </div>
+            )}
+
+            {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dikirim' && (
+                <div>
+                    <div className='divider'></div>
+                    <div className='courier-choice'>
+                        <InputLabel
+                            label={'Nomor Resi Ekspedisi'}
+                            icon={<Ship className='input-icon' />}
+                            value={expeditionResi}
+                            onChange={(e) => setExpeditionResi(e.target.value)}
+                        />
+                        {expeditionResiError && <div className="error-message" style={{ marginTop: '-10px' }}>{expeditionResiError}</div>}
+                    </div>
                 </div>
             )}
 
@@ -261,6 +356,39 @@ const DetailDeliveryOrder = () => {
                     />
                 </div>
             )}
+
+            {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dikirim' && (
+                <div className='detail-order-button'>
+                    <div></div>
+                    <ActionButton
+                        title={'Simpan Resi'}
+                        onclick={handleOnTheWayInvoice}
+                    />
+                </div>
+            )}
+
+            {loginUser && (loginUser.role === 'Logistic Admin' || loginUser.role === 'Logistic Supervisor') && status && status === 'dalam perjalanan' && (
+                <div className='detail-order-button'>
+                    <div></div>
+                    <ActionButton
+                        title={'Selesaikan Pesanan'}
+                        onclick={handleFinishOrder}
+                    />
+                </div>
+            )}
+
+            <div style={{
+                fontSize: '24px',
+                color: 'green',
+                fontWeight: 'bold',
+                display: 'flex',
+                justifyContent: 'end',
+                alignItems: 'end',
+                marginRight: '40px',
+                marginTop: '20px'
+            }}>
+                SELESAI
+            </div>
 
             {confirmationModal && (
                 <div className='modal-overlay'>
