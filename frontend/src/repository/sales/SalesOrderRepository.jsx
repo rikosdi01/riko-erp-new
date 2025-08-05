@@ -94,15 +94,18 @@ export default class SalesOrderRepository {
         }
     };
 
-    static async updateStatusValue(salesOrderId, status) {
-        try {
-            const docRef = doc(db, "SalesOrder", salesOrderId); // sesuaikan path koleksi
-            await updateDoc(docRef, { status: status });
-            console.log("Status Pesanan berhasil diupdate.");
-        } catch (error) {
-            console.error("Gagal update isPrint:", error);
-        }
+static async updateStatusValue(salesOrderId, newStatus) {
+    try {
+        const docRef = doc(db, "SalesOrder", salesOrderId);
+        await updateDoc(docRef, { status: newStatus });
+        const updatedSnap = await getDoc(docRef);
+        return { id: updatedSnap.id, ...updatedSnap.data() }; // ✅ Return data
+    } catch (error) {
+        console.error("Error updating Sales Order status: ", error);
+        throw error;
     }
+}
+
 
     static async deleteSalesOrder(salesOrderId) {
         try {

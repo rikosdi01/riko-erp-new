@@ -157,6 +157,7 @@ const Table = ({
 
 
     const { formats } = useFormats();
+    const formatTransfer = formats.presets?.sales?.transfers;
     const formatCode = formats.presets?.sales?.code;
     const formattedSO = formats?.presets?.sales?.rackMedan || '';
     const yearFormat = formats.yearFormat;
@@ -384,7 +385,10 @@ const Table = ({
                     await ItemsRepository.updateStockOrder(itemId, stock)
                 }
 
+                            const itCode = newCode.replace(formatCode, formatTransfer);
+
                 const transferData = {
+                    code: itCode,
                     soCode: newCode,
                     locationFrom: otherCity,
                     locationTo: userCity,

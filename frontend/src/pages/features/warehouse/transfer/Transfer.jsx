@@ -114,11 +114,11 @@ const Transfer = () => {
     // Variables
     // Columns for the table
     const columns = [
-        // { header: "Kode Transfer", accessor: "code" },
+        { header: "Kode Transfer", accessor: "code" },
         {
             header: "Tanggal",
             accessor: "createdAt",
-            renderCell: (value) => Formatting.formatDate(value)
+            renderCell: (value) => Formatting.formatDateByTimestamp(value)
         },
         { header: "Lokasi dari", accessor: "locationFrom" },
         { header: "Lokasi ke", accessor: "locationTo" },
@@ -145,7 +145,7 @@ const Transfer = () => {
             enableExport={false}
             enableImport={false}
             enableCreate={false}
-            filters={filters }
+            filters={filters}
             enableDateRange={true}
             canEdit={roleAccess(accessList, 'mengedit-data-pemindahan-stok')}
             canAdd={roleAccess(accessList, 'menambah-data-pemindahan-stok')}
