@@ -101,15 +101,6 @@ const ManageRoles = () => {
                     ]
                 },
                 {
-                    title: 'Gudang',
-                    items: [
-                        "Melihat data Gudang",
-                        "Menambah data Gudang",
-                        "Mengedit data Gudang",
-                        "Menghapus data Gudang",
-                    ]
-                },
-                {
                     title: 'Merek',
                     items: [
                         "Melihat data Merek",
