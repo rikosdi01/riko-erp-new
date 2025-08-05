@@ -3,24 +3,36 @@ import { useNavigate } from "react-router-dom";
 import './Settings.css';
 import { useToast } from "../../../context/ToastContext";
 import {
-    BarChart3,
-    Package,
-    Truck,
-    History,
     User,
-    Settings as SettingsIcon,
+    Edit,
     UserCog,
-    Edit
+    UserCheck
 } from "lucide-react";
 import { useUsers } from "../../../context/auth/UsersContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
+import FormatSettings from "./children/format_settings/FormatSettings";
+import ManageAccount from "./children/manage_account/ManageAccount";
+import ManageRoles from "./children/manage_account/manage_roles/ManageRoles";
+import roleAccess from "../../../utils/helper/roleAccess";
 
 const Settings = () => {
     const { dispatch } = useContext(AuthContext);
     const { loginUser, accessList, isLoading } = useUsers();
     const { showToast } = useToast();
     const navigate = useNavigate();
+
+    console.log('Access List: ', accessList);
+
+    console.log('Access Status: ', roleAccess(accessList, 'melihat-pengelolaan-akun'));
+    console.log('Access Status: ', roleAccess(accessList, 'mengelola-akses-data'));
+    console.log('Access Status: ', roleAccess(accessList, 'melihat-format-sistem'));
+
+    // canAdd={roleAccess(accessList, 'menambah-data-pemindahan-stok')}
+
+
+    // State untuk mengelola tab yang aktif
+    const [activeTab, setActiveTab] = useState('profile');
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -31,58 +43,88 @@ const Settings = () => {
     }
 
     const handleLogOut = () => {
-        // Dispatch action "LOGOUT" untuk memperbarui state currentUser ke null
         dispatch({ type: "LOGOUT" });
-
-        // Menghapus cookie "user"
         Cookies.remove("user");
-
-        // Navigasi ke halaman login atau halaman lain setelah logout
-
         showToast("success", "Berhasil Log Out!");
-        navigate("/signin");  // Ganti dengan route yang sesuai
+        navigate("/signin");
     }
 
     return (
-        <div className="settings-container">
+        <div className="main-container">
             <div className="settings-panel">
-                <h2>Pengaturan Akun</h2>
+                <h2 className="settings-title">Pengaturan</h2>
 
-                <section className="profile-section">
-                    <h3><User size={18} style={{ marginRight: 8 }} /> Informasi Profil</h3>
-                    <div className="profile-card">
-                        <p><strong>Nama: </strong> {loginUser.username}</p>
-                        <p><strong>Email: </strong> {loginUser.email}</p>
-                        <p><strong>Role: </strong> {loginUser.role}</p>
+                <div className="settings-tabs">
+                    <div className="tab-header">
+                        <div
+                            className={`tab-item ${activeTab === 'profile' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('profile')}
+                        >
+                            <User size={18} /> Kelola Akun
+                        </div>
+                        {roleAccess(accessList, 'melihat-format-sistem') && (
+                            <div
+                                className={`tab-item ${activeTab === 'formatting' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('formatting')}
+                            >
+                                <Edit size={18} /> Format
+                            </div>
+                        )}
+                        {roleAccess(accessList, 'melihat-pengelolaan-akun') && (
+                            <div
+                                className={`tab-item ${activeTab === 'manage-account' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('manage-account')}
+                            >
+                                <UserCog size={18} /> Kelola Akun
+                            </div>
+                        )}
+                        {roleAccess(accessList, 'mengelola-akses-data') && (
+                            <div
+                                className={`tab-item ${activeTab === 'manage-roles' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('manage-roles')}
+                            >
+                                <UserCheck size={18} /> Kelola Akses Data
+                            </div>
+                        )}
                     </div>
-                </section>
 
-                {loginUser.role === 'admin' && (
-                <section className="password-section">
-                    <h3>🔒 Ganti Password</h3>
-                    <input type="password" placeholder="Password Saat Ini" />
-                    <input type="password" placeholder="Password Baru" />
-                    <input type="password" placeholder="Konfirmasi Password Baru" />
-                    <button className="button-save">Simpan Perubahan</button>
-                </section>
-                )}
+                    <div className="tab-content">
+                        {activeTab === 'profile' && (
+                            <>
+                                <section className="profile-section">
+                                    <h3>Informasi Profil</h3>
+                                    <div className="profile-card">
+                                        <p><strong>Nama: </strong> {loginUser.username}</p>
+                                        <p><strong>Email: </strong> {loginUser.email}</p>
+                                        <p><strong>Role: </strong> {loginUser.role}</p>
+                                        {loginUser.location && (<p><strong>Lokasi: </strong> {loginUser.location.charAt(0).toUpperCase() + loginUser?.location.slice(1)}</p>)}
+                                    </div>
+                                </section>
 
-
-                <div className="settings-tile-section">
-                    <h3><SettingsIcon size={18} style={{ marginRight: 8 }} /> Menu Pengaturan</h3>
-                    <ul className="settings-tile-list">
-                        <li className="settings-tile-item" onClick={() => navigate('/settings/mutation-sales')}><BarChart3 size={18} /> Mutasi Penjualan</li>
-                        <li className="settings-tile-item" onClick={() => navigate('/settings/mutation-inventory')}><Package size={18} /> Mutasi Inventaris</li>
-                        <li className="settings-tile-item" onClick={() => navigate('/settings/mutation-logistic')}><Truck size={18} /> Mutasi Pengiriman</li>
-                        <li className="settings-tile-item" onClick={() => navigate('/settings/manage-account')}><UserCog size={18} /> Kelola Akun</li>
-                        <li className="settings-tile-item" onClick={() => navigate('/settings/activity')}><History size={18} /> Riwayat Aktivitas</li>
-                        <li className="settings-tile-item" onClick={() => navigate('/settings/formatting')}><Edit size={18} /> Format</li>
-                    </ul>
-                </div>
-
-
-                <div className="settings-logout">
-                    <button onClick={handleLogOut} className="button-logout">🚪 Log Out</button>
+                                <div className="settings-logout">
+                                    <button onClick={handleLogOut} className="button-logout">🚪 Keluar</button>
+                                </div>
+                                {/* {loginUser.role === 'Admin' && (
+                                    <section className="password-section">
+                                        <h3>Ganti Password</h3>
+                                        <input type="password" placeholder="Password Saat Ini" />
+                                        <input type="password" placeholder="Password Baru" />
+                                        <input type="password" placeholder="Konfirmasi Password Baru" />
+                                        <button className="button-save">Simpan Perubahan</button>
+                                    </section>
+                                )} */}
+                            </>
+                        )}
+                        {activeTab === 'formatting' && (
+                            <FormatSettings />
+                        )}
+                        {activeTab === 'manage-account' && (
+                            <ManageAccount />
+                        )}
+                        {activeTab === 'manage-roles' && (
+                            <ManageRoles />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

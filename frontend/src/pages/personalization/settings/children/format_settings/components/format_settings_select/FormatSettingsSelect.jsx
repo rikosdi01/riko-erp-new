@@ -1,3 +1,5 @@
+import './FormatSettingsSelect.css'
+
 const FormatSettingsSelect = ({
     title,
     options,

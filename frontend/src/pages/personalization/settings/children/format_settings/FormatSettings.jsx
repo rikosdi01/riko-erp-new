@@ -91,10 +91,11 @@ const FormatSettings = () => {
     };
 
     return (
-        <div className="main-container">
+        <div>
+            <div className='format-button-container'>
+            <button className='format-settings-button' onClick={handleCreateFormat}>Simpan Pembaruan</button>
+            </div>
             <div className="manage-account-container">
-                <ContentHeader title={"Format"} />
-                <button className='format-settings-button' onClick={handleCreateFormat}>Simpan Pembaruan</button>
                 <div className='settings-format'>
                     <div className='settings-format-subtitle'>Format Kode</div>
                     <FormatSettingsSelect
@@ -230,131 +231,6 @@ const FormatSettings = () => {
                         />
                     </div>
                 </div>
-
-
-                <div className='settings-format' style={{ marginTop: '40px' }}>
-                    <div className='settings-format-subtitle'>Format Gudang Default (Medan)</div>
-
-                    {/* Penjualan */}
-                    <div className='settings-format-sub-header-container'>
-                        <div className='settings-format-sub-header'>
-                            - Penjualan
-                        </div>
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.sales?.rackMedan || ''}
-                            title={'Gudang Pesanan'}
-                            onChange={(val) => updatePrefix("sales", "rackMedan", val)}
-                        />
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.returns?.rackMedan || ''}
-                            title={'Gudang Returan Pesanan'}
-                            onChange={(val) => updatePrefix("returns", "rackMedan", val)}
-                        />
-                    </div>
-
-                    {/* Inventaris */}
-                    <div className='settings-format-sub-header-container'>
-                        <div className='settings-format-sub-header'>
-                            - Inventaris
-                        </div>
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.warehouse?.rackMedan || ''}
-                            title={'Gudang Penyimpanan Stok'}
-                            onChange={(val) => updatePrefix("warehouse", "rackMedan", val)}
-                        />
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.adjustments?.rackMedan || ''}
-                            title={'Gudang Penyesuaian Stok'}
-                            onChange={(val) => updatePrefix("adjustments", "rackMedan", val)}
-                        />
-                    </div>
-
-                    {/* Logistik */}
-                    <div className='settings-format-sub-header-container'>
-                        <div className='settings-format-sub-header'>
-                            - Logistik
-                        </div>
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.delivery?.rackMedan || ''}
-                            title={'Gudang Pengiriman Pesanan'}
-                            onChange={(val) => updatePrefix("delivery", "rackMedan", val)}
-                        />
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.invoice?.rackMedan || ''}
-                            title={'Gudang Faktur Pesanan'}
-                            onChange={(val) => updatePrefix("invoice", "rackMedan", val)}
-                        />
-                    </div>
-                </div>
-
-
-                <div className='settings-format' style={{ marginTop: '40px' }}>
-                    <div className='settings-format-subtitle'>Format Gudang Default (Jakarta)</div>
-
-                    {/* Penjualan */}
-                    <div className='settings-format-sub-header-container'>
-                        <div className='settings-format-sub-header'>
-                            - Penjualan
-                        </div>
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.sales?.rackJakarta || ''}
-                            title={'Gudang Pesanan'}
-                            onChange={(val) => updatePrefix("sales", "rackJakarta", val)}
-                        />
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.returns?.rackJakarta || ''}
-                            title={'Gudang Returan Pesanan'}
-                            onChange={(val) => updatePrefix("returns", "rackJakarta", val)}
-                        />
-                    </div>
-
-                    {/* Inventaris */}
-                    <div className='settings-format-sub-header-container'>
-                        <div className='settings-format-sub-header'>
-                            - Inventaris
-                        </div>
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.warehouse?.rackJakarta || ''}
-                            title={'Gudang Penyimpanan Stok'}
-                            onChange={(val) => updatePrefix("warehouse", "rackJakarta", val)}
-                        />
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.adjustments?.rackJakarta || ''}
-                            title={'Gudang Penyesuaian Stok'}
-                            onChange={(val) => updatePrefix("adjustments", "rackJakarta", val)}
-                        />
-                    </div>
-
-                    {/* Logistik */}
-                    <div className='settings-format-sub-header-container'>
-                        <div className='settings-format-sub-header'>
-                            - Logistik
-                        </div>
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.delivery?.rackJakarta || ''}
-                            title={'Gudang Pengiriman Pesanan'}
-                            onChange={(val) => updatePrefix("delivery", "rackJakarta", val)}
-                        />
-
-                        <FormatSettingsSelectRack
-                            defaultValue={presets?.invoice?.rackJakarta || ''}
-                            title={'Gudang Faktur Pesanan'}
-                            onChange={(val) => updatePrefix("invoice", "rackJakarta", val)}
-                        />
-                    </div>
-                </div>
-
             </div>
         </div>
     );

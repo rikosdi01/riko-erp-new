@@ -77,7 +77,7 @@ const SidebarPages = () => {
                 <SidebarItem
                     icon={<LayoutDashboard size={20} />}
                     text="Dashboard"
-                    to="/"
+                    to="/dashboard"
                 />
             )}
 

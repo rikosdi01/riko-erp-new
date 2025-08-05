@@ -130,7 +130,7 @@ const EntityExpress = ({
     return (
         <div className="main-container">
             <ContentHeader
-                title={mode === "create" ? "Tambah Pengangkutan" : "Rincian Pengangkutna"}
+                title={mode === "create" ? "Tambah Pengangkutan" : "Rincian Pengangkutan"}
             />
 
             <div className='add-container-input'>

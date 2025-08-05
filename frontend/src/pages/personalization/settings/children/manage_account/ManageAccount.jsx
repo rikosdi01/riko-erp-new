@@ -63,19 +63,7 @@ const ManageAccount = () => {
     };
 
     return (
-        <div className="main-container">
             <div className="manage-account-container">
-                <ContentHeader title="Kelola Akun" />
-
-                <div className='manage-account-header'>
-                <button
-                    className="manage-button"
-                    onClick={() => navigate("/settings/manage-account/roles")}
-                >
-                    Kelola Akses Data
-                </button>
-                </div>
-
                 {/* Bagian Akun Internal */}
                 <UserAccountTable
                     title="Akun Internal"
@@ -86,22 +74,7 @@ const ManageAccount = () => {
                     onDelete={handleDelete}
                     registrationPath="/signup"
                 />
-
-                {/* Spacer */}
-                <div style={{ height: "40px" }}></div>
-
-                {/* Bagian Akun Pelanggan */}
-                <UserAccountTable
-                    title="Akun Pelanggan"
-                    users={filterByStatus(customerUsers)}
-                    roles={customerRoles}
-                    onChangePassword={handleChangePassword}
-                    onDeactivate={handleDeactivate}
-                    onDelete={handleDelete}
-                    registrationPath="/signup-customer"
-                />
             </div>
-        </div>
     );
 };
 

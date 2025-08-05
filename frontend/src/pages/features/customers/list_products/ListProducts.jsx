@@ -55,6 +55,7 @@ const ListProducts = () => {
             enablePriceFilter={true}
             onTableClick={() => {}}
             tableType='customers'
+            filters={'isActive: true'}
         />
     )
 }

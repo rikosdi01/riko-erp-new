@@ -46,8 +46,8 @@ const RoleSettingsModal = ({ isOpen, onClose, roles }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="role-modal-overlay">
-      <div className="role-modal-content">
+    <div className="modal-overlay">
+      <div className="modal-content">
         <h2 className="role-modal-title">Kelola Role</h2>
         <div className="role-list">
           {editedRoles.map((role, idx) => (

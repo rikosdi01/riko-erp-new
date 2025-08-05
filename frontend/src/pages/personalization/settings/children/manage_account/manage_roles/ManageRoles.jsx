@@ -227,19 +227,12 @@ const ManageRoles = () => {
                     title: 'Kelola Akun',
                     items: [
                         "Melihat pengelolaan akun",
-                        "Megelola akses data",
+                        "Mengelola akses data",
                         "Meregistrasi akun baru",
-                        "Meregistrasi akun baru pelanggan",
                         "Melihat password pengguna",
                         "Mengganti password pengguna",
                         "Menonaktifkan akun pengguna",
                         "Menghapus akun pengguna",
-                    ],
-                },
-                {
-                    title: 'Aktivitas Pengguna',
-                    items: [
-                        "Melihat aktifitas pengguna",
                     ],
                 },
                 {
@@ -318,10 +311,7 @@ const ManageRoles = () => {
 
 
     return (
-        <div className="main-container">
             <div className="manage-account-container">
-                <ContentHeader title={"Kelola Akun"} />
-
                 <div className="top-controls" style={{ justifyContent: 'end' }}>
                     <div className='manage-buttons'>
                         <input
@@ -439,7 +429,6 @@ const ManageRoles = () => {
                     </button>
                 )}
             </div>
-        </div>
     );
 };
 

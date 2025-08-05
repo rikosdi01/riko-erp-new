@@ -1,85 +1,180 @@
+/* Overlay untuk latar belakang gelap */
 .role-modal-overlay,
 .confirm-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 50;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5); /* Ubah ke warna yang lebih gelap */
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px); /* Efek blur pada latar belakang */
 }
 
+/* Konten utama modal */
 .role-modal-content,
 .confirm-modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 480px;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeInScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* Animasi untuk modal */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Judul modal */
 .role-modal-title {
-  font-size: 20px;
-  margin-bottom: 16px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.75rem;
 }
 
+/* Daftar role */
+.role-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Item role dalam daftar */
 .role-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
+/* Input untuk nama role */
 .role-input {
-  flex: 1;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #475569;
+    background-color: #f8fafc;
+    transition: all 0.2s ease-in-out;
 }
 
+.role-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+/* Tombol aksi */
 .role-action {
-  padding: 6px 10px;
-  border: none;
-  background: none;
-  cursor: pointer;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
 }
 
 .role-action.blue {
-  color: #007bff;
+    background-color: #4f46e5;
+    color: white;
+}
+
+.role-action.blue:hover {
+    background-color: #4338ca;
 }
 
 .role-action.red {
-  color: #dc3545;
+    background-color: #f43f5e;
+    color: white;
 }
 
+.role-action.red:hover {
+    background-color: #e11d48;
+}
+
+/* Footer modal */
 .role-modal-footer {
-  text-align: right;
-  margin-top: 16px;
+    text-align: right;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
 }
 
 .close-button {
-  background: #eee;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+    background: #e2e8f0;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #475569;
+}
+
+.close-button:hover {
+    background: #cbd5e1;
+}
+
+/* Modal konfirmasi */
+.confirm-modal-content {
+    text-align: center;
+}
+
+.confirm-modal-content p {
+    font-size: 1rem;
+    color: #334155;
+    margin-bottom: 1.5rem;
 }
 
 .confirm-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .confirm-button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.confirm-button:hover {
+    transform: translateY(-1px);
 }
 
 .confirm-button.danger {
-  background-color: #dc3545;
-  color: white;
+    background-color: #dc2626;
+    color: white;
+}
+
+.confirm-button.danger:hover {
+    background-color: #b91c1c;
+}
+
+.confirm-button:not(.danger) {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.confirm-button:not(.danger):hover {
+    background-color: #cbd5e1;
 }

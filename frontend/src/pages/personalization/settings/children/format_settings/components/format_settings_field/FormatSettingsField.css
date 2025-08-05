@@ -1,0 +1,68 @@
+/* Styling untuk setiap baris pengaturan field */
+.settings-format-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.settings-format-field:last-of-type {
+    border-bottom: none;
+}
+
+/* Styling untuk label */
+.settings-format-field label {
+    font-weight: 500;
+    color: #334155;
+    flex-grow: 1;
+}
+
+/* Container untuk input dan preview */
+.settings-format-ex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Styling untuk input text */
+.settings-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #475569;
+    background-color: #f8fafc;
+    transition: all 0.2s ease-in-out;
+}
+
+.settings-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+/* Styling untuk container preview */
+.settings-format-field-preview {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    font-size: 0.8rem;
+    color: #64748b;
+    gap: 4px;
+}
+
+/* Styling untuk kode contoh */
+.settings-format-field-preview div:last-child {
+    font-family: monospace;
+    font-weight: bold;
+    color: #4f46e5;
+    background-color: #eef2ff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    width: fit-content;
+}
+

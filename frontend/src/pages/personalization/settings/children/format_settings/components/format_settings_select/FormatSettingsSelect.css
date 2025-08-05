@@ -1,0 +1,50 @@
+/* Styling untuk setiap baris pengaturan format */
+.settings-format-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.settings-format-field:last-of-type {
+    border-bottom: none;
+}
+
+.settings-format-field label {
+    font-weight: 500;
+    color: #334155;
+    flex-grow: 1;
+}
+
+/* Styling untuk container select dan input */
+.settings-format-code {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Styling untuk elemen select dan input */
+.settings-format-code select,
+.settings-format-code .settings-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #475569;
+    background-color: #f8fafc;
+    transition: all 0.2s ease-in-out;
+}
+
+.settings-format-code select:focus,
+.settings-format-code .settings-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+/* Penyesuaian lebar input number */
+.settings-format-code .settings-input[type="number"] {
+    width: 60px; /* Atur lebar agar tidak terlalu besar */
+    text-align: center;
+}

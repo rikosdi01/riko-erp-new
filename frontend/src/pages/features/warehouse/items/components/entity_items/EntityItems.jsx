@@ -62,6 +62,7 @@ const EntityItems = ({
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [isActive, setIsActive] = useState(initialData.isActive || false);
 
     useEffect(() => {
         console.log('Category:', category);
@@ -111,6 +112,7 @@ const EntityItems = ({
         );
         setProductSet(initialData.set || []);
         setItems(initialData.items || emptyData);
+        setIsActive(initialData.isActive || false),
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId || `guest-${Date.now()}`);
     }, [initialData]);
@@ -212,6 +214,7 @@ const EntityItems = ({
                 set: filteredItems,
                 qty: 0,
                 createdAt: createdAt,
+                isActive: isActive,
                 updatedAt: Timestamp.now(),
                 userId
             };
@@ -374,6 +377,17 @@ const EntityItems = ({
                     ))}
                 </div>
 
+                <div className="switch-container">
+                    <label className="switch-label">
+                        <input
+                            type="checkbox"
+                            checked={isActive}
+                            onChange={(e) => setIsActive(e.target.checked)}
+                        />
+                        <span className="slider"></span>
+                    </label>
+                    <span className="switch-text">Item {isActive ? 'Aktif' : 'Tidak Aktif'}</span>
+                </div>
             </div>
 
             {mode === "create" ? (
