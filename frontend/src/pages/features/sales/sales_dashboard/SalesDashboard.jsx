@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-    BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
-} from 'recharts';
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend} from 'recharts';
 
 import './SalesDashboard.css';
 import { soIndex, usersIndex } from '../../../../../config/algoliaConfig';

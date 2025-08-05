@@ -62,6 +62,7 @@ const ListOrders = () => {
             canEdit={true}
             enableDropdown={true}
             dropdownAttribute={'status'}
+            dropdownTitle={'Status'}
             filters={`customer.username: "${loginUser.username}"`}
             enableDateRange={true}
         />

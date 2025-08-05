@@ -120,8 +120,16 @@ const Transfer = () => {
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value)
         },
-        { header: "Lokasi dari", accessor: "locationFrom" },
-        { header: "Lokasi ke", accessor: "locationTo" },
+        {
+            header: "Lokasi dari",
+            accessor: "locationFrom",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        },
+        {
+            header: "Lokasi ke",
+            accessor: "locationTo",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        },
     ]
     // ================================================================================
 

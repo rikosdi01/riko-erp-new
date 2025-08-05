@@ -85,11 +85,14 @@ const Items = () => {
             enableExport={false}
             enableImport={false}
             enableDropdown={true}
-            dropdownAttribute={'brand'}
+            dropdownAttribute={'category.name'}
+            dropdownTitle={'Kategori'}
             enableDropdown2={true}
-            dropdownAttribute2={'category.name'}
+            dropdownAttribute2={'brand'}
+            dropdownTitle2={'Motor'}
             enableDropdown3={true}
             dropdownAttribute3={'name'}
+            dropdownTitle3={'Model'}
             // enableCheckbox1={true}
             // checkbox1Label="Stok Tersedia"
             // checkbox1Attribute="stock"

@@ -66,7 +66,8 @@ const DeliveryOrder = () => {
             enableDateRange={true}
             enableImport={false}
             enableDropdown={true}
-            dropdownAttribute={'status'}
+            dropdownAttribute={'soData.status'}
+            dropdownTitle={'Status'}
             subscribeFn={DeliveryOrderRepository.subscribeToDeliveryOrderChanges}
             canEdit={roleAccess(accessList, 'mengedit-data-pengiriman-pesanan')}
             canAdd={roleAccess(accessList, 'menambah-data-pengiriman-pesanan')}

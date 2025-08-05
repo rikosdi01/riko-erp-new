@@ -89,6 +89,7 @@ const InventoryDashboard = () => {
         categories: categoryCount,
         merks: merks?.length || 0
     };
+    
     const recentTransfers = [
         { id: 1, item: 'As Kick Stater RIKO - Beat (Honda)', from: 'Jakarta', to: 'Medan', qty: 5, set: 'set' },
         { id: 2, item: 'As Kick Stater RIKO - Astrea (Honda)', from: 'Jakarta', to: 'Medan', qty: 20, set: 'set' },

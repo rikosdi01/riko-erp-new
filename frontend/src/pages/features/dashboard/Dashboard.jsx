@@ -1,209 +1,156 @@
-import { Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import './Dashboard.css'
-import { LineChart } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import './Dashboard.css';
+import { productIndex, soIndex, usersIndex } from "../../../../config/algoliaConfig";
 
 const Dashboard = () => {
-    const users = [
-        {
-            id: 1,
-            name: 'Mini',
-            role: 'admin',
-            isActive: true,
-            currentFeature: 'Dashboard Global',
-            lastActiveAt: '2025-04-10T08:15:00'
-        },
-        {
-            id: 2,
-            name: 'Tiffany',
-            role: 'cso',
-            isActive: false,
-            currentFeature: null,
-            lastActiveAt: null
-        },
-        {
-            id: 3,
-            name: 'Dewi',
-            role: 'logistik',
-            isActive: true,
-            currentFeature: 'Logistik',
-            lastActiveAt: '2025-04-10T08:32:00'
-        },
-        {
-            id: 4,
-            name: 'Jefry',
-            role: 'stok controller',
-            isActive: true,
-            currentFeature: 'Inventaris',
-            lastActiveAt: '2025-04-10T09:10:00'
-        },
-        {
-            id: 5,
-            name: 'Patricia',
-            role: 'cso',
-            isActive: true,
-            currentFeature: 'Penjualan',
-            lastActiveAt: '2025-04-10T09:45:00'
-        },
-        {
-            id: 6,
-            name: 'Michael',
-            role: 'logistik',
-            isActive: false,
-            currentFeature: null,
-            lastActiveAt: null
-        },
-        {
-            id: 7,
-            name: 'Gita',
-            role: 'stok controller',
-            isActive: false,
-            currentFeature: null,
-            lastActiveAt: null
-        },
-        {
-            id: 8,
-            name: 'Hadi',
-            role: 'admin',
-            isActive: true,
-            currentFeature: 'Monitoring Pengguna',
-            lastActiveAt: '2025-04-10T10:03:00'
-        },
-        {
-            id: 9,
-            name: 'Angelica',
-            role: 'cso',
-            isActive: true,
-            currentFeature: 'Input Pesanan',
-            lastActiveAt: '2025-04-10T10:14:00'
-        },
-        {
-            id: 10,
-            name: 'Joko',
-            role: 'logistik',
-            isActive: false,
-            currentFeature: null,
-            lastActiveAt: null
-        },
+    const [totalItems, setTotalItems] = useState(0);
+    const [totalStock, setTotalStock] = useState(0);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [orderStatusData, setOrderStatusData] = useState([]);
+    const [totalCustomer, setTotalCustomer] = useState(0);
+
+    const recentTransfers = [
+        { id: 1, item: 'As Kick Stater RIKO - Beat (Honda)', from: 'Jakarta', to: 'Medan', qty: 5, set: 'set' },
+        { id: 2, item: 'As Kick Stater RIKO - Astrea (Honda)', from: 'Jakarta', to: 'Medan', qty: 20, set: 'set' },
+        { id: 3, item: 'As Kick Stater RIKO - Grand (Honda)', from: 'Jakarta', to: 'Medan', qty: 10, set: 'set' },
+        { id: 3, item: 'Botol Klep RIKO - Legenda (Honda)', from: 'Medan', to: 'Jakarta', qty: 50, set: 'set' },
+        { id: 3, item: 'Botol Klep RIKO - Vixion (Yamaha)', from: 'Medan', to: 'Jakarta', qty: 40, set: 'set' },
     ];
 
-    const totalUsers = 0;
-    const activeUsers = users.filter(u => u.isActive);
-    const inactiveUsers = users.filter(u => !u.isActive);
+    const STATUS_LABELS = ['mengantri', 'diproses', 'selesai', 'pending', 'tertunda'];
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA66CC'];
 
-    const formatDateTime = (isoDate) => {
-        const date = new Date(isoDate);
-        const options = {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                // 1. Total Items
+                const itemRes = await productIndex.search('', { hitsPerPage: 1000 });
+                setTotalItems(itemRes.nbHits);
+
+                const hits = itemRes.hits;
+
+                console.log('Hits: ', hits);
+                // 2. Total Stock
+                const totalQty = hits.reduce((acc, hit) => {
+                    const stockValues = hit.stock ? Object.values(hit.stock) : [];
+                    const stockSum = stockValues.reduce((sum, qty) => sum + qty, 0);
+                    return acc + stockSum;
+                }, 0);
+
+                setTotalStock(totalQty);
+
+                // 1. Pesanan Penjualan
+                const ordersRes = await soIndex.search('', { hitsPerPage: 1000 });
+                const orders = ordersRes.hits;
+                setTotalOrders(ordersRes.nbHits);
+
+                // Hitung berdasarkan status
+                const statusMap = {};
+                orders.forEach(order => {
+                    const status = order.status || 'tidak diketahui';
+                    statusMap[status] = (statusMap[status] || 0) + 1;
+                });
+
+                const statusData = Object.entries(statusMap).map(([status, count]) => ({
+                    status,
+                    count
+                }));
+                setOrderStatusData(statusData);
+
+
+                // 3. Total Customer
+                const customerRes = await usersIndex.search('', {
+                    hitsPerPage: 0,
+                    filters: 'type: customer'
+                });
+                setTotalCustomer(customerRes.nbHits);
+
+
+            } catch (error) {
+                console.error('Dashboard data fetch error:', error);
+            }
         };
-        const time = date.toLocaleTimeString('id-ID', {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
 
-        const tanggal = date.toLocaleDateString('id-ID', options);
-        return `${tanggal} - ${time} WIB`;
-    };
+        fetchDashboardData();
+    }, []);
 
-    const data = [];
 
     return (
-        <div className="dashboard-container">
-            <div className="card-grid">
-                <div className="card">
-                    <h3>Total Item</h3>
-                    <div className='card-value'>{totalUsers}</div>
-                </div>
-                <div className="card">
-                    <h3>Total Item dengan stok menipis</h3>
-                    <div className='card-value'>{totalUsers}</div>
-                </div>
-                <div className="card">
-                    <h3>Total Item dengan stok kosong</h3>
-                    <div className='card-value'>{totalUsers}</div>
-                </div>
-            </div>
+        <div className="main-container">
+            <div className='dashboard-page'>
+                <h1>Dashboard Admin</h1>
 
-            {/* <div className="chart-card">
-                <h3>Jumlah Invoice per Bulan</h3>
-                {data.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={data}>
-                            <XAxis dataKey="month" />
-                            <YAxis allowDecimals={false} />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="count" stroke="#82ca9d" strokeWidth={3} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div style={{ textAlign: 'center', padding: '50px 0', color: '#888' }}>
-                        Tidak ada data invoice untuk ditampilkan.
+                <div className="summary-cards-container">
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Pesanan</div>
+                        <div className="summary-card-value">{totalOrders}</div>
                     </div>
-                )}
-            </div> */}
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Pelanggan</div>
+                        <div className="summary-card-value">{totalCustomer}</div>
+                    </div>
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Item</div>
+                        <div className="summary-card-value">{totalItems}</div>
+                    </div>
+                    <div className="summary-card">
+                        <div className="summary-card-title">Total Stok</div>
+                        <div className="summary-card-value">{totalStock}</div>
+                    </div>
+                </div>
 
-            <div className='chart-grid'>
-                <div className="table-card">
-                    <h3>Daftar Item dengan stok menipis</h3>
-                    <table className="inventory-table">
+                {/* Chart Status Pesanan */}
+                <div className="charts-section">
+                    <div className="chart-card">
+                        <h3>Status Pesanan</h3>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <PieChart>
+                                <Pie
+                                    data={orderStatusData}
+                                    dataKey="count"
+                                    nameKey="status"
+                                    outerRadius={80}
+                                    label
+                                >
+                                    {orderStatusData.map((entry, index) => (
+                                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Legend />
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Recent Transfers Table */}
+                <div className="recent-transfers-section">
+                    <h3>Pencatatan Stok Terbaru</h3>
+                    <table>
                         <thead>
                             <tr>
-                                <th>Nama Item</th>
-                                <th>Kuantitas</th>
-                                <th>Sejak Tanggal</th>
+                                <th>Item</th>
+                                <th>Dari</th>
+                                <th>Ke</th>
+                                <th>Jumlah</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
+                            {recentTransfers.map(t => (
+                                <tr key={t.id}>
+                                    <td>{t.item}</td>
+                                    <td>{t.from}</td>
+                                    <td>{t.to}</td>
+                                    <td>{t.qty}</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
-                <div className="table-card">
-                    <h3>Daftar Item dengan stok kosong</h3>
-                    <table className="inventory-table">
-                        <thead>
-                            <tr>
-                                <th>Nama Item</th>
-                                <th>Sejak Tanggal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-            <div className="active-users">
-                <h3>Aktifitas terakhir</h3>
-                {/* <ul>
-                    {[...activeUsers]
-                        .sort((a, b) => new Date(b.lastActiveAt) - new Date(a.lastActiveAt))
-                        .map(user => (
-                            <li key={user.id} className={user.role.replace(/\s/g, '-')}>
-                                <strong>{user.name}</strong> ({user.role}) sedang membuka fitur <strong>{user.currentFeature}</strong><br />
-                                <span style={{ fontSize: '0.9em', color: '#666' }}>
-                                    {formatDateTime(user.lastActiveAt)}
-                                </span>
-                            </li>
-                        ))}
-
-                </ul> */}
-
-                Tidak ada aktifitas pengguna saat ini.
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Dashboard
+export default Dashboard;
