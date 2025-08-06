@@ -97,6 +97,19 @@ export default class ItemsRepository {
         }
     }
 
+    static async updateStockLocation(itemId, location, qty) {
+    try {
+        const docRef = doc(db, 'Items', itemId);
+        await updateDoc(docRef, {
+            [`stock.${location}`]: qty,
+            updatedAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Error updating stock location: ", error);
+        throw error;
+    }
+}
+
     static async overwriteItemStock(itemId, newQty, userLocation) {
         try {
             const itemRef = doc(db, "Items", itemId);

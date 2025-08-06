@@ -185,7 +185,12 @@ const DetailListOrder = () => {
                     stock[locationTo] = Math.max((stock[locationTo] || 0) - item.qty, 0);
 
                     console.log('List Order || Transfer item Transfer:', item.id);
-                    console.log('List Order || Stock Transfer:', stock);
+                    console.log(`List Order || Stock Transfer ${locationFrom}:', ${stock[locationFrom]}`);
+                    console.log(`List Order || Stock Transfer ${locationTo}:', ${stock[locationTo]}`);
+
+                    await ItemsRepository.updateStockLocation(item.id, locationFrom, stock[locationFrom]);
+                    await ItemsRepository.updateStockLocation(item.id, locationTo, stock[locationTo]);
+
 
                     // await ItemsRepository.updateStockOrder(item.id, stock);
 
@@ -209,18 +214,18 @@ const DetailListOrder = () => {
                 stock[location] = (stock[location] || 0) + remainingQty;
 
                 console.log('List Order || Non-transfer item Transfer:', itemId);
-                console.log('List Order || Stock Transfer:', stock);
+                console.log(`List Order || Stock Transfer ${location}:', ${stock[location]}`);
 
-                // await ItemsRepository.updateStockOrder(itemId, stock);
+                await ItemsRepository.updateStockLocation(itemId, location, stock[location]);
             }
 
             setConfirmationModal(false);
 
             if (transfer?.id) {
-                // await TransferRepository.deleteTransfer(transfer.id);
+                await TransferRepository.deleteTransfer(transfer.id);
             }
 
-            // await SalesOrderRepository.deleteSalesOrder(id);
+            await SalesOrderRepository.deleteSalesOrder(id);
             navigate('/customer/list-orders');
             showToast("berhasil", "Stok berhasil dikembalikan dari pembatalan pesanan.");
         } catch (error) {
