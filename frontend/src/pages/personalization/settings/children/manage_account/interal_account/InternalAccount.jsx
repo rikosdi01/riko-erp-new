@@ -10,7 +10,7 @@ const UserAccountTable = ({
     onDeactivate,
     onDelete,
     enableRegistration = true,
-    registrationPath = "/signup",
+    registrationPath = "/signup-admin",
 }) => {
     const navigate = useNavigate();
 
@@ -84,7 +84,7 @@ const UserAccountTable = ({
                         {roles.map((role) => (
                             <th key={role}>{role}</th>
                         ))}
-                        <th>Aksi</th>
+                        {/* <th>Aksi</th> */}
                     </tr>
                 </thead>
                 <tbody>

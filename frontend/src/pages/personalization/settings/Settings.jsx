@@ -101,9 +101,9 @@ const Settings = () => {
                                     </div>
                                 </section>
 
-                                <div className="settings-logout">
+                                {/* <div className="settings-logout">
                                     <button onClick={handleLogOut} className="button-logout">🚪 Keluar</button>
-                                </div>
+                                </div> */}
                                 {/* {loginUser.role === 'Admin' && (
                                     <section className="password-section">
                                         <h3>Ganti Password</h3>

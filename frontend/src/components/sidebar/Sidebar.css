@@ -1,17 +1,25 @@
 /* Sidebar */
 .sidebar {
+    position: relative;
+    top: 0;
+    left: 0;
     height: 100vh;
-    width: 70px; /* Set a smaller width when collapsed */
-    transition: width 0.3s ease; /* Smooth transition for width change */
+    width: 70px; /* collapsed width */
+    transition: width 0.3s ease;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     background-color: white;
     z-index: 50;
-    /* overflow-y: auto; */
-    /* overflow-y: auto; */
+
+    /* Scroll tapi tanpa container kelihatan */
+    /* overflow-y: auto;
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+    -ms-overflow-style: none; */
 }
 
 .sidebar::-webkit-scrollbar {
-    width: 6px;
+    width: 0; /* atau 0px supaya hilang */
+    height: 0;
 }
 
 .sidebar::-webkit-scrollbar-track {

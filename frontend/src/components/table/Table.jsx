@@ -63,9 +63,10 @@ const Table = ({
     const [SOCreatedDate, setSOCreatedDate] = useState('');
     const [showFullImage, setShowFullImage] = useState(false);
     const [transferProofPreview, setTransferProofPreview] = useState(null);
-
+    const [orderModalMode, setOrderModalMode] = useState("preview");
     const [timers, setTimers] = useState({});
     const [transferProof, setTransferProof] = useState(null);
+    const [confirmDeleteLastItem, setConfirmDeleteLastItem] = useState(null);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -88,6 +89,17 @@ const Table = ({
         }
         return 0;
     });
+
+    const handleDeleteFromQtyMapWithCheck = (id) => {
+        const itemsCount = Object.values(qtyMap).filter(entry => entry.totalQty > 0).length;
+
+        if (orderModalMode === "final" && itemsCount === 1) {
+            // Kalau final mode & ini item terakhir
+            setConfirmDeleteLastItem(id);
+        } else {
+            handleDeleteFromQtyMap(id);
+        }
+    };
 
     useEffect(() => {
         if (transferProof) {
@@ -411,6 +423,7 @@ const Table = ({
             resetForm();
             handleOpenTimerModal(soID);
             setOrderConfirmationModal(false);
+            setShowOrderModal(false);
         } catch (e) {
             console.error(e); // jangan kosongin catch, bantu debug
             showToast("gagal", "Gagal menyimpan pemesanan!");
@@ -507,6 +520,8 @@ const Table = ({
             delete newMap[productId];
             return newMap;
         });
+
+        showToast('berhasil', 'Pesanan berhasil dihapus')
     };
 
     useEffect(() => {
@@ -679,7 +694,10 @@ const Table = ({
 
                         <div
                             className="order-details-stats"
-                            onClick={() => setShowOrderModal(true)}
+                            onClick={() => {
+                                setOrderModalMode('preview');
+                                setShowOrderModal(true)
+                            }}
                             style={{ cursor: "pointer", textDecoration: "underline" }}
                         >
                             Lihat Detail Pesanan
@@ -691,6 +709,7 @@ const Table = ({
                             onClick={() => {
                                 if (totalQty > 0) {
                                     // lanjut ke proses pemesanan
+                                    // setShowOrderModal(true);
                                     setOrderConfirmationModal(true);
                                 }
                             }}
@@ -1000,7 +1019,13 @@ const Table = ({
                             >Tutup</button>
                             <button
                                 className="btn btn-primary"
-                                onClick={handleCreateOrder}
+                                onClick={() => {
+                                    setOrderModalMode("final"); // mode final
+                                    setShowOrderModal(true);
+                                    setOrderConfirmationModal(false);
+                                    // handleCreateOrder
+                                }
+                                }
                             >Pesan</button>
                         </div>
                     </div>
@@ -1052,7 +1077,14 @@ const Table = ({
 
             {
                 showOrderModal && (
-                    <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
+                    <div className="modal-overlay" onClick={() => {
+                        if (orderModalMode === "final") {
+                            setShowOrderModal(false);
+                            setOrderConfirmationModal(true); // kembali ke modal konfirmasi
+                        } else {
+                            setShowOrderModal(false);
+                        }
+                    }}>
                         <div className="modal-content" style={{ maxWidth: '90%' }} onClick={(e) => e.stopPropagation()}>
                             <div className="modal-content-header">🧾 Detail Pesanan</div>
 
@@ -1100,7 +1132,7 @@ const Table = ({
                                                     </td>
                                                     <td style={{ textAlign: "center", padding: "8px" }}>
                                                         <button
-                                                            onClick={() => handleDeleteFromQtyMap(id)}
+                                                            onClick={() => handleDeleteFromQtyMapWithCheck(id)}
                                                             title="Hapus Item"
                                                         >
                                                             🗑️
@@ -1112,18 +1144,72 @@ const Table = ({
                                 </tbody>
                             </table>
 
-                            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
-                                <button className="btn btn-secondary"
-                                    onClick={() => setShowOrderModal(false)}
+                            {orderModalMode === "final" && (
+                                <div style={{ color: "red", margin: "10px 0" }}>
+                                    ⚠ Pastikan semua data sudah benar sebelum memesan.
+                                </div>
+                            )}
+
+                            <div className="modal-actions">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => {
+                                        if (orderModalMode === "final") {
+                                            setShowOrderModal(false);
+                                            setOrderConfirmationModal(true); // buka kembali konfirmasi
+                                        } else {
+                                            setShowOrderModal(false);
+                                        }
+                                    }}
                                 >
                                     Tutup
                                 </button>
+                                {orderModalMode === "final" && (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleCreateOrder}
+                                    >
+                                        Pesan
+                                    </button>
+                                )}
                             </div>
                         </div>
-
                     </div>
                 )
             }
+
+            {confirmDeleteLastItem && (
+                <div className="modal-overlay" onClick={() => setConfirmDeleteLastItem(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div style={{ fontWeight: "bold", marginBottom: "10px" }}>
+                            Pesanan akan kosong
+                        </div>
+                        <p>
+                            Pesanan minimal 1 item. Jika item ini dihapus, pesanan akan kosong.
+                            Tetap hapus?
+                        </p>
+                        <div className="modal-actions">
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setConfirmDeleteLastItem(null)}
+                            >
+                                Batal
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                    handleDeleteFromQtyMap(confirmDeleteLastItem);
+                                    setConfirmDeleteLastItem(null);
+                                    setShowOrderModal(false); // tutup modal utama
+                                }}
+                            >
+                                Ya, hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {addressModal && (
                 <div className="modal-overlay" onClick={() => setModalOpen(false)}>
