@@ -13,10 +13,10 @@ const ConfirmationModal = ({
 
     return (
         <div className="modal-overlay">
-            <div className="modal">
-                <div className='modal-title'>Apakah Anda yakin ingin menghapus {title} "<span className='modal-item'>{itemDelete}</span>" ini?</div>
-                <div className='modal-subtitle'>Data yang dihapus tidak dapat dikembalikan lagi!</div>
-                <div className='modal-actions'>
+            <div className="modal-content">
+                <div className='modal-confirmation-title'>Apakah Anda yakin ingin menghapus {title} "<span className='modal-item'>{itemDelete}</span>" ini?</div>
+                <div className='modal-confirmation-subtitle'>Data yang dihapus tidak dapat dikembalikan lagi!</div>
+                <div className='modal-confirmation-actions'>
                     <ActionButton
                         type="button"
                         title="Batal"

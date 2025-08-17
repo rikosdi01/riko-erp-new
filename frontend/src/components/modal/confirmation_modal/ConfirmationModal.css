@@ -11,37 +11,38 @@
     z-index: 1000;
 }
 
-.modal {
+.modal-confirmation {
     background: white;
     padding: 40px 30px;
     border-radius: 8px;
     text-align: center;
 }
 
-.modal-title {
+.modal-confirmation-title {
     font-weight: 600;
     margin-bottom: 5px;
 }
 
-.modal-subtitle {
+.modal-confirmation-subtitle {
     margin-bottom: 30px;
     font-size: 14px;
     font-weight: 500;
     color: #F44336;
 }
 
-.modal button {
+.modal-confirmation button {
     margin: 0 25px;
     padding: 8px 16px;
     border: none;
     cursor: pointer;
 }
 
-.modal-actions {
+.modal-confirmation-actions {
     display: flex;
     justify-content: center;
+    gap: 10px;
 }
 
-.modal-item {
+.modal-confirmation-item {
     color: #F44336;
 }

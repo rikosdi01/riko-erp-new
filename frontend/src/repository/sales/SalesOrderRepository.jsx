@@ -74,9 +74,12 @@ export default class SalesOrderRepository {
     }
 
     static async updateSalesOrder(salesOrderId, updatedSalesOrder) {
+        console.log('Updated Sales Order: ', updatedSalesOrder);
         try {
             const docRef = doc(db, "SalesOrder", salesOrderId);
             await updateDoc(docRef, updatedSalesOrder);
+            const updatedSnap = await getDoc(docRef);
+            return { id: updatedSnap.id, ...updatedSnap.data() }; // ✅
         } catch (error) {
             console.error("Error updating salesOrder: ", error);
             throw error;
@@ -94,17 +97,17 @@ export default class SalesOrderRepository {
         }
     };
 
-static async updateStatusValue(salesOrderId, newStatus) {
-    try {
-        const docRef = doc(db, "SalesOrder", salesOrderId);
-        await updateDoc(docRef, { status: newStatus });
-        const updatedSnap = await getDoc(docRef);
-        return { id: updatedSnap.id, ...updatedSnap.data() }; // ✅ Return data
-    } catch (error) {
-        console.error("Error updating Sales Order status: ", error);
-        throw error;
+    static async updateStatusValue(salesOrderId, newStatus) {
+        try {
+            const docRef = doc(db, "SalesOrder", salesOrderId);
+            await updateDoc(docRef, { status: newStatus });
+            const updatedSnap = await getDoc(docRef);
+            return { id: updatedSnap.id, ...updatedSnap.data() }; // ✅ Return data
+        } catch (error) {
+            console.error("Error updating Sales Order status: ", error);
+            throw error;
+        }
     }
-}
 
 
     static async deleteSalesOrder(salesOrderId) {

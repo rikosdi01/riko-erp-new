@@ -113,7 +113,7 @@ const EntityItems = ({
         setProductSet(initialData.set || []);
         setItems(initialData.items || emptyData);
         setIsActive(initialData.isActive || false),
-        setCreatedAt(initialData.createdAt || Timestamp.now());
+            setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId || `guest-${Date.now()}`);
     }, [initialData]);
 
@@ -370,7 +370,10 @@ const EntityItems = ({
                                     label='Jumlah'
                                     icon={<FileDigit className='input-icon' />}
                                     value={product.qty}
-                                    onChange={(e) => handleSetProductChange(index + 1, "qty", e.target.value)}
+                                    onChange={(e) => {
+                                        const onlyNums = e.target.value.replace(/\D/g, ""); // buang semua selain angka
+                                        handleSetProductChange(index + 1, "qty", onlyNums)
+                                    }}
                                 />
                             </div>
                         </div>

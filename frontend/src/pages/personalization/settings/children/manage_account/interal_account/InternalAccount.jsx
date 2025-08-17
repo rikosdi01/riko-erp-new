@@ -101,7 +101,7 @@ const UserAccountTable = ({
                                                 : ""}
                                     </td>
                                 ))}
-                                <td style={{ textAlign: "center", position: "relative" }}>
+                                {/* <td style={{ textAlign: "center", position: "relative" }}>
                                     <MoreVertical
                                         size={18}
                                         style={{ cursor: "pointer" }}
@@ -132,7 +132,7 @@ const UserAccountTable = ({
                                             </div>
                                         </div>
                                     )}
-                                </td>
+                                </td> */}
                             </tr>
                         ))
                     ) : (

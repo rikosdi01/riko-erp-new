@@ -229,7 +229,8 @@ const SignUpCustomer = () => {
                                     icon={<Phone className="input-icon" />}
                                     value={phone}
                                     handleChange={(e) => {
-                                        setPhone(e.target.value);
+                                        const onlyNums = e.target.value.replace(/\D/g, ''); // buang semua selain angka
+                                        setPhone(onlyNums);
                                         setPhoneError('');
                                     }}
                                     type={"text"}
@@ -277,18 +278,18 @@ const SignUpCustomer = () => {
                             </div>
 
                             <div className="input-group">
-                            <InputGroup
-                                label={"Provinsi"}
-                                icon={<FlagTriangleRight className="input-icon" />}
-                                value={province}
-                                handleChange={(e) => {
-                                    setProvince(e.target.value);
-                                    setProvinceError('');
-                                }}
-                                type={"text"}
-                                name={"province"}
-                                isRequired={false}
-                            />
+                                <InputGroup
+                                    label={"Provinsi"}
+                                    icon={<FlagTriangleRight className="input-icon" />}
+                                    value={province}
+                                    handleChange={(e) => {
+                                        setProvince(e.target.value);
+                                        setProvinceError('');
+                                    }}
+                                    type={"text"}
+                                    name={"province"}
+                                    isRequired={false}
+                                />
                                 {provinceError && <div className="error-message">{provinceError}</div>}
                             </div>
                         </div>

@@ -113,6 +113,7 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Protected Routes */}
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
 

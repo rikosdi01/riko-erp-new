@@ -66,11 +66,17 @@ const SignIn = () => {
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log('User Credential: ', userCredential);
             const user = userCredential.user;
-            console.log('User: ', user);
-            const accessToken = await user.getIdToken();
-            console.log('accessToken: ', accessToken);
+
+            // 🔥 Force refresh token biar custom claims ikut masuk
+            await user.getIdToken(true);
+
+            // Ambil token lengkap dengan custom claims
+            const tokenResult = await user.getIdTokenResult();
+            console.log("Custom claims:", tokenResult.claims);
+
+            // ✅ Baru ambil accessToken terbaru
+            const accessToken = tokenResult.token;
 
             // Kirim token ke backend untuk mendapatkan refresh token
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {

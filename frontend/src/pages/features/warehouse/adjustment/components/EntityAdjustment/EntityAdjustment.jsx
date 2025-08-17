@@ -437,8 +437,12 @@ const EntityAdjustment = ({
                             label="Kuantitas"
                             icon={<Sheet className='input-icon' />}
                             value={item.qty}
-                            onChange={(e) => handleItemChange(index, "qty", e.target.value)}
+                            onChange={(e) => {
+                                const onlyNums = e.target.value.replace(/\D/g, ""); // buang semua selain angka
+                                handleItemChange(index, "qty", onlyNums);
+                            }}
                         />
+
                     </div>
                 ))}
                 {itemError && <div className="error-message">{itemError}</div>}

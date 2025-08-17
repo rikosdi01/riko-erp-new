@@ -29,7 +29,7 @@ const EntityExpress = ({
     const [name, setName] = useState(initialData.name || "");
     const [address, setAddress] = useState(initialData.address || "");
     const [phone, setPhone] = useState(initialData.phone || "");
-    const [basePrice, setBasePrice] = useState(initialData.price || '');
+    const [basePrice, setBasePrice] = useState(initialData.price || Formatting.formatCurrencyIDR(0));
     const [estimationStart, setEstimationStart] = useState(initialData.estimationStart || '');
     const [estimationEnd, setEstimationEnd] = useState(initialData.estimationEnd || '');
     const [nameError, setNameError] = useState("");
@@ -54,7 +54,14 @@ const EntityExpress = ({
         setName(initialData.name || "");
         setAddress(initialData.address || "");
         setPhone(initialData.phone || "");
-        setBasePrice(initialData.price || 0);
+        setBasePrice(
+            initialData.price
+                ? Formatting.formatCurrencyIDR(
+                    typeof initialData.price === "string"
+                        ? parseInt(initialData.price.replace(/\D/g, ""))
+                        : initialData.price
+                )
+                : Formatting.formatCurrencyIDR(0));
         setEstimationStart(initialData.estimationStart || 0);
         setEstimationEnd(initialData.estimationEnd || 0);
         setCreatedAt(initialData.createdAt || Timestamp.now());
@@ -79,7 +86,7 @@ const EntityExpress = ({
                 name: name.trim(),
                 address,
                 phone,
-                price: parseInt(price.replace(/\D/g, ""), 10) || 0,
+                price: parseInt(basePrice.replace(/\D/g, ""), 10) || 0,
                 estimationStart: parseInt(estimationStart),
                 estimationEnd: parseInt(estimationEnd),
                 createdAt: createdAt,
@@ -174,7 +181,7 @@ const EntityExpress = ({
                     }}
                 />
                 <InputLabel
-                type={'number'}
+                    type={'number'}
                     label="Estimasi Awal"
                     icon={<Calendar1 className='input-icon' />}
                     value={estimationStart}
@@ -183,7 +190,7 @@ const EntityExpress = ({
                     }}
                 />
                 <InputLabel
-                type={'number'}
+                    type={'number'}
                     label="Estimasi Akhir"
                     icon={<CalendarCheck className='input-icon' size={20} />}
                     value={estimationEnd}

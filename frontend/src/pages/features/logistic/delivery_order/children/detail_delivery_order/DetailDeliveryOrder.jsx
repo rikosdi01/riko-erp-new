@@ -199,8 +199,12 @@ const DetailDeliveryOrder = () => {
         if (!valid) return;
 
         try {
-            const soUpdated = await SalesOrderRepository.updateStatusValue(deliveryOrder.soData?.id, 'dalam perjalanan');
-
+            const soData = {
+                status: 'dalam perjalanan',
+                expeditionResi,
+            }
+            const soUpdated = await SalesOrderRepository.updateSalesOrder(deliveryOrder.soData?.id, soData);
+            console.log('so Updated: ', soUpdated);
             // Langkah 1: Update status SalesOrder ke 'dikemas'
             const doData = {
                 expeditionResi,
