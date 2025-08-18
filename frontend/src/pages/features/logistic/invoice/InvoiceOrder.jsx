@@ -51,6 +51,9 @@ const InvoiceOrder = () => {
             pageLabel="IO"
             searchClient={clientIO}
             indexName={ALGOLIA_INDEX_IO}
+            enableImport={false}
+            enableExport={false}
+            enableCreate={false}
             columns={columns}
             createOnclick={navigateToCreateDO}
             subscribeFn={DeliveryOrderRepository.subscribeToDeliveryOrderChanges}

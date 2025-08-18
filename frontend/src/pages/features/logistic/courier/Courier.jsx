@@ -76,6 +76,8 @@ const Courier = () => {
             columns={columns}
             data={filteredCourier}
             isLoading={isLoading}
+            enableImport={false}
+            enableExport={false}
             canEdit={roleAccess(accessList, 'mengedit-data-kurir')}
             canAdd={roleAccess(accessList, 'menambah-data-kurir')}
         />

@@ -17,6 +17,8 @@ const MainContainer = ({
     isLoading,
     canEdit,
     canAdd,
+    enableExport,
+    enableImport,
 }) => {
     // Hooks
     const navigate = useNavigate();
@@ -77,16 +79,20 @@ const MainContainer = ({
                 />
 
                 {/* Import */}
+                {enableImport && (
                 <IconButton
                     tooltipLabel={`Impor ${pageLabel}`}
                     icon={<Download size={18} />}
                 />
+                )}
 
                 {/* Export */}
+                {enableExport && (
                 <IconButton
                     tooltipLabel={`Ekspor ${pageLabel}`}
                     icon={<Upload size={18} />}
                 />
+                )}
 
                 {/* Create */}
                 <IconButton

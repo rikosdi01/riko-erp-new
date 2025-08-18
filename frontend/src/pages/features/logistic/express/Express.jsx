@@ -89,6 +89,8 @@ const Express = () => {
             columns={columns}
             data={filteredExpress}
             isLoading={isLoading}
+            enableExport={false}
+            enableImport={false}
             canEdit={roleAccess(accessList, 'mengedit-data-pengangkutan')}
             canAdd={roleAccess(accessList, 'menambah-data-pengangkutan')}
         />
