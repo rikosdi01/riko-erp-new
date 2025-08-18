@@ -1,14 +1,21 @@
+/* File CSS utama, misal di App.css */
+
+.app-content {
+  display: flex; /* Atur tata letak ke horizontal */
+  min-height: 100vh;
+}
+
 .app-container {
   display: flex;
-  overflow-y: none;
+  flex-direction: column; /* Pastikan konten utama vertikal */
+  flex: 1; /* Biarkan container ini mengambil sisa ruang horizontal */
 }
 
 .main-content {
-  flex: 1;
+  flex: 1; /* Biarkan konten utama mengambil sisa ruang vertikal */
+  overflow-y: auto; /* Penting: tambahkan scroll jika kontennya panjang */
   padding: 18px;
-  scrollbar-width: none;
 }
-
 .add-container-input {
   display: flex;
   gap: 20px;
@@ -149,3 +156,4 @@
   margin-bottom: 20px;
   color: red;
 }
+

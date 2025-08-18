@@ -22,7 +22,8 @@ a:hover {
 }
 
 body {
-  position: fixed;
+  /* position: fixed; */
+  overflow-x: hidden;
   margin: 0;
   width: 100%;
 }

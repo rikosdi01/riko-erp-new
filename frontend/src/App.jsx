@@ -93,6 +93,7 @@ import DetailListOrder from "./pages/features/customers/list_orders/detail_list_
 import ForgotPassword from "./pages/authentication/forgot_password/ForgotPassword";
 import { RolesProvider } from "./context/auth/RolesContext";
 import CustomerProfile from "./pages/features/customers/profil/CustomerProfile";
+import Footer from "./components/footer/Footer";
 
 function AppContent() {
   const location = useLocation();
@@ -101,157 +102,162 @@ function AppContent() {
   const hideSidebarRoutes = ["/signin", "/signup", "/signup-customer", "/forgot-password", "/404"];
 
   return (
-    <div className="app-container">
+    <div className="app-content">
       {!hideSidebarRoutes.includes(location.pathname) && <SidebarPages />}
-      {!hideSidebarRoutes.includes(location.pathname) && <Navbar />}
+      <div className="app-container">
+        {!hideSidebarRoutes.includes(location.pathname) && <Navbar />}
 
-      <div className="main-content">
-        <Routes>
-          {/* Authentication */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUpCustomer />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+        <div className="main-content">
+          <Routes>
+            {/* Authentication */}
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUpCustomer />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Protected Routes */}
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-
-
-
-          {/* Sales */}
-          <Route path="/sales" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
-
-          {/* Dashboard */}
-          <Route path="/sales/sales-dashboard" element={<ProtectedRoute><SalesDashboard /></ProtectedRoute>} />
-
-          {/* SO */}
-          <Route path="/sales/sales-order" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
-          <Route path="/sales/sales-order/new" element={<ProtectedRoute><AddSalesOrder /></ProtectedRoute>} />
-          <Route path="/sales/sales-order/:id" element={<ProtectedRoute><DetailSalesOrder /></ProtectedRoute>} />
-
-          {/* Return Order */}
-          <Route path="/sales/return-order" element={<ProtectedRoute><ReturnOrder /></ProtectedRoute>} />
-          <Route path="/sales/return-order/new" element={<ProtectedRoute><AddReturnOrder /></ProtectedRoute>} />
-          <Route path="/sales/return-order/:id" element={<ProtectedRoute><DetailReturnOrder /></ProtectedRoute>} />
-
-          {/* Customers */}
-          <Route path="/sales/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
-          <Route path="/sales/customers/new" element={<ProtectedRoute><AddCustomer /></ProtectedRoute>} />
-          <Route path="/sales/customers/:id" element={<ProtectedRoute><DetailCustomer /></ProtectedRoute>} />
-
-          {/* Salesman */}
-          <Route path="/sales/salesman" element={<ProtectedRoute><Salesman /></ProtectedRoute>} />
-          <Route path="/sales/salesman/new" element={<ProtectedRoute><AddSalesman /></ProtectedRoute>} />
-          <Route path="/sales/salesman/:id" element={<ProtectedRoute><DetailSalesman /></ProtectedRoute>} />
-
-          {/* CSO */}
-          <Route path="/sales/cso" element={<ProtectedRoute><CSO /></ProtectedRoute>} />
-          <Route path="/sales/cso/new" element={<ProtectedRoute><AddCSO /></ProtectedRoute>} />
-          <Route path="/sales/cso/:id" element={<ProtectedRoute><DetailCSO /></ProtectedRoute>} />
+            {/* Protected Routes */}
+            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
 
 
+            {/* Sales */}
+            <Route path="/sales" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
 
-          {/* Logistic */}
-          <Route path="/logistic" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
+            {/* Dashboard */}
+            <Route path="/sales/sales-dashboard" element={<ProtectedRoute><SalesDashboard /></ProtectedRoute>} />
 
-          {/* Dashboard */}
-          <Route path="/logistic/logistic-dashboard" element={<ProtectedRoute><LogisticDashboard /></ProtectedRoute>} />
+            {/* SO */}
+            <Route path="/sales/sales-order" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
+            <Route path="/sales/sales-order/new" element={<ProtectedRoute><AddSalesOrder /></ProtectedRoute>} />
+            <Route path="/sales/sales-order/:id" element={<ProtectedRoute><DetailSalesOrder /></ProtectedRoute>} />
 
-          {/* DO */}
-          <Route path="/logistic/delivery-order" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
-          <Route path="/logistic/delivery-order/new" element={<ProtectedRoute><AddDeliveryOrder /></ProtectedRoute>} />
-          <Route path="/logistic/delivery-order/:id" element={<ProtectedRoute><DetailDeliveryOrder /></ProtectedRoute>} />
+            {/* Return Order */}
+            <Route path="/sales/return-order" element={<ProtectedRoute><ReturnOrder /></ProtectedRoute>} />
+            <Route path="/sales/return-order/new" element={<ProtectedRoute><AddReturnOrder /></ProtectedRoute>} />
+            <Route path="/sales/return-order/:id" element={<ProtectedRoute><DetailReturnOrder /></ProtectedRoute>} />
 
-          {/* Invoice */}
-          <Route path="/logistic/invoice-order" element={<ProtectedRoute><InvoiceOrder /></ProtectedRoute>} />
-          <Route path="/logistic/invoice-order/:id" element={<ProtectedRoute><DetailInvoice /></ProtectedRoute>} />
+            {/* Customers */}
+            <Route path="/sales/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+            <Route path="/sales/customers/new" element={<ProtectedRoute><AddCustomer /></ProtectedRoute>} />
+            <Route path="/sales/customers/:id" element={<ProtectedRoute><DetailCustomer /></ProtectedRoute>} />
 
-          {/* Tracking */}
-          <Route path="/logistic/tracking-orders" element={<ProtectedRoute><TrackingOrder /></ProtectedRoute>} />
+            {/* Salesman */}
+            <Route path="/sales/salesman" element={<ProtectedRoute><Salesman /></ProtectedRoute>} />
+            <Route path="/sales/salesman/new" element={<ProtectedRoute><AddSalesman /></ProtectedRoute>} />
+            <Route path="/sales/salesman/:id" element={<ProtectedRoute><DetailSalesman /></ProtectedRoute>} />
 
-          {/* Courier */}
-          <Route path="/logistic/couriers" element={<ProtectedRoute><Courier /></ProtectedRoute>} />
-          <Route path="/logistic/couriers/new" element={<ProtectedRoute><AddCourier /></ProtectedRoute>} />
-          <Route path="/logistic/couriers/:id" element={<ProtectedRoute><DetailCourier /></ProtectedRoute>} />
-
-          {/* Express */}
-          <Route path="/logistic/express" element={<ProtectedRoute><Express /></ProtectedRoute>} />
-          <Route path="/logistic/express/new" element={<ProtectedRoute><AddExpress /></ProtectedRoute>} />
-          <Route path="/logistic/express/:id" element={<ProtectedRoute><DetailExpress /></ProtectedRoute>} />
-
-
-
-          {/* Warehouse */}
-          <Route path="/inventory" element={<ProtectedRoute><Merks /></ProtectedRoute>} />
-
-          {/* Dashboard */}
-          <Route path="/inventory/inventory-dashboard" element={<ProtectedRoute><InventoryDashboard /></ProtectedRoute>} />
-
-          {/* Inventory */}
-          <Route path="/inventory/storage" element={<ProtectedRoute><Storage /></ProtectedRoute>} />
-          <Route path="/inventory/storage/new" element={<ProtectedRoute><AddStorage /></ProtectedRoute>} />
-          <Route path="/inventory/storage/:id" element={<ProtectedRoute><DetailStorage /></ProtectedRoute>} />
-
-          {/* Adjustment */}
-          <Route path="/inventory/adjustment" element={<ProtectedRoute><Adjustment /></ProtectedRoute>} />
-          <Route path="/inventory/adjustment/new" element={<ProtectedRoute><AddAdjustment /></ProtectedRoute>} />
-          <Route path="/inventory/adjustment/:id" element={<ProtectedRoute><DetailAdjustment /></ProtectedRoute>} />
-
-          {/* Tramsfer */}
-          <Route path="/inventory/transfer" element={<ProtectedRoute><Transfer /></ProtectedRoute>} />
-          <Route path="/inventory/transfer/new" element={<ProtectedRoute><AddTransfer /></ProtectedRoute>} />
-          <Route path="/inventory/transfer/:id" element={<ProtectedRoute><DetailTransfer /></ProtectedRoute>} />
-
-          {/* Warehouse */}
-          <Route path="/inventory/warehouse" element={<ProtectedRoute><RackWarehouse /></ProtectedRoute>} />
-          <Route path="/inventory/warehouse/new" element={<ProtectedRoute><AddRacks /></ProtectedRoute>} />
-          <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><DetailRacks /></ProtectedRoute>} />
-
-          {/* Merks */}
-          <Route path="/inventory/merks" element={<ProtectedRoute><Merks /></ProtectedRoute>} />
-          <Route path="/inventory/merks/new" element={<ProtectedRoute><AddMerk /></ProtectedRoute>} />
-          <Route path="/inventory/merks/:id" element={<ProtectedRoute><DetailMerk /></ProtectedRoute>} />
-
-          {/* Categories */}
-          <Route path="/inventory/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
-          <Route path="/inventory/categories/new" element={<ProtectedRoute><AddCategory /></ProtectedRoute>} />
-          <Route path="/inventory/categories/:id" element={<ProtectedRoute><DetailCategory /></ProtectedRoute>} />
-
-          {/* Items */}
-          <Route path="/inventory/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
-          <Route path="/inventory/items/new" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
-          <Route path="/inventory/items/:id" element={<ProtectedRoute><DetailItem /></ProtectedRoute>} />
-
-
-          {/* Customers */}
-          <Route path="/customer/list-products" element={<ProtectedRoute><ListProducts /></ProtectedRoute>} />
-          <Route path="/customer/list-orders" element={<ProtectedRoute><ListOrders /></ProtectedRoute>} />
-          <Route path="/customer/list-orders/:id" element={<ProtectedRoute><DetailListOrder /></ProtectedRoute>} />
-          <Route path="/customer/profile" element={<ProtectedRoute><CustomerProfile /></ProtectedRoute>} />
+            {/* CSO */}
+            <Route path="/sales/cso" element={<ProtectedRoute><CSO /></ProtectedRoute>} />
+            <Route path="/sales/cso/new" element={<ProtectedRoute><AddCSO /></ProtectedRoute>} />
+            <Route path="/sales/cso/:id" element={<ProtectedRoute><DetailCSO /></ProtectedRoute>} />
 
 
 
-          {/* Settings */}
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/settings/mutation-sales" element={<ProtectedRoute><MutationSales /></ProtectedRoute>} />
-          <Route path="/settings/mutation-inventory" element={<ProtectedRoute><MutationInventory /></ProtectedRoute>} />
-          <Route path="/settings/mutation-logistic" element={<ProtectedRoute><MutationLogistic /></ProtectedRoute>} />
-          <Route path="/settings/manage-account" element={<ProtectedRoute><ManageAccount /></ProtectedRoute>} />
-          <Route path="/settings/activity" element={<ProtectedRoute><SettingActivity /></ProtectedRoute>} />
-          <Route path="/settings/formatting" element={<ProtectedRoute><FormatSettings /></ProtectedRoute>} />
-          <Route path="/settings/notification" element={<ProtectedRoute><SettingNotification /></ProtectedRoute>} />
-          <Route path="/settings/help" element={<ProtectedRoute><SettingHelp /></ProtectedRoute>} />
 
-          {/* Settings Manage Account */}
-          <Route path="/settings/manage-account/roles" element={<ProtectedRoute><ManageRoles /></ProtectedRoute>} />
+            {/* Logistic */}
+            <Route path="/logistic" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
+
+            {/* Dashboard */}
+            <Route path="/logistic/logistic-dashboard" element={<ProtectedRoute><LogisticDashboard /></ProtectedRoute>} />
+
+            {/* DO */}
+            <Route path="/logistic/delivery-order" element={<ProtectedRoute><DeliveryOrder /></ProtectedRoute>} />
+            <Route path="/logistic/delivery-order/new" element={<ProtectedRoute><AddDeliveryOrder /></ProtectedRoute>} />
+            <Route path="/logistic/delivery-order/:id" element={<ProtectedRoute><DetailDeliveryOrder /></ProtectedRoute>} />
+
+            {/* Invoice */}
+            <Route path="/logistic/invoice-order" element={<ProtectedRoute><InvoiceOrder /></ProtectedRoute>} />
+            <Route path="/logistic/invoice-order/:id" element={<ProtectedRoute><DetailInvoice /></ProtectedRoute>} />
+
+            {/* Tracking */}
+            <Route path="/logistic/tracking-orders" element={<ProtectedRoute><TrackingOrder /></ProtectedRoute>} />
+
+            {/* Courier */}
+            <Route path="/logistic/couriers" element={<ProtectedRoute><Courier /></ProtectedRoute>} />
+            <Route path="/logistic/couriers/new" element={<ProtectedRoute><AddCourier /></ProtectedRoute>} />
+            <Route path="/logistic/couriers/:id" element={<ProtectedRoute><DetailCourier /></ProtectedRoute>} />
+
+            {/* Express */}
+            <Route path="/logistic/express" element={<ProtectedRoute><Express /></ProtectedRoute>} />
+            <Route path="/logistic/express/new" element={<ProtectedRoute><AddExpress /></ProtectedRoute>} />
+            <Route path="/logistic/express/:id" element={<ProtectedRoute><DetailExpress /></ProtectedRoute>} />
 
 
-          <Route path="/signup-admin" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
 
-          {/* Not Found Page */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Warehouse */}
+            <Route path="/inventory" element={<ProtectedRoute><Merks /></ProtectedRoute>} />
+
+            {/* Dashboard */}
+            <Route path="/inventory/inventory-dashboard" element={<ProtectedRoute><InventoryDashboard /></ProtectedRoute>} />
+
+            {/* Inventory */}
+            <Route path="/inventory/storage" element={<ProtectedRoute><Storage /></ProtectedRoute>} />
+            <Route path="/inventory/storage/new" element={<ProtectedRoute><AddStorage /></ProtectedRoute>} />
+            <Route path="/inventory/storage/:id" element={<ProtectedRoute><DetailStorage /></ProtectedRoute>} />
+
+            {/* Adjustment */}
+            <Route path="/inventory/adjustment" element={<ProtectedRoute><Adjustment /></ProtectedRoute>} />
+            <Route path="/inventory/adjustment/new" element={<ProtectedRoute><AddAdjustment /></ProtectedRoute>} />
+            <Route path="/inventory/adjustment/:id" element={<ProtectedRoute><DetailAdjustment /></ProtectedRoute>} />
+
+            {/* Tramsfer */}
+            <Route path="/inventory/transfer" element={<ProtectedRoute><Transfer /></ProtectedRoute>} />
+            <Route path="/inventory/transfer/new" element={<ProtectedRoute><AddTransfer /></ProtectedRoute>} />
+            <Route path="/inventory/transfer/:id" element={<ProtectedRoute><DetailTransfer /></ProtectedRoute>} />
+
+            {/* Warehouse */}
+            <Route path="/inventory/warehouse" element={<ProtectedRoute><RackWarehouse /></ProtectedRoute>} />
+            <Route path="/inventory/warehouse/new" element={<ProtectedRoute><AddRacks /></ProtectedRoute>} />
+            <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><DetailRacks /></ProtectedRoute>} />
+
+            {/* Merks */}
+            <Route path="/inventory/merks" element={<ProtectedRoute><Merks /></ProtectedRoute>} />
+            <Route path="/inventory/merks/new" element={<ProtectedRoute><AddMerk /></ProtectedRoute>} />
+            <Route path="/inventory/merks/:id" element={<ProtectedRoute><DetailMerk /></ProtectedRoute>} />
+
+            {/* Categories */}
+            <Route path="/inventory/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+            <Route path="/inventory/categories/new" element={<ProtectedRoute><AddCategory /></ProtectedRoute>} />
+            <Route path="/inventory/categories/:id" element={<ProtectedRoute><DetailCategory /></ProtectedRoute>} />
+
+            {/* Items */}
+            <Route path="/inventory/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
+            <Route path="/inventory/items/new" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
+            <Route path="/inventory/items/:id" element={<ProtectedRoute><DetailItem /></ProtectedRoute>} />
+
+
+            {/* Customers */}
+            <Route path="/customer/list-products" element={<ProtectedRoute><ListProducts /></ProtectedRoute>} />
+            <Route path="/customer/list-orders" element={<ProtectedRoute><ListOrders /></ProtectedRoute>} />
+            <Route path="/customer/list-orders/:id" element={<ProtectedRoute><DetailListOrder /></ProtectedRoute>} />
+            <Route path="/customer/profile" element={<ProtectedRoute><CustomerProfile /></ProtectedRoute>} />
+
+
+
+            {/* Settings */}
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/settings/mutation-sales" element={<ProtectedRoute><MutationSales /></ProtectedRoute>} />
+            <Route path="/settings/mutation-inventory" element={<ProtectedRoute><MutationInventory /></ProtectedRoute>} />
+            <Route path="/settings/mutation-logistic" element={<ProtectedRoute><MutationLogistic /></ProtectedRoute>} />
+            <Route path="/settings/manage-account" element={<ProtectedRoute><ManageAccount /></ProtectedRoute>} />
+            <Route path="/settings/activity" element={<ProtectedRoute><SettingActivity /></ProtectedRoute>} />
+            <Route path="/settings/formatting" element={<ProtectedRoute><FormatSettings /></ProtectedRoute>} />
+            <Route path="/settings/notification" element={<ProtectedRoute><SettingNotification /></ProtectedRoute>} />
+            <Route path="/settings/help" element={<ProtectedRoute><SettingHelp /></ProtectedRoute>} />
+
+            {/* Settings Manage Account */}
+            <Route path="/settings/manage-account/roles" element={<ProtectedRoute><ManageRoles /></ProtectedRoute>} />
+
+
+            <Route path="/signup-admin" element={<ProtectedRoute><SignUp /></ProtectedRoute>} />
+
+            {/* Not Found Page */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+
+        </div>
+
+        <Footer />
       </div>
     </div>
   );
