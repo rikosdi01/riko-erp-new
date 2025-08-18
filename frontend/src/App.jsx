@@ -82,7 +82,7 @@ import AddRacks from "./pages/features/warehouse/rack_warehouse/children/add_rac
 import DetailRacks from "./pages/features/warehouse/rack_warehouse/children/detail_racks/DetailRacks";
 import AddDeliveryOrder from "./pages/features/logistic/delivery_order/children/add_delivery_order/AddDeliveryOrder";
 import InvoiceOrder from "./pages/features/logistic/invoice/InvoiceOrder";
-import { UsersProvider } from "./context/auth/UsersContext";
+import { UsersProvider, useUsers } from "./context/auth/UsersContext";
 import ManageRoles from "./pages/personalization/settings/children/manage_account/manage_roles/ManageRoles";
 import FormatSettings from "./pages/personalization/settings/children/format_settings/FormatSettings";
 import { FormatProvider } from "./context/personalization/FormatContext";
@@ -96,6 +96,8 @@ import CustomerProfile from "./pages/features/customers/profil/CustomerProfile";
 import Footer from "./components/footer/Footer";
 
 function AppContent() {
+  const { loginUser } = useUsers();
+  console.log('Login User: ', loginUser);
   const location = useLocation();
 
   // Daftar halaman yang tidak menampilkan sidebar
@@ -257,7 +259,8 @@ function AppContent() {
 
         </div>
 
-        <Footer />
+        {loginUser && loginUser.role === 'Customer' && !hideSidebarRoutes.includes(location.pathname) && <Footer />}
+        
       </div>
     </div>
   );
