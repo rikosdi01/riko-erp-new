@@ -93,6 +93,7 @@ import CustomerProfile from "./pages/features/customers/profil/CustomerProfile";
 import Footer from "./components/footer/Footer";
 import Warehouse from "./pages/features/warehouse/warehouse/Warehouse";
 import AddWarehouse from "./pages/features/warehouse/warehouse/children/add_warehouse/AddWarehouse";
+import DetailWarehouse from "./pages/features/warehouse/warehouse/children/detail_warehouse/DetailWarehouse";
 
 function AppContent() {
   const { loginUser } = useUsers();
@@ -209,7 +210,7 @@ function AppContent() {
             {/* Warehouse */}
             <Route path="/inventory/warehouse" element={<ProtectedRoute><Warehouse /></ProtectedRoute>} />
             <Route path="/inventory/warehouse/new" element={<ProtectedRoute><AddWarehouse /></ProtectedRoute>} />
-            <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><Warehouse /></ProtectedRoute>} />
+            <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><DetailWarehouse /></ProtectedRoute>} />
 
             {/* Merks */}
             <Route path="/inventory/merks" element={<ProtectedRoute><Merks /></ProtectedRoute>} />

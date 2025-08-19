@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
 import './DetailWarehouse.css'
 import { useEffect, useState } from 'react';
-import EntityAdjustment from '../../components/EntityAdjustment/EntityAdjustment';
 import RackWarehouseRepository from '../../../../../../repository/warehouse/RackWarehouseRepository';
+import EntityWarehouse from '../../components/entity_warehouse/EntityWarehouse';
 
 const DetailWarehouse = () => {
     // Hooks
@@ -27,7 +27,7 @@ const DetailWarehouse = () => {
 
     return (
         <div>
-            <EntityAdjustment
+            <EntityWarehouse
                 mode={'detail'}
                 initialData={transfer}
                 onSubmit={async (data) => {
