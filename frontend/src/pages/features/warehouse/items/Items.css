@@ -1,0 +1,34 @@
+/* Styling for the main Tippy.js tooltip box */
+.tippy-box[data-placement^='top'] > .tippy-content {
+  background-color: #fff; /* White background for the tooltip content */
+  color: #333; /* Darker text for readability */
+  border-radius: 6px; /* Slightly rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+  padding: 8px 12px; /* Inner padding for content */
+}
+
+/* Styling for the Tippy.js arrow */
+.tippy-box[data-placement^='top'] > .tippy-arrow {
+  color: #fff; /* Arrow color matches the box background */
+}
+
+/* Container for individual stock details within the tooltip */
+.tooltip-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Space between each stock detail item */
+}
+
+/* Individual stock detail item styling */
+.tooltip-item {
+  padding: 4px 0; /* Vertical padding, no horizontal needed as it's handled by .tippy-content */
+  border-bottom: 1px solid #eee; /* Light separator between items */
+  font-size: 14px; /* Slightly larger font for readability */
+  color: #333; /* Dark gray text */
+  background-color: transparent; /* Remove the red background from the individual item */
+}
+
+/* Remove bottom border from the last item in the list */
+.tooltip-item:last-child {
+  border-bottom: none;
+}

@@ -1,4 +1,4 @@
-import { Activity, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, User, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
+import { Activity, AlignHorizontalJustifyCenter, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, User, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import { useUsers } from "../../context/auth/UsersContext";
 import roleAccess from "../../utils/helper/roleAccess";
@@ -57,6 +57,7 @@ const SidebarPages = () => {
         { text: "Penyesuaian Stok", to: "/inventory/adjustment", icon: <FilePlus2 size={20} />, permission: "melihat-data-penyesuaian-pesanan" },
         { text: "Catatan Pemindahan", to: "/inventory/transfer", icon: <SendToBack size={20} />, permission: "melihat-data-pemindahan-stok" },
         { type: "divider" },
+        { text: "Gudang", to: "/inventory/warehouse", icon: <AlignHorizontalJustifyCenter size={20} />, permission: "melihat-data-gudang" },
         { text: "Merek", to: "/inventory/merks", icon: <BadgeCheckIcon size={20} />, permission: "melihat-data-merek" },
         { text: "Kategori", to: "/inventory/categories", icon: <LayoutGrid size={20} />, permission: "melihat-data-kategori" },
         { text: "Item", to: "/inventory/items", icon: <Computer size={20} />, permission: "melihat-data-item" },

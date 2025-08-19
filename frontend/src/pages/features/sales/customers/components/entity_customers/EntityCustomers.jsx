@@ -3,14 +3,12 @@ import ActionButton from '../../../../../../components/button/actionbutton/Actio
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
 import './EntityCustomers.css';
-import { MapPin, PhoneCall, Store, Building2, LandPlot, UsersRound } from "lucide-react";
+import { MapPin, PhoneCall, Store, Building2, LandPlot, UsersRound, Mail } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import { AuthContext } from '../../../../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import CustomersRepository from '../../../../../../repository/sales/CustomersRepository';
-import { useSalesman } from '../../../../../../context/sales/SalesmanContext';
-import Dropdown from '../../../../../../components/select/Dropdown';
 import ConfirmationModal from '../../../../../../components/modal/confirmation_modal/ConfirmationModal';
 import AccessAlertModal from '../../../../../../components/modal/access_alert_modal/AccessAlertModal';
 import roleAccess from '../../../../../../utils/helper/roleAccess';
@@ -26,18 +24,18 @@ const EntityCustomers = ({
     const { accessList } = useUsers();
     const navigate = useNavigate();
     const { currentUser } = useContext(AuthContext);
-    const { salesman } = useSalesman();
 
+    const [email, setEmail] = useState(initialData.email || '');
     const [name, setName] = useState(initialData.username || "");
-    const [address, setAddress] = useState(initialData.address || "");
     const [phone, setPhone] = useState(initialData.phone || "");
-    const [city, setCity] = useState(initialData.city || "");
-    const [province, setProvince] = useState(initialData.province || "");
-    const [salesmanId, setSalesmanId] = useState(initialData.salesman?.id || '');
+    const [address, setAddress] = useState(initialData.selectedAddress?.address || "");
+    const [city, setCity] = useState(initialData.selectedAddress?.city || "");
+    const [province, setProvince] = useState(initialData.selectedAddress?.province || "");
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || Timestamp.now());
     const [userId, setUserId] = useState(
         initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`
     );
+    const [canDebt, setCanDebt] = useState(initialData.canDebt || false);
     const [codeError, setCodeError] = useState("");
     const [nameError, setNameError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -54,12 +52,13 @@ const EntityCustomers = ({
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) return;
 
+        setEmail(initialData.email || '');
         setName(initialData.username || "");
-        setAddress(initialData.address || "");
+        setAddress(initialData.selectedAddress?.address || "");
         setPhone(initialData.phone || "");
-        setCity(initialData.city || "");
-        setProvince(initialData.province || "");
-        setSalesmanId(initialData.salesman?.id || '');
+        setCanDebt(initialData.canDebt || false);
+        setCity(initialData.selectedAddress?.city || "");
+        setProvince(initialData.selectedAddress?.province || "");
         setCreatedAt(initialData.createdAt || Timestamp.now());
         setUserId(initialData.userId ?? currentUser?.uid ?? `guest-${Date.now()}`)
     }, [initialData]);
@@ -78,18 +77,20 @@ const EntityCustomers = ({
         if (!valid) return setLoading(false);
 
         try {
-            const selectedSalesman = salesman.find(s => s.id === salesmanId);
+            const selectedAddress = {
+                address: address.trim(),
+                city: city.trim(),
+                province: province.trim(),
+            };
 
             const customersData = {
                 username: name.trim(),
-                address: address.trim(),
-                phone: phone.trim(),
-                city: city.trim(),
+                selectedAddress,
                 province: province.trim(),
-                salesman: selectedSalesman,
+                phone,
+                canDebt,
                 createdAt: createdAt,
                 updatedAt: Timestamp.now(),
-                userId: userId,
             };
 
             console.log("Data Pelanggan: ", customersData);
@@ -142,10 +143,10 @@ const EntityCustomers = ({
             <div className='add-container-input'>
                 <InputLabel
                     label="Email Pelanggan"
-                    icon={<Store className='input-icon' />}
-                    value={name}
+                    icon={<Mail className='input-icon' />}
+                    value={email}
                     onChange={(e) => {
-                        setName(e.target.value);
+                        setEmail(e.target.value);
                     }}
                     isDisabled={true}
                 />
@@ -199,6 +200,20 @@ const EntityCustomers = ({
                     }}
                 />
             </div>
+
+            <div className="switch-container">
+                <label className="switch-label">
+                    <input
+                        type="checkbox"
+                        checked={canDebt}
+                        onChange={(e) => setCanDebt(e.target.checked)}
+                    />
+                    <span className="slider"></span>
+                </label>
+                <span className="switch-text">{canDebt ? 'Bisa Hutang' : 'Tidak Bisa Hutang'}</span>
+            </div>
+
+
 
             {mode === "create" ? (
                 <div className='add-container-actions'>

@@ -140,6 +140,7 @@ const SignUpCustomer = () => {
                 role: "Customer",
                 type: "customer",
                 status: "active",
+                canDebt: false,
                 phone: phone,
                 addresses: addressData,
                 selectedAddress: selectedAddressData,

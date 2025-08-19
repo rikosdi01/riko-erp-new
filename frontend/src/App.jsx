@@ -76,10 +76,7 @@ import SettingActivity from "./pages/personalization/settings/children/activity/
 import SettingNotification from "./pages/personalization/settings/children/notification/SettingNotification";
 import SettingHelp from "./pages/personalization/settings/children/help/SettingHelp";
 import SignUp from "./pages/authentication/signup/SignUp";
-import RackWarehouse from "./pages/features/warehouse/rack_warehouse/RackWarehouse";
 import { RackProvider } from "./context/warehouse/RackWarehouseContext";
-import AddRacks from "./pages/features/warehouse/rack_warehouse/children/add_racks/AddRacks";
-import DetailRacks from "./pages/features/warehouse/rack_warehouse/children/detail_racks/DetailRacks";
 import AddDeliveryOrder from "./pages/features/logistic/delivery_order/children/add_delivery_order/AddDeliveryOrder";
 import InvoiceOrder from "./pages/features/logistic/invoice/InvoiceOrder";
 import { UsersProvider, useUsers } from "./context/auth/UsersContext";
@@ -94,6 +91,8 @@ import ForgotPassword from "./pages/authentication/forgot_password/ForgotPasswor
 import { RolesProvider } from "./context/auth/RolesContext";
 import CustomerProfile from "./pages/features/customers/profil/CustomerProfile";
 import Footer from "./components/footer/Footer";
+import Warehouse from "./pages/features/warehouse/warehouse/Warehouse";
+import AddWarehouse from "./pages/features/warehouse/warehouse/children/add_warehouse/AddWarehouse";
 
 function AppContent() {
   const { loginUser } = useUsers();
@@ -208,9 +207,9 @@ function AppContent() {
             <Route path="/inventory/transfer/:id" element={<ProtectedRoute><DetailTransfer /></ProtectedRoute>} />
 
             {/* Warehouse */}
-            <Route path="/inventory/warehouse" element={<ProtectedRoute><RackWarehouse /></ProtectedRoute>} />
-            <Route path="/inventory/warehouse/new" element={<ProtectedRoute><AddRacks /></ProtectedRoute>} />
-            <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><DetailRacks /></ProtectedRoute>} />
+            <Route path="/inventory/warehouse" element={<ProtectedRoute><Warehouse /></ProtectedRoute>} />
+            <Route path="/inventory/warehouse/new" element={<ProtectedRoute><AddWarehouse /></ProtectedRoute>} />
+            <Route path="/inventory/warehouse/:id" element={<ProtectedRoute><Warehouse /></ProtectedRoute>} />
 
             {/* Merks */}
             <Route path="/inventory/merks" element={<ProtectedRoute><Merks /></ProtectedRoute>} />

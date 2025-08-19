@@ -14,11 +14,16 @@ const Customers = () => {
 
 
     const columns = [
-        { header: "Nama Pelanggan", accessor: "username"},
-        { header: "Alamat", accessor: "selectedAddress.address"},
-        { header: "Telepon", accessor: "phone"},
-        { header: "Kota", accessor: "selectedAddress.city"},
-        { header: "Provinsi", accessor: "selectedAddress.province"},
+        { header: "Nama Pelanggan", accessor: "username" },
+        { header: "Alamat", accessor: "selectedAddress.address" },
+        { header: "Telepon", accessor: "phone" },
+        { header: "Kota", accessor: "selectedAddress.city" },
+        { header: "Provinsi", accessor: "selectedAddress.province" },
+        {
+            header: "Bisa Hutang?",
+            accessor: "canDebt",
+            renderCell: (value) => value ? 'Bisa' : 'Tidak bisa'
+        },
     ]
 
 

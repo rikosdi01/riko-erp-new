@@ -25,14 +25,27 @@ const InventoryDashboard = () => {
                 const hits = itemRes.hits;
 
                 console.log('Hits: ', hits);
+
                 // 2. Total Stock
+                // Fungsi rekursif untuk sum nested object/map
+                const sumNested = (obj) => {
+                    if (typeof obj === "number") return obj; // ketemu angka → langsung return
+                    if (Array.isArray(obj)) {
+                        return obj.reduce((sum, v) => sum + sumNested(v), 0);
+                    }
+                    if (typeof obj === "object" && obj !== null) {
+                        return Object.values(obj).reduce((sum, v) => sum + sumNested(v), 0);
+                    }
+                    return 0;
+                };
+
                 const totalQty = hits.reduce((acc, hit) => {
-                    const stockValues = hit.stock ? Object.values(hit.stock) : [];
-                    const stockSum = stockValues.reduce((sum, qty) => sum + qty, 0);
-                    return acc + stockSum;
+                    if (!hit.stock) return acc;
+                    return acc + sumNested(hit.stock);
                 }, 0);
 
                 setTotalStock(totalQty);
+
 
 
                 // 3. Total Kategori
@@ -89,7 +102,7 @@ const InventoryDashboard = () => {
         categories: categoryCount,
         merks: merks?.length || 0
     };
-    
+
     const recentTransfers = [
         { id: 1, item: 'As Kick Stater RIKO - Beat (Honda)', from: 'Jakarta', to: 'Medan', qty: 5, set: 'set' },
         { id: 2, item: 'As Kick Stater RIKO - Astrea (Honda)', from: 'Jakarta', to: 'Medan', qty: 20, set: 'set' },

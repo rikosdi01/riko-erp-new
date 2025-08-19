@@ -17,11 +17,6 @@ const ALGOLIA_SEARCH_KEY_INVENTORY = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY
 const ALGOLIA_INDEX_INVENTORY = import.meta.env.VITE_APP_ALGOLIA_INDEX_INVENTORY;
 
 // Algolia Rack
-const ALGOLIA_APP_ID_WAREHOUSE = import.meta.env.VITE_APP_ALGOLIA_APP_ID_WAREHOUSE;
-const ALGOLIA_SEARCH_KEY_WAREHOUSE = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_WAREHOUSE;
-const ALGOLIA_INDEX_WAREHOUSE = import.meta.env.VITE_APP_ALGOLIA_INDEX_WAREHOUSE;
-
-// Algolia Rack
 const ALGOLIA_APP_ID_ADJUSTMENT = import.meta.env.VITE_APP_ALGOLIA_APP_ID_ADJUSTMENT;
 const ALGOLIA_SEARCH_KEY_ADJUSTMENT = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_ADJUSTMENT;
 const ALGOLIA_INDEX_ADJUSTMENT = import.meta.env.VITE_APP_ALGOLIA_INDEX_ADJUSTMENT;
@@ -31,19 +26,26 @@ const ALGOLIA_APP_ID_TRANSFER = import.meta.env.VITE_APP_ALGOLIA_APP_ID_TRANSFER
 const ALGOLIA_SEARCH_KEY_TRANSFER = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_TRANSFER;
 const ALGOLIA_INDEX_TRANSFER = import.meta.env.VITE_APP_ALGOLIA_INDEX_TRANSFER;
 
+
+// Algolia Rack
+const ALGOLIA_APP_ID_RACK = import.meta.env.VITE_APP_ALGOLIA_APP_ID_RACK;
+const ALGOLIA_SEARCH_KEY_RACK = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_RACK;
+const ALGOLIA_INDEX_RACK = import.meta.env.VITE_APP_ALGOLIA_INDEX_RACK;
+
+
 // Client Warehouse
 const clientItems = algoliasearch(ALGOLIA_APP_ID_ITEMS, ALGOLIA_SEARCH_KEY_ITEMS);
 const clientCategories = algoliasearch(ALGOLIA_APP_ID_CATEGORIES, ALGOLIA_SEARCH_KEY_CATEGORIES);
 const clientInventory = algoliasearch(ALGOLIA_APP_ID_INVENTORY, ALGOLIA_SEARCH_KEY_INVENTORY);
-const clientRack = algoliasearch(ALGOLIA_APP_ID_WAREHOUSE, ALGOLIA_SEARCH_KEY_WAREHOUSE);
 const clientAdjustment = algoliasearch(ALGOLIA_APP_ID_ADJUSTMENT, ALGOLIA_SEARCH_KEY_ADJUSTMENT);
 const clientTransfer = algoliasearch(ALGOLIA_APP_ID_TRANSFER, ALGOLIA_SEARCH_KEY_TRANSFER);
+const clientRack = algoliasearch(ALGOLIA_APP_ID_RACK, ALGOLIA_SEARCH_KEY_RACK);
 
 // Initialize indices
 const productIndex = clientItems.initIndex(ALGOLIA_INDEX_ITEMS);
 const categoryIndex = clientCategories.initIndex(ALGOLIA_INDEX_CATEGORIES);
-const rackIndex = clientRack.initIndex(ALGOLIA_INDEX_WAREHOUSE);
 const adjustmentIndex = clientAdjustment.initIndex(ALGOLIA_INDEX_ADJUSTMENT);
+const rackIndex = clientRack.initIndex(ALGOLIA_INDEX_RACK);
 
 
 // =========================================================================================================================
@@ -108,22 +110,22 @@ export {
     // Warehouse
     productIndex,
     categoryIndex,
-    rackIndex,
     usersIndex,
+    rackIndex,
     clientItems,
     clientCategories,
     clientInventory,
-    clientRack,
     clientUsers,
     clientAdjustment,
     clientTransfer,
+    clientRack,
     ALGOLIA_INDEX_ITEMS,
     ALGOLIA_INDEX_CATEGORIES,
     ALGOLIA_INDEX_INVENTORY,
-    ALGOLIA_INDEX_WAREHOUSE,
     ALGOLIA_INDEX_USERS,
     ALGOLIA_INDEX_ADJUSTMENT,
     ALGOLIA_INDEX_TRANSFER,
+    ALGOLIA_INDEX_RACK,
 
 
     // Sales

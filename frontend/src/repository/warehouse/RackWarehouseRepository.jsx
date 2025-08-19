@@ -10,11 +10,12 @@ export default class RackWarehouseRepository {
         return unsub; // kembalikan function unsubscribe supaya bisa cleanup di frontend
     }
 
-    static async checkExistsRackName(rackCode, excludeId = null) {
+    static async checkExistsRackName(rackName, rackLocation, excludeId = null) {
         try {
             const q = query(
                 collection(db, "Warehouse"),
-                where("code", "==", rackCode),
+                where("name", "==", rackName),
+                where("location", "==", rackLocation),
                 limit(1)
             );
 

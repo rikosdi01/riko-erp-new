@@ -1,11 +1,11 @@
 import RackWarehouseRepository from "../../../../../../repository/warehouse/RackWarehouseRepository";
-import EntityRacks from "../../components/entity_racks/EntityRacks";
-import './AddRacks.css'
+import EntityWarehouse from "../../components/entity_warehouse/EntityWarehouse";
+import './AddWarehouse.css'
 
-const AddRacks = () => {
+const AddWarehouse = () => {
     return (
         <div>
-            <EntityRacks
+            <EntityWarehouse
                 mode={'create'}
                 onSubmit={async (data, reset) => {
                     await RackWarehouseRepository.createRacks(data);
@@ -16,4 +16,4 @@ const AddRacks = () => {
     )
 }
 
-export default AddRacks;
+export default AddWarehouse;
