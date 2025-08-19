@@ -15,7 +15,18 @@ const ListProducts = () => {
             accessor: "stock",
             renderCell: (_, item) => {
                 const stock = item.stock ?? {};
-                const totalStock = Object.values(stock).reduce((sum, val) => sum + val, 0);
+
+                // ambil semua angka stok dari nested object
+                const totalStock = Object.values(stock).reduce((sum, val) => {
+                    if (typeof val === "number") {
+                        // kalau ternyata langsung angka (old data model)
+                        return sum + val;
+                    } else if (typeof val === "object" && val !== null) {
+                        // kalau nested object (new data model)
+                        return sum + Object.values(val).reduce((s, v) => s + v, 0);
+                    }
+                    return sum;
+                }, 0);
 
                 const sets = Array.isArray(item?.set) ? item.set : [];
                 const unit = sets.find((s) => s?.set)?.set ?? "";

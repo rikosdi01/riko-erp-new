@@ -1,4 +1,4 @@
-import { Activity, AlignHorizontalJustifyCenter, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, Store, Truck, User, UserCog, Users, UsersRound, Warehouse } from "lucide-react";
+import { Activity, AlignHorizontalJustifyCenter, Backpack, BadgeCheckIcon, ClipboardEdit, Computer, FilePlus2, HandHelping, LayoutDashboard, LayoutGrid, ListOrdered, Locate, Map, NotebookPen, Package, PackageMinus, PiggyBank, Receipt, SendToBack, Settings, Ship, ShoppingBasket, ShoppingCart, Store, Truck, User, UserCog, Users, Users2, UsersRound, Warehouse } from "lucide-react";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import { useUsers } from "../../context/auth/UsersContext";
 import roleAccess from "../../utils/helper/roleAccess";
@@ -50,6 +50,14 @@ const SidebarPages = () => {
         { type: "divider" },
         { text: "Pelanggan", to: "/sales/customers", icon: <Store size={20} />, permission: "melihat-data-pelanggan" },
         // { text: "Sales", to: "/sales/salesman", icon: <UsersRound size={20} />, permission: "melihat-data-sales" },
+    ]);
+
+    const purchasingSubItems = filterSubItems([
+        { text: "Dashboard", to: "/purchase/purchasing-dashboard", icon: <Activity size={20} />, permission: "melihat-dashboard-pembelian" },
+        { text: "Pembelian Barang", to: "/purchasing/purchase-request", icon: <ShoppingBasket size={20} />, permission: "melihat-data-pembelian-barang" },
+        { text: "Penerimaan Barang", to: "/purchasing/purchase-order", icon: <HandHelping size={20} />, permission: "melihat-data-penerimaan-barang" },
+        { type: "divider" },
+        { text: "Supplier", to: "/purchasing/supplier", icon: <Users2 size={20} />, permission: "melihat-data-supplier" },
     ]);
 
     const inventorySubItems = filterSubItems([
@@ -132,6 +140,16 @@ const SidebarPages = () => {
                     subItems={salesSubItems}
                 />
             )}
+
+            {purchasingSubItems.length > 0 && (
+                <SidebarItem
+                    icon={<ShoppingCart size={20} />}
+                    text="Pembelian"
+                    to="/purchasing"
+                    subItems={purchasingSubItems}
+                />
+            )}
+
 
             {inventorySubItems.length > 0 && (
                 <SidebarItem

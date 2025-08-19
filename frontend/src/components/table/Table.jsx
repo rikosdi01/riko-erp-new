@@ -17,6 +17,7 @@ import ItemsRepository from "../../repository/warehouse/ItemsRepository";
 import SalesOrderRepository from "../../repository/sales/SalesOrderRepository";
 import TransferRepository from "../../repository/warehouse/TransferRepository";
 import uploadFileAndGetURL from "../../utils/helper/uploadImage";
+import Dropdown from "../select/Dropdown";
 
 const DEFAULT_TIMER_SECONDS = 24 * 60 * 60;
 
@@ -68,6 +69,7 @@ const Table = ({
     const [transferProof, setTransferProof] = useState(null);
     const [confirmDeleteLastItem, setConfirmDeleteLastItem] = useState(null);
 
+    const [paymentType, setPaymentType] = useState('Transfer');
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [unitQtyMap, setUnitQtyMap] = useState({}); // simpan jumlah per satuan
@@ -89,6 +91,11 @@ const Table = ({
         }
         return 0;
     });
+
+    const paymentOptions = [
+        { id: 'Transfer', name: 'Transfer' },
+        { id: 'Hutang', name: 'Hutang' }
+    ]
 
     const handleDeleteFromQtyMapWithCheck = (id) => {
         const itemsCount = Object.values(qtyMap).filter(entry => entry.totalQty > 0).length;
@@ -275,9 +282,25 @@ const Table = ({
     }
 
     const getTotalStock = (stockObj) => {
-        if (!stockObj || typeof stockObj !== 'object') return 0;
-        return Object.values(stockObj).reduce((sum, val) => sum + val, 0);
+        if (!stockObj || typeof stockObj !== "object") return 0;
+
+        return Object.values(stockObj).reduce((sum, cityStock) => {
+            if (typeof cityStock === "object") {
+                // kalau value masih object (punya banyak kode item)
+                return (
+                    sum +
+                    Object.values(cityStock).reduce(
+                        (citySum, val) => citySum + (Number(val) || 0),
+                        0
+                    )
+                );
+            } else {
+                // fallback kalau ada yg masih angka langsung
+                return sum + (Number(cityStock) || 0);
+            }
+        }, 0);
     };
+
 
     useEffect(() => {
         const fetchRack = async () => {
@@ -332,6 +355,7 @@ const Table = ({
                 code: newCode,
                 customer: loginUser,
                 description,
+                paymentType,
                 isPrint: false,
                 express: selectedShipping,
                 status: "menunggu pembayaran",
@@ -999,6 +1023,20 @@ const Table = ({
                                     </div>
                                 </div>
                             </div>
+
+                            {loginUser && loginUser.canDebt && (
+                                <div style={{ display: 'flex', justifyContent: 'end', alignItems: 'center', gap: '10px' }}>
+                                    <label style={{ fontWeight: 500 }}>
+                                        Pilih Pembayaran:
+                                    </label>
+                                    <Dropdown
+                                        marginBottom="0"
+                                        values={paymentOptions}
+                                        selectedId={paymentType}
+                                        setSelectedId={setPaymentType}
+                                    />
+                                </div>
+                            )}
 
                             <div className="order-description">
                                 <label>Catatan Tambahan:</label>

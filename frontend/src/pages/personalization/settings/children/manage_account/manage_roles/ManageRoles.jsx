@@ -74,6 +74,44 @@ const ManageRoles = () => {
             ],
         },
         {
+            section: "Pembelian",
+            data: [
+                {
+                    title: 'Dashboard Pembelian',
+                    items: [
+                        "Melihat dashboard Pembelian"
+                    ],
+                },
+                {
+                    title: 'Pembelian Barang',
+                    items: [
+                        "Melihat data Pembelian Barang",
+                        "Menambah data Pembelian Barang",
+                        "Mengedit data Pembelian Barang",
+                        "Menghapus data Pembelian Barang",
+                    ]
+                },
+                {
+                    title: 'Peneriman Barang',
+                    items: [
+                        "Melihat data Penerimaan Barang",
+                        "Menambah data Penerimaan Barang",
+                        "Mengedit data Penerimaan Barang",
+                        "Menghapus data Penerimaan Barang",
+                    ]
+                },
+                {
+                    title: 'Supplier',
+                    items: [
+                        "Melihat data Supplier",
+                        "Menambah data Supplier",
+                        "Mengedit data Supplier",
+                        "Menghapus data Supplier",
+                    ]
+                },
+            ],
+        },
+        {
             section: "Warehouse",
             data: [
                 {
