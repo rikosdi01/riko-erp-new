@@ -54,10 +54,10 @@ const SidebarPages = () => {
 
     const purchasingSubItems = filterSubItems([
         { text: "Dashboard", to: "/purchase/purchasing-dashboard", icon: <Activity size={20} />, permission: "melihat-dashboard-pembelian" },
-        { text: "Pembelian Barang", to: "/purchasing/purchase-request", icon: <ShoppingBasket size={20} />, permission: "melihat-data-pembelian-barang" },
-        { text: "Penerimaan Barang", to: "/purchasing/purchase-order", icon: <HandHelping size={20} />, permission: "melihat-data-penerimaan-barang" },
+        { text: "Pembelian Barang", to: "/purchase/purchase-request", icon: <ShoppingBasket size={20} />, permission: "melihat-data-pembelian-barang" },
+        { text: "Penerimaan Barang", to: "/purchase/purchase-order", icon: <HandHelping size={20} />, permission: "melihat-data-penerimaan-barang" },
         { type: "divider" },
-        { text: "Supplier", to: "/purchasing/supplier", icon: <Users2 size={20} />, permission: "melihat-data-supplier" },
+        { text: "Supplier", to: "/purchase/supplier", icon: <Users2 size={20} />, permission: "melihat-data-supplier" },
     ]);
 
     const inventorySubItems = filterSubItems([

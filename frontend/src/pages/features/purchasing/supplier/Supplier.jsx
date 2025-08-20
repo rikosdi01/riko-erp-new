@@ -1,13 +1,13 @@
-import { ALGOLIA_INDEX_PO, ALGOLIA_INDEX_PR, clientPO, clientPR } from '../../../../../config/algoliaConfig';
+import { ALGOLIA_INDEX_PO, ALGOLIA_INDEX_PR, ALGOLIA_INDEX_SUPPLIER, clientPO, clientPR, clientSupplier } from '../../../../../config/algoliaConfig';
 import CustomAlgoliaContainer from '../../../../components/customize/custom_algolia_container/CustomAlgoliaContainer';
-import './PurchaseOrder.css';
+import './Supplier.css';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from '../../../../context/auth/UsersContext';
 import roleAccess from '../../../../utils/helper/roleAccess';
 import Formatting from '../../../../utils/format/Formatting';
 import PurchaseOrderRepository from '../../../../repository/purchasing/PurchaseOrderRepository';
 
-const PurchaseOrder = () => {
+const Supplier = () => {
     // Hooks
     const navigate = useNavigate();
     const { loginUser, accessList } = useUsers();
@@ -19,17 +19,14 @@ const PurchaseOrder = () => {
     // Variables
     // Columns for the table
     const columns = [
-        { header: "Kode Penerimaan", accessor: "code" },
+        { header: "Nama Penerimaan", accessor: "name" },
+        { header: "Phone", accessor: "phone" },
+        { header: "Email", accessor: "email" },
+        { header: "Negara", accessor: "state" },
         {
-            header: "Tanggal",
-            accessor: "createdAt",
-            renderCell: (value) => Formatting.formatDateByTimestamp(value)
-        },
-        { header: "Deskripsi", accessor: "description" },
-        { 
-            header: "Lokasi",
-            accessor: "location",
-            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+            header: "Status",
+            accessor: "isActive",
+            renderCell: (value) => value ? 'Aktif' : 'Tidak Aktif'
         },
     ]
 
@@ -39,27 +36,23 @@ const PurchaseOrder = () => {
     // Navigation
     // Navigation to Create
     const navigateToCreateAdjustment = () => {
-        navigate('/inventory/adjustment/new');
+        navigate('/purchase/supplier/new');
     }
-
-    const filters = loginUser?.location ? `location: ${loginUser.location}` : '';
 
     return (
         <CustomAlgoliaContainer
-            pageLabel="Penerimaan Barang"
-            searchClient={clientPO}
-            indexName={ALGOLIA_INDEX_PO}
+            pageLabel="Supplier"
+            searchClient={clientSupplier}
+            indexName={ALGOLIA_INDEX_SUPPLIER}
             columns={columns}
             createOnclick={navigateToCreateAdjustment}
             subscribeFn={PurchaseOrderRepository.subscribeToPOChanges}
             enableExport={false}
             enableImport={false}
-            filters={filters}
-            enableDateRange={true}
             canEdit={roleAccess(accessList, 'mengedit-data-pembelian-barang')}
             canAdd={roleAccess(accessList, 'menambah-data-pembelian-barang')}
         />
     )
 }
 
-export default PurchaseOrder;
+export default Supplier;

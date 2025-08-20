@@ -94,6 +94,12 @@ import Footer from "./components/footer/Footer";
 import Warehouse from "./pages/features/warehouse/warehouse/Warehouse";
 import AddWarehouse from "./pages/features/warehouse/warehouse/children/add_warehouse/AddWarehouse";
 import DetailWarehouse from "./pages/features/warehouse/warehouse/children/detail_warehouse/DetailWarehouse";
+import PurchasingDashboard from "./pages/features/purchasing/purchasing_dashboard/PurchasingDashboard";
+import PurchaseRequest from "./pages/features/purchasing/purchase_request/PurchaseRequest";
+import PurchaseOrder from "./pages/features/purchasing/purchase_order/PurchaseOrder";
+import Supplier from "./pages/features/purchasing/supplier/Supplier";
+import AddSupplier from "./pages/features/purchasing/supplier/children/add_supplier/AddSupplier";
+import DetailSupplier from "./pages/features/purchasing/supplier/children/detail_supplier/DetailSupplier";
 
 function AppContent() {
   const { loginUser } = useUsers();
@@ -184,6 +190,25 @@ function AppContent() {
             <Route path="/logistic/express/new" element={<ProtectedRoute><AddExpress /></ProtectedRoute>} />
             <Route path="/logistic/express/:id" element={<ProtectedRoute><DetailExpress /></ProtectedRoute>} />
 
+
+            {/* Purchasing */}
+            {/* Purchasing Dashboard */}
+            <Route path="/purchase/purchasing-dashboard" element={<ProtectedRoute><PurchasingDashboard /></ProtectedRoute>} />
+
+            {/* Purchasing Request */}
+            <Route path="/purchase/purchase-request" element={<ProtectedRoute><PurchaseRequest /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-request/new" element={<ProtectedRoute><PurchaseRequest /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-request/:id" element={<ProtectedRoute><PurchaseRequest /></ProtectedRoute>} />
+
+            {/* Purchasing Order */}
+            <Route path="/purchase/purchase-order" element={<ProtectedRoute><PurchaseOrder /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-order/new" element={<ProtectedRoute><PurchaseOrder /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-order/:id" element={<ProtectedRoute><PurchaseOrder /></ProtectedRoute>} />
+
+            {/* Supplier */}
+            <Route path="/purchase/supplier" element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
+            <Route path="/purchase/supplier/new" element={<ProtectedRoute><AddSupplier /></ProtectedRoute>} />
+            <Route path="/purchase/supplier/:id" element={<ProtectedRoute><DetailSupplier /></ProtectedRoute>} />
 
 
             {/* Warehouse */}

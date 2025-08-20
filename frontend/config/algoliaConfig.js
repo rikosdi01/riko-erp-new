@@ -96,6 +96,29 @@ const clientExpress = algoliasearch(ALGOLIA_APP_ID_EXPRESS, ALGOLIA_SEARCH_KEY_E
 const expressIndex = clientExpress.initIndex(ALGOLIA_INDEX_EXPRESS);
 
 
+// Purchasing
+const ALGOLIA_APP_ID_PO = import.meta.env.VITE_APP_ALGOLIA_APP_ID_PO;
+const ALGOLIA_SEARCH_KEY_PO = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_PO;
+const ALGOLIA_INDEX_PO = import.meta.env.VITE_APP_ALGOLIA_INDEX_PO;
+
+const ALGOLIA_APP_ID_PR = import.meta.env.VITE_APP_ALGOLIA_APP_ID_PR;
+const ALGOLIA_SEARCH_KEY_PR = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_PR;
+const ALGOLIA_INDEX_PR = import.meta.env.VITE_APP_ALGOLIA_INDEX_PR;
+
+const ALGOLIA_APP_ID_SUPPLIER = import.meta.env.VITE_APP_ALGOLIA_APP_ID_SUPPLIER;
+const ALGOLIA_SEARCH_KEY_SUPPLIER = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_SUPPLIER;
+const ALGOLIA_INDEX_SUPPLIER = import.meta.env.VITE_APP_ALGOLIA_INDEX_SUPPLIER;
+
+const clientPO = algoliasearch(ALGOLIA_APP_ID_PO, ALGOLIA_SEARCH_KEY_PO);
+const clientPR = algoliasearch(ALGOLIA_APP_ID_PR, ALGOLIA_SEARCH_KEY_PR);
+const clientSupplier = algoliasearch(ALGOLIA_APP_ID_SUPPLIER, ALGOLIA_SEARCH_KEY_SUPPLIER);
+
+// Initialize indices for Sales
+const POIndex = clientPO.initIndex(ALGOLIA_INDEX_PO);
+const PRIndex = clientPR.initIndex(ALGOLIA_INDEX_PR);
+const supplierIndex = clientSupplier.initIndex(ALGOLIA_INDEX_SUPPLIER);
+
+
 // Users
 const ALGOLIA_APP_ID_USERS = import.meta.env.VITE_APP_ALGOLIA_APP_ID_USERS;
 const ALGOLIA_SEARCH_KEY_USERS = import.meta.env.VITE_APP_ALGOLIA_SEARCH_KEY_USERS;
@@ -141,7 +164,21 @@ export {
     ALGOLIA_INDEX_DO,
     ALGOLIA_INDEX_IO,
 
+
+    // Logistic
     expressIndex,
     clientExpress,
-    ALGOLIA_INDEX_EXPRESS
+    ALGOLIA_INDEX_EXPRESS,
+
+
+    // Purchasing
+    POIndex,
+    PRIndex,
+    supplierIndex,
+    clientPO,
+    clientPR,
+    clientSupplier,
+    ALGOLIA_INDEX_PO,
+    ALGOLIA_INDEX_PR,
+    ALGOLIA_INDEX_SUPPLIER,
 };
