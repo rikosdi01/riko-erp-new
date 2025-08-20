@@ -100,6 +100,10 @@ import PurchaseOrder from "./pages/features/purchasing/purchase_order/PurchaseOr
 import Supplier from "./pages/features/purchasing/supplier/Supplier";
 import AddSupplier from "./pages/features/purchasing/supplier/children/add_supplier/AddSupplier";
 import DetailSupplier from "./pages/features/purchasing/supplier/children/detail_supplier/DetailSupplier";
+import AddPR from "./pages/features/purchasing/purchase_request/children/add_pr/AddPR";
+import DetailPR from "./pages/features/purchasing/purchase_request/children/detail_pr/DetailPR";
+import AddPO from "./pages/features/purchasing/purchase_order/children/add_po/AddPO";
+import DetailPO from "./pages/features/purchasing/purchase_order/children/detail_po/DetailPO";
 
 function AppContent() {
   const { loginUser } = useUsers();
@@ -197,13 +201,13 @@ function AppContent() {
 
             {/* Purchasing Request */}
             <Route path="/purchase/purchase-request" element={<ProtectedRoute><PurchaseRequest /></ProtectedRoute>} />
-            <Route path="/purchase/purchase-request/new" element={<ProtectedRoute><PurchaseRequest /></ProtectedRoute>} />
-            <Route path="/purchase/purchase-request/:id" element={<ProtectedRoute><PurchaseRequest /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-request/new" element={<ProtectedRoute><AddPR /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-request/:id" element={<ProtectedRoute><DetailPR /></ProtectedRoute>} />
 
             {/* Purchasing Order */}
             <Route path="/purchase/purchase-order" element={<ProtectedRoute><PurchaseOrder /></ProtectedRoute>} />
-            <Route path="/purchase/purchase-order/new" element={<ProtectedRoute><PurchaseOrder /></ProtectedRoute>} />
-            <Route path="/purchase/purchase-order/:id" element={<ProtectedRoute><PurchaseOrder /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-order/new" element={<ProtectedRoute><AddPO /></ProtectedRoute>} />
+            <Route path="/purchase/purchase-order/:id" element={<ProtectedRoute><DetailPO /></ProtectedRoute>} />
 
             {/* Supplier */}
             <Route path="/purchase/supplier" element={<ProtectedRoute><Supplier /></ProtectedRoute>} />

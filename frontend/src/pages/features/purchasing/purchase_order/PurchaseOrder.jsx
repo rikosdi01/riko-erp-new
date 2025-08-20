@@ -39,7 +39,7 @@ const PurchaseOrder = () => {
     // Navigation
     // Navigation to Create
     const navigateToCreateAdjustment = () => {
-        navigate('/inventory/adjustment/new');
+        navigate('/purchase/purchase-order/new');
     }
 
     const filters = loginUser?.location ? `location: ${loginUser.location}` : '';

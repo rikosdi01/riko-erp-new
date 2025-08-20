@@ -1,0 +1,47 @@
+/* Container utama untuk semua total */
+.purchase-totals {
+    display: flex;
+    flex-wrap: wrap; /* Agar bisa turun ke baris baru di layar kecil */
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-top: 25px;
+    padding: 15px 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Styling untuk setiap total item (misal: Total Item, Total Biaya) */
+.total-item,
+.total-cost,
+.total-discount,
+.total-payment {
+    display: flex;
+    flex-direction: column;
+    font-size: 1em;
+    font-weight: 500;
+    color: #666;
+    line-height: 1.5;
+}
+
+.total-value {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Penyesuaian khusus untuk diskon */
+.total-discount .total-value {
+    color: #dc3545; /* Merah untuk diskon */
+}
+
+/* Penyesuaian khusus untuk total pembayaran (Total Pembayaran) */
+.total-payment {
+    flex-grow: 1; /* Mengambil sisa ruang */
+    text-align: right; /* Rata kanan */
+}
+
+.total-payment .total-value {
+    font-size: 1.6em;
+    color: #28a745; /* Hijau untuk total akhir */
+    padding-top: 5px;
+}

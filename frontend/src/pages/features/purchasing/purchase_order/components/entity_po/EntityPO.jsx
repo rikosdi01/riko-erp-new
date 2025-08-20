@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import ActionButton from '../../../../../../components/button/actionbutton/ActionButton';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InputLabel from '../../../../../../components/input/input_label/InputLabel';
-import './EntityPR.css';
-import { Computer, Sheet, KeyRound, ClipboardPen, Users2, AlignHorizontalJustifyCenter, BadgeDollarSign, PercentCircle } from "lucide-react";
+import './EntityPO.css';
+import { Computer, Sheet, KeyRound, ClipboardPen, Users2, AlignHorizontalJustifyCenter, BadgeDollarSign } from "lucide-react";
 import { useToast } from '../../../../../../context/ToastContext';
 import { Timestamp } from 'firebase/firestore';
 import Formatting from '../../../../../../utils/format/Formatting';
@@ -21,7 +21,7 @@ import AccessAlertModal from '../../../../../../components/modal/access_alert_mo
 import ContainerSearch from '../../../../../../components/container/container_search/ContainerSearch';
 import Dropdown from '../../../../../../components/select/Dropdown';
 
-const EntityPR = ({
+const EntityPO = ({
     mode,
     initialData = {},
     onSubmit,
@@ -33,22 +33,25 @@ const EntityPR = ({
     const { racks } = useRacks();
 
     const { formats } = useFormats();
-    const formatCode = formats.presets?.purchaseRequest?.code;
+    const formatCode = formats.presets?.purchaseOrder?.code;
+    const rackFormat = formats.presets?.purchaseOrder?.[`rack${loginUser?.location}`] || null;
     const yearFormat = formats.yearFormat;
     const monthFormat = formats.monthFormat;
     const uniqueFormat = formats.uniqueFormat;
 
-    const emptyData = [{ item: '', qty: '', purchasePrice: '', discount: '' }]
+    const emptyData = [{ item: '', qty: '' }]
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
     // const [stock, setStock] = useState(initialData.description || "");
+    const [warehouse, setWarehouse] = useState([]);
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [supplier, setSupplier] = useState(initialData.supplier || []);
 
     const [createdAt, setCreatedAt] = useState(initialData.createdAt || '');
     const [codeError, setCodeError] = useState("");
     const [itemError, setItemError] = useState("");
+    const [warehouseError, setWarehouseError] = useState("");
     const [supplierError, setSupplierError] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -59,6 +62,48 @@ const EntityPR = ({
         setAccessDenied(true);
     }
 
+    useEffect(() => {
+        const fetchRack = async () => {
+            let locationDefault = loginUser?.location === 'medan' ? 'DgBEKD7U3UJNyQpF31ly' : 'ysbvQlNaWJgWJLPafXCj'
+
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${locationDefault}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setSelectedWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                });
+            }
+        };
+
+        fetchRack();
+    }, [rackFormat]);
+
+    useEffect(() => {
+        const fetchRack = async () => {
+            if (!rackFormat) return;
+
+            const { hits } = await rackIndex.search('', {
+                filters: `objectID:${rackFormat}`,
+            });
+
+            if (hits.length > 0) {
+                const rack = hits[0];
+                setSelectedWarehouse({
+                    id: rack.objectID,
+                    name: rack.name,
+                    location: rack.location,
+                    category: rack.category || 'Sales', // Tambahkan kategori jika ada
+                });
+            }
+        };
+
+        fetchRack();
+    }, [rackFormat]);
 
     const handleItemChange = (index, field, value) => {
         console.log('index: ', index);
@@ -86,12 +131,6 @@ const EntityPR = ({
                 ...updatedItems[index],
                 qty: value,
             };
-        } else if (field === "discount") {
-            const raw = value.toString().replace(/[^0-9]/g, "");
-            updatedItems[index] = {
-                ...updatedItems[index],
-                discount: raw ? `${raw}%` : "",
-            };
         } else {
             updatedItems[index] = {
                 ...updatedItems[index],
@@ -118,6 +157,20 @@ const EntityPR = ({
         setItems(cleanedItems);
     };
 
+
+    useEffect(() => {
+        console.log('Racks: ', racks);
+        if (racks.length > 0) {
+            const racksDropdown = racks.map(rack => ({
+                id: rack.id,
+                name: rack.name + ' - ' + rack.location,
+                category: rack.category,
+            }));
+            setWarehouse(racksDropdown);
+            setSelectedWarehouse(initialData.warehouse?.id || racks[0]?.id || 1);
+        }
+    }, [racks]);
+
     // Hanya jalan sekali saat komponen pertama kali dimount
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) {
@@ -133,7 +186,9 @@ const EntityPR = ({
         setCode(initialData.code || "");
         setDescription(initialData.description || "");
         setItems(initialData.items || emptyData);
+        setWarehouse(racks);
         setSupplier(initialData.supplier || []);
+        setSelectedWarehouse(initialData.warehouse?.id || warehouse[0]?.id);
         setCreatedAt(initialData.createdAt
             ? Formatting.formatTimestampToISO(initialData.createdAt)
             : Formatting.formatDateForInput(new Date()));
@@ -179,6 +234,11 @@ const EntityPR = ({
             valid = false;
         }
 
+        if (!selectedWarehouse) {
+            setWarehouseError('Gudang tidak boleh kosong!');
+            valid = false;
+        }
+
         if (!supplier || supplier.length === 0) {
             setSupplierError('Supplier tidak boleh kosong!');
             valid = false;
@@ -193,22 +253,7 @@ const EntityPR = ({
         if (!valid) return setLoading(false);
 
         try {
-            const filteredItems = items
-                .filter(item => item.item && item.qty)
-                .map(item => {
-                    let discount = 0;
-                    if (typeof item.discount === "string") {
-                        discount = Number(item.discount.replace("%", "").trim()) || 0;
-                    } else {
-                        discount = Number(item.discount) || 0;
-                    }
-
-                    return {
-                        ...item,
-                        discount // simpan dalam bentuk angka (misalnya 50)
-                        // kalau mau persentase desimal (misalnya 0.5), ubah jadi: discount / 100
-                    };
-                });
+            const filteredItems = items.filter(item => item.item && item.qty);
 
             const exists = await AdjustmentRepository.checkAdjExists(
                 code.trim(),
@@ -225,6 +270,11 @@ const EntityPR = ({
                         monthFormat,
                         yearFormat
                     );
+
+                    console.log('Candidate: ', candidate);
+                    console.log('Next Candidate: ', nextCandidate);
+                    console.log('Last: ', last);
+                    console.log('Formatting Code: ', formattingCode);
 
                     const confirmed = await confirmAutoCode(candidate);
                     if (confirmed) {
@@ -247,12 +297,9 @@ const EntityPR = ({
                 code: finalCode,
                 supplier,
                 description,
+                warehouse: selectedWarehouse,
                 items: filteredItems,
-                totalItem: totalQty,
                 totalPrice: totalBiaya,
-                totalDiscount: totalDiskon,
-                totalPayment: totalPembayaran,
-                status: 'dipesan',
                 location: loginUser?.location || 'unknown',
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
@@ -289,6 +336,7 @@ const EntityPR = ({
         setDescription("");
         setItems(emptyData);
         setSupplierError('');
+        setWarehouse('');
         setCodeError("");
         setItemError("");
     }
@@ -319,6 +367,20 @@ const EntityPR = ({
         }
     };
 
+    const loadRackOptions = async (inputValue) => {
+        const searchTerm = inputValue || ""; // pastikan tetap "" jika kosong
+        const { hits } = await rackIndex.search(searchTerm, {
+            hitsPerPage: 10,
+            filters: `location: ${loginUser?.location || "Medan"}`,
+        });
+
+        return hits.map(hit => ({
+            name: hit.name,
+            id: hit.objectID || hit.id,
+            location: hit.location,
+        }));
+    };
+
     const columns = [
         { header: "Nama Supplier", accessor: "name" },
         { header: "No. Telpon", accessor: "phone" },
@@ -335,6 +397,7 @@ const EntityPR = ({
     }, 0);
 
     const totalBiaya = items.reduce((acc, curr) => {
+        // normalisasi harga ke number
         let harga = 0;
         if (typeof curr.purchasePrice === "string") {
             harga = Number(curr.purchasePrice.replace(/[^\d]/g, "")) || 0;
@@ -345,34 +408,10 @@ const EntityPR = ({
         return acc + (harga * (Number(curr.qty) || 0));
     }, 0);
 
-    const totalDiskon = items.reduce((acc, curr) => {
-        let harga = 0;
-        if (typeof curr.purchasePrice === "string") {
-            harga = Number(curr.purchasePrice.replace(/[^\d]/g, "")) || 0;
-        } else {
-            harga = Number(curr.purchasePrice) || 0;
-        }
-
-        const qty = Number(curr.qty) || 0;
-
-        // parse discount -> hilangkan '%' kalau ada
-        let discount = 0;
-        if (typeof curr.discount === "string") {
-            discount = Number(curr.discount.replace("%", "").trim()) || 0;
-        } else {
-            discount = Number(curr.discount) || 0;
-        }
-
-        const diskonItem = (harga * qty) * (discount / 100);
-
-        return acc + diskonItem;
-    }, 0);
-
-    const totalPembayaran = totalBiaya - totalDiskon;
 
     return (
         <div className="main-container">
-            <ContentHeader title={mode === "create" ? "Tambah Pembelian Barang" : "Rincian Pembelian Barang"} />
+            <ContentHeader title={mode === "create" ? "Tambah Penerimaan Barang" : "Rincian Penerimaan Barang"} />
 
             <div className='add-container-input'>
                 <div>
@@ -412,6 +451,18 @@ const EntityPR = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
+
+                <div>
+                    <Dropdown
+                        label={'Gudang'}
+                        icon={<AlignHorizontalJustifyCenter className='input-icon' />}
+                        isAlgoliaDropdown={true}
+                        values={loadRackOptions}
+                        selectedId={selectedWarehouse}
+                        setSelectedId={setSelectedWarehouse}
+                    />
+                    {warehouseError && <div className="error-message">{warehouseError}</div>}
+                </div>
 
                 <InputLabel
                     label="Tanggal"
@@ -478,36 +529,15 @@ const EntityPR = ({
                             value={item.purchasePrice}
                             onChange={(e) => handleItemChange(index, "purchasePrice", e.target.value)}
                         />
-                        <InputLabel
-                            label="Diskon (%)"
-                            icon={<PercentCircle className='input-icon' />}
-                            value={item.discount}
-                            onChange={(e) => handleItemChange(index, "discount", e.target.value)}
-                        />
                     </div>
                 ))}
                 {itemError && <div className="error-message">{itemError}</div>}
             </div>
 
             <div className="purchase-totals">
-                <div className="total-item">
-                    <span className="total-label">Total Item</span>
-                    <span className="total-value">{totalQty}</span>
-                </div>
-                <div className="total-cost">
-                    <span className="total-label">Total Biaya Item</span>
-                    <span className="total-value">{Formatting.formatCurrencyIDR(totalBiaya)}</span>
-                </div>
-                <div className="total-discount">
-                    <span className="total-label">Total Diskon</span>
-                    <span className="total-value">{Formatting.formatCurrencyIDR(totalDiskon)}</span>
-                </div>
-                <div className="total-payment">
-                    <span className="total-label">Total Pembayaran</span>
-                    <span className="total-value">{Formatting.formatCurrencyIDR(totalPembayaran)}</span>
-                </div>
+                <div className="total-item">Total Item: {totalQty}</div>
+                <div className="total-cost">Total Biaya: {Formatting.formatCurrencyIDR(totalBiaya)}</div>
             </div>
-
 
             {mode === "create" ? (
                 <div className='add-container-actions'>
@@ -559,4 +589,4 @@ const EntityPR = ({
     )
 }
 
-export default EntityPR;
+export default EntityPO;

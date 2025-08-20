@@ -1,10 +1,10 @@
 import { useParams } from 'react-router-dom';
-import './DetailPR.css'
+import './DetailPO.css'
 import { useEffect, useState } from 'react';
-import PurchaseRequestRepository from '../../../../../../repository/purchasing/PurchaseRequestRepository';
-import EntityPR from '../../components/entity_pr/EntityPR';
+import PurchaseOrderRepository from '../../../../../../repository/purchasing/PurchaseOrderRepository';
+import EntityPO from '../../components/entity_po/EntityPO';
 
-const DetailPR = () => {
+const DetailPO = () => {
     // Hooks
     const { id } = useParams();
 
@@ -15,7 +15,7 @@ const DetailPR = () => {
     useEffect(() => {
         const fetchADJDetails = async () => {
             try {
-                const transferDetails = await PurchaseRequestRepository.getPRById(id);
+                const transferDetails = await PurchaseOrderRepository.getPOById(id);
                 setTransfer(transferDetails);
             } catch (error) {
                 console.error("Error fetching transfer details: ", error);
@@ -27,15 +27,15 @@ const DetailPR = () => {
 
     return (
         <div>
-            <EntityPR
+            <EntityPO
                 mode={'detail'}
                 initialData={transfer}
                 onSubmit={async (data) => {
-                    await PurchaseRequestRepository.updatePR(id, data);
+                    await PurchaseOrderRepository.updatePO(id, data);
                 }}
             />
         </div>
     )
 }
 
-export default DetailPR;
+export default DetailPO;

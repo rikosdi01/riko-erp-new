@@ -23,7 +23,7 @@ const EntityItems = ({
     initialData = {},
     onSubmit,
 }) => {
-    const { accessList } = useUsers();
+    const { loginUser, accessList } = useUsers();
     const { showToast } = useToast();
     const navigate = useNavigate();
 
@@ -48,6 +48,7 @@ const EntityItems = ({
     const [category, setCategory] = useState(initialData.category || []);
     const [brand, setBrand] = useState(defaultBrandId);
     const [salePrice, setSalePrice] = useState(initialData.salePrice || Formatting.formatCurrencyIDR(0));
+    const [purchasePrice, setPurchasePrice] = useState(initialData.purchasePrice || Formatting.formatCurrencyIDR(0));
     const [productSet, setProductSet] = useState(() => {
         if (Array.isArray(initialData.set)) return initialData.set;
         if (typeof initialData.set === 'object' && initialData.set !== null)
@@ -107,6 +108,15 @@ const EntityItems = ({
                     typeof initialData.salePrice === "string"
                         ? parseInt(initialData.salePrice.replace(/\D/g, ""))
                         : initialData.salePrice
+                )
+                : Formatting.formatCurrencyIDR(0)
+        );
+        setPurchasePrice(
+            initialData.purchasePrice
+                ? Formatting.formatCurrencyIDR(
+                    typeof initialData.purchasePrice === "string"
+                        ? parseInt(initialData.purchasePrice.replace(/\D/g, ""))
+                        : initialData.purchasePrice
                 )
                 : Formatting.formatCurrencyIDR(0)
         );
@@ -211,6 +221,7 @@ const EntityItems = ({
                 category: filteredCategory,
                 brand: selectedBrand.name,
                 salePrice: parseInt(salePrice.replace(/\D/g, ""), 10) || 0,
+                purchasePrice: parseInt(purchasePrice.replace(/\D/g, ""), 10) || 0,
                 set: filteredItems,
                 qty: 0,
                 createdAt: createdAt,
@@ -330,6 +341,20 @@ const EntityItems = ({
                     }}
                 />
             </div>
+
+            {loginUser && (loginUser.role === 'administrator' || loginUser.role === 'purchasing') && (
+                <div className='add-container-input-attribute'>
+                    <InputLabel
+                        label="Harga Beli"
+                        icon={<BadgeDollarSign className='input-icon' />}
+                        value={purchasePrice}
+                        onChange={(e) => {
+                            const rawValue = e.target.value.replace(/\D/g, ""); // Hanya angka
+                            setPurchasePrice(rawValue ? Formatting.formatCurrencyIDR(parseInt(rawValue)) : "");
+                        }}
+                    />
+                </div>
+            )}
 
             <div className='divider' style={{ marginTop: '20px' }}></div>
             <div>

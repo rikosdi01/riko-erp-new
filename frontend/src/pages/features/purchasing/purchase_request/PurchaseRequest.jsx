@@ -21,8 +21,16 @@ const PurchaseRequest = () => {
     const columns = [
         { header: "Kode Pembelian", accessor: "code" },
         { header: "Supplier", accessor: "supplier.name" },
-        { header: "Total", accessor: "totalPrice" },
-        { header: "Status", accessor: "status" },
+        {
+            header: "Total",
+            accessor: "totalPrice",
+            renderCell: (value) => Formatting.formatCurrencyIDR(value)
+        },
+        {
+            header: "Status",
+            accessor: "status",
+            renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        },
         { header: "Deskripsi", accessor: "description" },
         {
             header: "Tanggal",

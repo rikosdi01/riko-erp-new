@@ -1,15 +1,15 @@
+import PurchaseRequestRepository from "../../../../../../repository/purchasing/PurchaseRequestRepository";
 import AdjustmentRepository from "../../../../../../repository/warehouse/AdjustmentRepository";
-import TransferRepository from "../../../../../../repository/warehouse/TransferRepository";
-import EntityAdjustment from "../../components/EntityAdjustment/EntityAdjustment";
-import './AddAdjustment.css'
+import EntityPR from "../../components/entity_pr/EntityPR";
+import './AddPR.css'
 
-const AddAdjustment = () => {
+const AddPR = () => {
     return (
         <div>
-            <EntityAdjustment
+            <EntityPR
                 mode={'create'}
                 onSubmit={async (data, reset) => {
-                    await AdjustmentRepository.createAdj(data);
+                    await PurchaseRequestRepository.createPR(data);
                     reset();
                 }}
             />
@@ -17,4 +17,4 @@ const AddAdjustment = () => {
     )
 }
 
-export default AddAdjustment;
+export default AddPR;

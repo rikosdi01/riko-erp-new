@@ -47,6 +47,7 @@ const Table = ({
     const [itemsPerPage, setItemsPerPage] = useState(8);
 
     const safeData = Array.isArray(data) ? data : [];
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentData = isAlgoliaTable ? data : safeData.slice(startIndex, startIndex + itemsPerPage);
     const [hoveredIndex, setHoveredIndex] = useState(-1);

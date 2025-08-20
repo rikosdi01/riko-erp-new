@@ -163,6 +163,36 @@ const FormatSettings = () => {
 
                     <div className='settings-format-sub-header-container'>
                         <div className='settings-format-sub-header'>
+                            - Pembelian
+                        </div>
+                        <FormatSettingsField
+                            defaultValue={presets?.purchaseRequest?.code || ''}
+                            title={'Pembelian Barang'}
+                            year={year}
+                            month={month}
+                            unique={unique}
+                            yearFormat={yearFormat}
+                            monthFormat={monthFormat}
+                            uniqueFormat={uniqueFormat}
+                            onChange={(val) => updatePrefix("purchaseRequest", "code", val)}
+                        />
+
+                        <FormatSettingsField
+                            defaultValue={presets?.purchaseOrder?.code || ''}
+                            title={'Penerimaan Barang'}
+                            year={year}
+                            month={month}
+                            unique={unique}
+                            yearFormat={yearFormat}
+                            monthFormat={monthFormat}
+                            uniqueFormat={uniqueFormat}
+                            onChange={(val) => updatePrefix("purchaseOrder", "code", val)}
+                        />
+                    </div>
+
+
+                    <div className='settings-format-sub-header-container'>
+                        <div className='settings-format-sub-header'>
                             - Inventaris
                         </div>
                         <FormatSettingsField

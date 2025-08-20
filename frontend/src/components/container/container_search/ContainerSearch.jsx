@@ -42,6 +42,7 @@ const ContainerSearch = ({
             racks: item?.racks ?? [],
             set: item?.set ?? [],
             price: item?.salePrice ?? 0,
+            purchasePrice: item?.purchasePrice ?? 0,
         }),
         category: (item) => ({
             id: item?.id || item?.objectID,
@@ -61,6 +62,11 @@ const ContainerSearch = ({
             price: item?.price ?? 0,
             service: item?.service ?? '',
             set: item?.set ?? '',
+        }),
+        supplier: (item) => ({
+            id: item?.id || item?.objectID,
+            name: item?.name ?? '',
+            phone: item?.phone ?? '',
         }),
         // tambah mode lainnya di sini...
     };
