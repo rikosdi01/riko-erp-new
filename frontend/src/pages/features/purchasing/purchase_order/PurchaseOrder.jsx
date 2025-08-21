@@ -25,6 +25,11 @@ const PurchaseOrder = () => {
             accessor: "createdAt",
             renderCell: (value) => Formatting.formatDateByTimestamp(value)
         },
+        {
+            header: "Status",
+            accessor: "status",
+                        renderCell: (value) => value.charAt(0).toUpperCase() + value.slice(1)
+        },
         { header: "Deskripsi", accessor: "description" },
         { 
             header: "Lokasi",
@@ -56,8 +61,8 @@ const PurchaseOrder = () => {
             enableImport={false}
             filters={filters}
             enableDateRange={true}
-            canEdit={roleAccess(accessList, 'mengedit-data-pembelian-barang')}
-            canAdd={roleAccess(accessList, 'menambah-data-pembelian-barang')}
+            canEdit={roleAccess(accessList, 'mengedit-data-penerimaan-barang')}
+            canAdd={roleAccess(accessList, 'menambah-data-penerimaan-barang')}
         />
     )
 }

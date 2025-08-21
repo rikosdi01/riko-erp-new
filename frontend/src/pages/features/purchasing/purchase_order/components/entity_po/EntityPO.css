@@ -1,0 +1,58 @@
+/* Container utama untuk daftar perubahan */
+.changes-list-container {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+/* Judul daftar */
+.changes-list-header {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Styling untuk setiap item di daftar */
+.changes-list {
+    list-style: none; /* Menghilangkan bullet points bawaan */
+    padding: 0;
+    margin: 0;
+}
+
+.changes-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.changes-list-item:last-child {
+    border-bottom: none; /* Menghilangkan border pada item terakhir */
+}
+
+/* Styling untuk jumlah perubahan (misal: "+5" atau "-2") */
+.change-qty {
+    font-weight: 700;
+}
+
+/* Warna untuk perubahan positif (penambahan) */
+.change-qty.positive {
+    color: #28a745; /* Hijau */
+}
+
+/* Warna untuk perubahan negatif (pengurangan) */
+.change-qty.negative {
+    color: #dc3545; /* Merah */
+}
+
+/* Tambahan styling untuk nama item */
+.item-name {
+    flex-grow: 1;
+    margin-right: 15px;
+}

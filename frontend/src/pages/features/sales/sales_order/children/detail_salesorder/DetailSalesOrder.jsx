@@ -168,6 +168,21 @@ const DetailSalesOrder = () => {
                         <div className='order-detail-field'>Alamat Pelanggan: <span>{customer?.selectedAddress?.address || '-'}</span></div>
                         <div className='order-detail-field'>Kota: <span>{customer?.selectedAddress?.city || '-'}</span></div>
                         <div className='order-detail-field'>Provinsi: <span>{customer?.selectedAddress?.province || '-'}</span></div>
+                        <div className='order-detail-field'>Tipe Pembayaran: <span>{salesOrder.paymentType || 'Transfer'}</span></div>
+                        {status && status === 'mengantri' && salesOrder.paymentType === 'Hutang' && loginUser && loginUser.role === 'CSO' && (
+
+                            <div
+                                className='order-detail-payment'
+                                onClick={() => handleUpdateOrderStatus(
+                                    'diproses',
+                                    'Pesanan berhasil diproses',
+                                    'Pesanan gagal diproses',
+                                )}
+                            >
+                                Proses Pesanan
+                            </div>
+                        )}
+
                         {status && status === 'mengantri' && transferProof && transferProof.trim() && (
                             <div
                                 className='order-detail-payment'

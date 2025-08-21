@@ -18,9 +18,19 @@ const ContainerSearch = ({
     value,
     setValues,
     enableStock = false,
+    stocks = [],
+    stockSelectedId = '',
     location,
+    filters
 }) => {
+    useEffect(() => {
+        console.log('Container Search || Stocks: ', stocks);
+    }, [stocks])
+    useEffect(() => {
+        console.log('Container Search || stockSelectedId: ', stockSelectedId);
+    }, [stockSelectedId])
     const [selectedValue, setSelectedValue] = useState([]);
+    const [selectedRack, setSelectedRack] = useState(stockSelectedId || null);
 
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [openContainerSearch, setOpenContainerSearch] = useState(false);
@@ -104,7 +114,7 @@ const ContainerSearch = ({
         <div className="container-search"
             onClick={() => setOpenContainerSearch(true)}
         >
-            <label className='container-search-label'>Pilih {label}:</label>
+            <label className='container-search-label'>{label}:</label>
             <div style={{ position: 'relative' }}>
                 <input
                     type="text"
@@ -132,7 +142,10 @@ const ContainerSearch = ({
                         <ContentHeader title={label} enableBack={false} />
 
                         <InstantSearch searchClient={searchClient} indexName={indexName}>
-                            <Configure hitsPerPage={itemsPerPage} />
+                            <Configure
+                            hitsPerPage={itemsPerPage}
+                            filters={filters}
+                            />
 
                             <div>
                                 <CustomSearchBox
@@ -152,8 +165,46 @@ const ContainerSearch = ({
 
                         {enableStock && (
                             <div className="container-search-stock">
-                                <div>Stok saat ini:</div>
-                                {selectedValue?.stock?.[location] ?? 0}
+                                <div>Stok di gudang</div>
+                                <div className="container-dropdown-wrapper">
+                                    <Dropdown
+                                        values={stocks}
+                                        selectedId={selectedRack}
+                                        setSelectedId={setSelectedRack}
+                                        icon={<Search size={18} className='input-icon' />}
+                                        marginBottom={0}
+                                    />
+                                </div>
+                                <div>:</div>
+                                <div>
+                                    {
+                                        (() => {
+                                            console.log('Selected Value:', selectedValue);
+                                            console.log('stockSelectedId:', stockSelectedId);
+
+                                            const rackQty = (() => {
+                                                if (!selectedValue?.stock) return 0;
+
+                                                // cari stok berdasarkan lokasi
+                                                const locationStock = selectedValue.stock[location || "medan"];
+
+                                                if (!locationStock) return 0;
+
+                                                // ambil stok berdasarkan rack yang dipilih
+                                                return locationStock[selectedRack] ?? 0;
+                                            })();
+
+
+                                            console.log('Rack Quantity:', rackQty);
+
+                                            return (
+                                                (rackQty ?? 0) + ' ' + (Array.isArray(selectedValue?.set) && selectedValue.set.length > 0
+                                                    ? selectedValue.set[0].set
+                                                    : 'Item')
+                                            );
+                                        })()
+                                    }
+                                </div>
                             </div>
                         )}
                     </div>

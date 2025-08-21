@@ -42,7 +42,7 @@ const EntityPR = ({
     const [code, setCode] = useState(initialData.code || "");
     const [description, setDescription] = useState(initialData.description || "");
     const [items, setItems] = useState(initialData.items || emptyData);
-    // const [stock, setStock] = useState(initialData.description || "");
+    const [warehouse, setWarehouse] = useState([]);
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [supplier, setSupplier] = useState(initialData.supplier || []);
 
@@ -58,6 +58,28 @@ const EntityPR = ({
     const handleRestricedAction = () => {
         setAccessDenied(true);
     }
+
+    useEffect(() => {
+        const fetchRacks = async () => {
+            const searchTerm = ""; // default awal
+            const { hits } = await rackIndex.search(searchTerm, {
+                hitsPerPage: 10,
+                filters: `location:${loginUser?.location || "Medan"}`, // tanpa spasi di Algolia filter
+            });
+
+            const rackValues = hits.map(hit => ({
+                name: hit.name,
+                id: hit.objectID || hit.id,
+                location: hit.location,
+            }));
+
+            setWarehouse(rackValues);
+        };
+
+        if (loginUser) {
+            fetchRacks();
+        }
+    }, [loginUser]); // dijalankan ulang kalau loginUser berubah
 
 
     const handleItemChange = (index, field, value) => {
@@ -462,6 +484,8 @@ const EntityPR = ({
                             setValues={(selectedItem) => handleItemChange(index, "item", selectedItem)}
                             enableStock={true}
                             location={loginUser?.location || 'medan'}
+                            stocks={warehouse}
+                            stockSelectedId={selectedWarehouse}
                             mode="item"
                         />
                         <InputLabel

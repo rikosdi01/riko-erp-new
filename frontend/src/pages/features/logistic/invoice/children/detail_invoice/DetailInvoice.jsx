@@ -10,6 +10,8 @@ import './DetailInvoice.css';
 import ContentHeader from '../../../../../../components/content_header/ContentHeader';
 import InvoicePrintPreview from '../../components/invoice_print_preview/InvoicePrintPreview';
 import { File } from 'lucide-react';
+import uploadFileAndGetURL from '../../../../../../utils/helper/uploadImage';
+import { serverTimestamp } from 'firebase/firestore';
 
 const DetailInvoice = () => {
     const { id } = useParams();
@@ -17,9 +19,24 @@ const DetailInvoice = () => {
     const { showToast } = useToast();
     const [showPreviewModal, setShowPreviewModal] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [transferProof, setTransferProof] = useState(null);
+    const [transferProofPreview, setTransferProofPreview] = useState(null);
+    const [timerModal, setTimerModal] = useState(false);
 
     const [invoiceOrder, setInvoiceOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (transferProof) {
+            const objectUrl = URL.createObjectURL(transferProof);
+            setTransferProofPreview(objectUrl);
+
+            // Cleanup
+            return () => URL.revokeObjectURL(objectUrl);
+        } else {
+            setTransferProofPreview(null);
+        }
+    }, [transferProof]);
 
     useEffect(() => {
         console.log('Invoice Order: ', invoiceOrder);
@@ -43,6 +60,42 @@ const DetailInvoice = () => {
         };
         fetchInvoiceOrder();
     }, [id]);
+
+    const handleUpdateTransferProof = async () => {
+        if (!transferProof) {
+            showToast("gagal", "Harap upload bukti transfer");
+            return;
+        }
+
+        try {
+            const path = `bukti_transfer/${id}/${transferProof.name}`;
+            const url = await uploadFileAndGetURL(transferProof, path);
+
+            // Update field di Firestore
+            await SalesOrderRepository.updateSalesOrder(invoiceOrder?.doData?.soData?.id || invoiceOrder?.doData?.soData?.objectID, {
+                transferProof: url,
+                paymentDate: serverTimestamp(),
+            });
+
+            const updatedSO = await SalesOrderRepository.getSalesOrderById(invoiceOrder?.doData?.soData?.id || invoiceOrder?.doData?.soData?.objectID);
+
+            // Update Invoice Order dengan soData terbaru (nested di doData)
+            await InvoiceOrderRepository.updateInvoiceOrder(id, {
+                "doData.soData": updatedSO,
+            });
+
+            showToast("berhasil", "Bukti transfer berhasil diupload!");
+            setTimerModal(false);
+
+            const updatedInv = await InvoiceOrderRepository.getInvoiceOrderById(id);
+            setInvoiceOrder(updatedInv);
+
+        } catch (err) {
+            showToast("gagal", "Upload bukti transfer gagal");
+            console.error("Upload error: ", err);
+        }
+    }
+
 
     // Hitung total harga dan diskon dari items
     const calculatedTotals = invoiceOrder?.doData?.soData?.items?.reduce((acc, item) => {
@@ -79,11 +132,11 @@ const DetailInvoice = () => {
             <div className="invoice-container">
                 <ContentHeader
                     title={'Rincian Faktur Pesanan'}
-                    // enablePrint={true}
-                    // printerClick={() => {
-                    //     setShowPreviewModal(true)
-                    //     setShowPreview(true)
-                    // }}
+                // enablePrint={true}
+                // printerClick={() => {
+                //     setShowPreviewModal(true)
+                //     setShowPreview(true)
+                // }}
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
@@ -110,6 +163,7 @@ const DetailInvoice = () => {
                         <div className="info-item"><strong>Telepon:</strong><span>{invoiceOrder.doData?.soData?.customer?.phone}</span></div>
                         <div className="info-item"><strong>Alamat:</strong><span>{invoiceOrder.doData?.soData?.customer?.selectedAddress?.address}</span></div>
                         <div className="info-item"><strong>Kota / Provinsi:</strong><span>{invoiceOrder.doData?.soData?.customer?.selectedAddress?.city}, {invoiceOrder.doData?.soData?.customer?.selectedAddress?.province}</span></div>
+                        <div className="info-item"><strong>Tipe Pembayaran:</strong><span>{invoiceOrder.doData?.soData?.paymentType}</span></div>
                     </div>
                 </div>
 
@@ -176,17 +230,27 @@ const DetailInvoice = () => {
                         <div className="summary-item status-item">
                             <strong>Status Pembayaran:</strong>
                             <span className={`status-badge.selesai`}>
-                                Lunas
+                                {invoiceOrder?.doData?.soData?.transferProof ? "Lunas" : "Belum Lunas"}
                             </span>
                         </div>
                     </div>
                 </div>
 
+                {!invoiceOrder?.doData?.soData?.transferProof && (
+                    <div className="action-button-container" style={{ display: 'flex', justifyContent: 'end' }}>
+                        <ActionButton
+                            title={'Upload Bukti Transfer'}
+                            onclick={() => setTimerModal(true)}
+                            className={'action-button primary'}
+                        />
+                    </div>
+                )}
+
                 {invoiceOrder.statusPayment === 'menunggu pembayaran' && (
                     <div className="action-button-container">
                         <ActionButton
                             title={'Selesaikan Faktur'}
-                            onclick={handleFinishOrder}
+                            onclick={() => setTimerModal(true)}
                             className={'action-button primary'}
                         />
                     </div>
@@ -213,7 +277,52 @@ const DetailInvoice = () => {
                     </div>
                 )}
 
+                {timerModal && (
+                    <div className="modal-overlay" onClick={() => setTimerModal(false)}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="upload-proof">
+                                <label htmlFor="proof">Upload Bukti Transfer:</label><br />
+                                <input
+                                    type="file"
+                                    id="proof"
+                                    accept="image/*,application/pdf"
+                                    onChange={(e) => setTransferProof(e.target.files[0])}
+                                />
 
+                                {transferProof && <p className="uploaded-file">File: {transferProof.name}</p>}
+
+                                {transferProofPreview && (
+                                    <div style={{ marginTop: "10px" }}>
+                                        <img
+                                            src={transferProofPreview}
+                                            alt="Preview Bukti Transfer"
+                                            style={{
+                                                maxWidth: "200px",
+                                                maxHeight: "200px",
+                                                borderRadius: "8px",
+                                                border: "1px solid #ccc",
+                                                cursor: "pointer",
+                                                transition: "transform 0.2s ease-in-out"
+                                            }}
+                                            title="Klik untuk lihat ukuran penuh"
+                                            onClick={() => setShowFullImage(true)}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="modal-actions">
+                                <button className="btn btn-secondary" onClick={() => setTimerModal(false)}>Tutup</button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleUpdateTransferProof}
+                                >
+                                    Submit Bukti Transfer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

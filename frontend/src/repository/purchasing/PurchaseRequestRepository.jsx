@@ -83,6 +83,18 @@ export default class PurchaseRequestRepository {
         }
     }
 
+    static async updatePRStatusValue(PRId, newStatus) {
+        try {
+            const docRef = doc(db, "PurchasingRequest", PRId);
+            await updateDoc(docRef, { status: newStatus });
+            const updatedSnap = await getDoc(docRef);
+            return { id: updatedSnap.id, ...updatedSnap.data() }; // ✅ Return data
+        } catch (error) {
+            console.error("Error updating Sales Order status: ", error);
+            throw error;
+        }
+    }
+
     static async deletePR(adjId) {
         try {
             const docRef = doc(db, "PurchasingRequest", adjId);

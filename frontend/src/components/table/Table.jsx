@@ -326,7 +326,7 @@ const Table = ({
     }, [formattedSO]);
 
 
-    const handleCreateOrder = async () => {
+    const handleCreateOrder = async (isDebt) => {
         setLoading(true);
 
         try {
@@ -359,7 +359,8 @@ const Table = ({
                 paymentType,
                 isPrint: false,
                 express: selectedShipping,
-                status: "menunggu pembayaran",
+                paymentType,
+                status: isDebt ? 'mengantri' : "menunggu pembayaran",
                 items: transformedItems,
                 totalPayment: totalPrice + selectedShipping?.price || 0,
                 createdAt: SOCreatedDate, // untuk backend
@@ -383,43 +384,51 @@ const Table = ({
 
                     const itemData = await ItemsRepository.getItemsById(itemId);
                     console.log('Table || Item Data: ', itemData);
-                    const stock = itemData.stock || {};
-                    console.log('Table || Stock - 265: ', stock);
 
+                    let stock = itemData.stock || {};
                     let remainingQty = qtyNeeded;
 
-                    // Step 1: Kurangi stok dari kota pelanggan dulu
-                    let fromUserCityStock = stock[userCity] || 0;
-                    const deductFromUserCity = Math.min(fromUserCityStock, remainingQty);
-                    if (deductFromUserCity > 0) {
-                        stock[userCity] = fromUserCityStock - deductFromUserCity;
-                        remainingQty -= deductFromUserCity;
+                    // Step 1: Kurangi stok dari kota user (loop rak)
+                    if (stock[userCity]) {
+                        for (const [rackId, rackQty] of Object.entries(stock[userCity])) {
+                            if (remainingQty <= 0) break;
+
+                            const deduct = Math.min(rackQty, remainingQty);
+                            if (deduct > 0) {
+                                stock[userCity][rackId] = rackQty - deduct;
+                                remainingQty -= deduct;
+                            }
+                        }
                     }
 
-                    // Step 2: Jika masih kurang, kurangi dari cabang lain
-                    if (remainingQty > 0) {
-                        const fromOtherCityStock = stock[otherCity] || 0;
-                        const deductFromOtherCity = Math.min(fromOtherCityStock, remainingQty);
+                    // Step 2: Jika masih kurang, ambil dari kota lain (loop rak)
+                    if (remainingQty > 0 && stock[otherCity]) {
+                        for (const [rackId, rackQty] of Object.entries(stock[otherCity])) {
+                            if (remainingQty <= 0) break;
 
-                        if (deductFromOtherCity > 0) {
-                            stock[otherCity] = fromOtherCityStock - deductFromOtherCity;
-                            remainingQty -= deductFromOtherCity;
+                            const deduct = Math.min(rackQty, remainingQty);
+                            if (deduct > 0) {
+                                stock[otherCity][rackId] = rackQty - deduct;
+                                remainingQty -= deduct;
 
-                            // Simpan item ini untuk keperluan transfer
-                            transferItems.push({
-                                id: itemId,
-                                code: item.item.code,
-                                name: item.item.name,
-                                qty: deductFromOtherCity,
-                                price: item.price
-                            });
+                                // Catat ke transferItems
+                                transferItems.push({
+                                    id: itemId,
+                                    code: item.item.code,
+                                    name: item.item.name,
+                                    qty: deduct,
+                                    price: item.price,
+                                    fromRack: rackId,   // ✅ info rak asal
+                                    fromCity: otherCity
+                                });
+                            }
                         }
                     }
 
                     console.log('Table || Item ID: ', itemId);
-                    console.log('Table || Stock: ', stock);
+                    console.log('Table || Updated Stock: ', stock);
 
-                    await ItemsRepository.updateStockOrder(itemId, stock)
+                    await ItemsRepository.updateStockOrder(itemId, stock);
                 }
 
                 const itCode = newCode.replace(formatCode, formatTransfer);
@@ -446,7 +455,9 @@ const Table = ({
 
             showToast('berhasil', 'Pemesanan berhasil dilakukan!');
             resetForm();
-            handleOpenTimerModal(soID);
+            if (!isDebt) {
+                handleOpenTimerModal(soID);
+            }
             setOrderConfirmationModal(false);
             setShowOrderModal(false);
         } catch (e) {
@@ -1206,7 +1217,7 @@ const Table = ({
                                 {orderModalMode === "final" && (
                                     <button
                                         className="btn btn-primary"
-                                        onClick={handleCreateOrder}
+                                        onClick={() => handleCreateOrder(paymentType === 'Hutang' ? true : false)}
                                     >
                                         Pesan
                                     </button>

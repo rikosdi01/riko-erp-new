@@ -83,6 +83,23 @@ export default class PurchaseOrderRepository {
         }
     }
 
+
+static async updatePOStatusValue(POId, newStatus) {
+    try {
+        const docRef = doc(db, "PurchasingOrder", POId);
+
+        // ✅ pakai string literal untuk nested field
+        await updateDoc(docRef, { "purchaseRequest.status": newStatus });
+
+        const updatedSnap = await getDoc(docRef);
+        return { id: updatedSnap.id, ...updatedSnap.data() }; 
+    } catch (error) {
+        console.error("Error updating PO status: ", error);
+        throw error;
+    }
+}
+
+
     static async deletePO(adjId) {
         try {
             const docRef = doc(db, "PurchasingOrder", adjId);
